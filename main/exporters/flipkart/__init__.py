@@ -1,1 +1,1 @@
-from .exporter import MeeshoExporter
+from .exporter import FlipkartExporter
