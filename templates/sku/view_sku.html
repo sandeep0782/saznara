@@ -58,16 +58,16 @@
                         <th>Brand</th>
                         <th>Vendor</th>
                         <th>Article</th>
-                        <th>Gender</th>
+                        <!-- <th>Gender</th> -->
                         <th>Ref No</th>
                         <th>Style Code</th>
                         <th>Color</th>
-                        <th>Size</th>
+                        <!-- <th>Size</th> -->
                         <th>Pur Price</th>
                         <th>Sale Price</th>
                         <th>Mrp</th>
 
-                        <th>Blouse</th>
+                        <!-- <th>Blouse</th>
                         <th>Border</th>
                         <th>Print or Pattern Type</th>
                         <th>Saree Fabric</th>
@@ -86,7 +86,7 @@
                         <th>Occasion</th>
                         <th>Ornamentation</th>
                         <th>Pallu Details</th>
-                        <th>Pattern</th>
+                        <th>Pattern</th> -->
 
                         <th>Copy</th>
                         <th>Delete</th>
@@ -98,7 +98,7 @@
                     {% for i in sku %}
                     <tr>
 
-                        <td>{{ i.serial_number }}</td>
+                        <td>{{ forloop.counter }}</td>
 
                         <td>
                             {% if i.product_image_link_1 %}
@@ -134,19 +134,19 @@
                         <td>{{ i.brand.name|default:"" }}</td>
                         <td>{{ i.vendor.company|default:"" }}</td>
                         <td>{{ i.article_type.name|default:"" }}</td>
-                        <td>{{ i.gender.name|default:"" }}</td>
+                        <!-- <td>{{ i.gender.name|default:"" }}</td> -->
 
                         <td>{{ i.ref_no }}</td>
                         <td>{{ i.style_no }}</td>
 
                         <td>{{ i.color.color|default:"" }}</td>
-                        <td>{{ i.size|default:"" }}</td>
+                        <!-- <td>{{ i.size|default:"" }}</td> -->
 
                         <td>{{ i.purchase_price }}</td>
                         <td>{{ i.sale_price }}</td>
                         <td>{{ i.mrp }}</td>
 
-                        <td>{{ i.get_blouse_display }}</td>
+                        <!-- <td>{{ i.get_blouse_display }}</td>
                         <td>{{ i.get_border_display }}</td>
                         <td>{{ i.get_print_or_pattern_type_display }}</td>
                         <td>{{ i.get_saree_fabric_display }}</td>
@@ -155,7 +155,6 @@
 
                         <td>{{ i.blouse_length }}</td>
                         <td>{{ i.saree_length }}</td>
-
                         <td>{{ i.get_blouse_color_display }}</td>
                         <td>{{ i.get_blouse_fabric_display }}</td>
                         <td>{{ i.get_blouse_pattern_display }}</td>
@@ -165,7 +164,7 @@
                         <td>{{ i.get_occasion_display }}</td>
                         <td>{{ i.get_ornamentation_display }}</td>
                         <td>{{ i.get_pallu_details_display }}</td>
-                        <td>{{ i.get_pattern_display }}</td>
+                        <td>{{ i.get_pattern_display }}</td> -->
 
                         <td>
                             <a class="btn btn-success" href="{% url 'copy_sku' i.id %}">
