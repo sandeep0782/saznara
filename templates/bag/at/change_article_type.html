@@ -1,0 +1,54 @@
+{% extends 'base/main.html' %}
+{% block content %}
+<style>
+    .custom-card-header {
+    height: 55px; /* Adjust the height as needed */
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center content vertically */
+}
+</style>
+
+<div class="container-fluid px-4">
+    <h4 class="mt-4">Brand</h4>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="">Home</a></li>
+        <li class="breadcrumb-item active">Brand</li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header custom-card-header">
+            <i class="fas fa-table me-1"></i>
+            Add Article Type
+        </div>
+        <form action="{% if at %}/change_article_type/{{at.id}}/{% else %}/add_article_type/{% endif %}" method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-xl-6 col-md-6">
+                            <div class="form-floating mb-3">
+                                <input class="form-control" name="name" id="inputbrand" type="text" placeholder="Article TYpe" value="{{at.name}}" required/>
+                                <label for="inputbrand">Article Type</label>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-md-6">
+                            <div class="form-floating mb-3">
+                                <input class="form-control" name="abb" id="inputabb" type="text" placeholder="Article Type Abb" value="{{at.abb}}" oninput="this.value = this.value.toUpperCase()" required/>
+                                <label for="inputabb">Article Type Abb</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-12 col-md-12 d-flex justify-content-center">
+                            <button class="btn btn-primary mx-2"> {% if brand %} Update Article Type{% else %} Add Article Type {% endif %}</button>
+                            <a class="btn btn-secondary mx-2" type="reset" href="">Reset</a>
+                            <a class="btn btn-secondary mx-2" href="{% url 'view_article_type' %}">Back</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

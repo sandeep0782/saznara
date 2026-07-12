@@ -1,0 +1,53 @@
+{% extends 'base/main.html' %}
+{% block content %}
+
+<div class="container-fluid px-4">
+    <h4 class="mt-4">UOM View</h4>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="">Home</a></li>
+        <li class="breadcrumb-item active">UOM</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-table me-1"></i>
+                UOM List
+            </div>
+            <a href="{% url 'add_uom' %}" class="btn btn-primary">Add UOM</a>
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Name</th>
+                        <th>Abb</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in uom %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.name }}</td>
+                        <td>{{ i.short_name }}</td>
+                        <td>
+                            <a class="btn btn-primary" href="{% url 'change_uom' i.id %}" aria-label="Edit Gender">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="btn btn-danger" href="{% url 'delete_uom' i.id %}" aria-label="Delete Gender">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
