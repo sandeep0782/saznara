@@ -1,27 +1,29 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Sum, Max, Q, Count, Min
-from datetime import datetime, time as dtime
-from accounts.decorators import unauthenticated_user, allowed_users, admin_only
-import openpyxl
-from django.http import HttpResponse
-
+from .models import BLOUSE_CHOICES, BLOUSE_COLOR_CHOICES, BLOUSE_FABRIC_CHOICES, BLOUSE_LENGTH_SIZE_CHOICES, BLOUSE_PATTERN_CHOICES, BORDER_CHOICES, BORDER_WIDTH_CHOICES, DESIGN_PATTERN_CHOICES, LOOM_TYPE_CHOICES, OCCASION_CHOICES, ORNAMENTATION_CHOICES, PALLU_DETAILS_CHOICES, PRINT_PATTERN_TYPE_CHOICES, SAREE_FABRIC_CHOICES, SAREE_LENGTH_SIZE_CHOICES, SKU, TRANSPARENCY_CHOICES, TYPE_CHOICES, VMS
 from main.utils.mappings import FLIPKART_COLOR_MAPPING, FLIPKART_OCCASION_MAPPING, MEESHO_COLOR_MAPPING, MEESHO_OCCASION_MAPPING
-
-from .utils import *
-from .models import BLOUSE_CHOICES, BLOUSE_COLOR_CHOICES, BLOUSE_FABRIC_CHOICES, BLOUSE_LENGTH_SIZE_CHOICES, BLOUSE_PATTERN_CHOICES, BORDER_CHOICES, BORDER_WIDTH_CHOICES, DESIGN_PATTERN_CHOICES, LOOM_TYPE_CHOICES, OCCASION_CHOICES, ORNAMENTATION_CHOICES, PALLU_DETAILS_CHOICES, PRINT_PATTERN_TYPE_CHOICES, SAREE_FABRIC_CHOICES, SAREE_LENGTH_SIZE_CHOICES, SKU, TRANSPARENCY_CHOICES, TYPE_CHOICES
-from decimal import Decimal
-
+from main.forms import ATForm, BrandForm, ColorForm, GenderForm, SKUForm, SizeForm, UnitForm
+from accounts.decorators import unauthenticated_user, allowed_users, admin_only
+from main.models import SKU, Article_Type, Brand, Color, Gender, Size, Unit
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from main.exporters.flipkart.exporter import FlipkartExporter
+from django.contrib.auth.decorators import login_required
+from datetime import datetime, time as dtime, timedelta
+from django.db.models import Sum, Max, Q, Count, Min
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.http import HttpResponse
+from django.contrib import messages
+from accounts.models import Profile
 from django.db import transaction
+from decimal import Decimal
+from copy import copy
+from .utils import *
+import openpyxl
 import re
 
 
-from main.models import SKU, Article_Type, Brand, Color, Gender, Size, Unit
-from main.forms import ATForm, BrandForm, ColorForm, GenderForm, SKUForm, SizeForm, UnitForm
-from accounts.models import Profile
+
 
 
 # Create your views here.
@@ -29,7 +31,6 @@ from accounts.models import Profile
 def home(request):
 
     return render(request, 'index.html')
-
 
 @login_required
 def View__Brand(request):
@@ -99,7 +100,6 @@ def View__Article__Type(request):
     d = {'at': at, 'search_query':search_query}  # Pass the search query to the template
     return render(request, 'bag/at/view_article_type.html', d)
 
-
 @login_required
 def Change__Article__Type(request, id=None):
     at = None
@@ -127,20 +127,17 @@ def Change__Article__Type(request, id=None):
     d = { 'at': at }
     return render(request, 'bag/at/change_article_type.html', d)
 
-
 @login_required
 def Delete__Article__Type(request, id):
     at = Article_Type.objects.filter(id=id)
     at.delete()
     return redirect('view_article_type')
 
-    
 @login_required
 def View__Gender(request):
     gender = Gender.objects.all().order_by('-id')
     d = {'gender': gender}  # Pass the search query to the template
     return render(request, 'bag/gender/view_gender.html', d)
-
 
 @login_required
 def Change__Gender(request, id=None):
@@ -175,7 +172,6 @@ def Delete__Gender(request, id):
     gender.delete()
     return redirect('view_gender')
 
-
 @login_required
 def View__Size(request):
     search_query = request.GET.get('search', '').strip()
@@ -193,7 +189,6 @@ def View__Size(request):
         size = paginator.page(paginator.num_pages)
     d = {'size': size, 'search_query':search_query}  # Pass the search query to the template
     return render(request, 'bag/size/view_size.html', d)
-
 
 @login_required
 def Change__Size(request, id=None):
@@ -222,13 +217,11 @@ def Change__Size(request, id=None):
     d = { 'size': size }
     return render(request, 'bag/size/change_size.html', d)
 
-
 @login_required
 def Delete__Size(request, id):
     size = Size.objects.filter(id=id)
     size.delete()
     return redirect('view_size')
-
 
 @login_required
 def View__UOM(request):
@@ -472,12 +465,7 @@ def Delete__SKU(request, pid):
     return redirect('view_sku')
 
 
-
-from copy import copy
-from django.contrib import messages
-from django.db import transaction
-import re
-
+@login_required
 def Copy__SKU(request, pid=None):
 
     if not pid:
@@ -536,7 +524,7 @@ from decimal import Decimal
 from django.http import HttpResponse
 from .models import SKU
 
-
+@login_required
 def Meesho_Template(request, sku_list):
 
     sku_list, _ = get_filtered_skus(request)
@@ -716,10 +704,8 @@ def Meesho_Template(request, sku_list):
     return response
 
 
-import openpyxl
-from django.http import HttpResponse
-from decimal import Decimal
 
+@login_required
 def Flipkart_Template(request, sku_list):
 
     sku_list, _ = get_filtered_skus(request)
@@ -1000,10 +986,80 @@ def meesho_export_view(request):
     return exporter.export(request.user)
 
 
-from django.http import HttpResponse
-from main.exporters.flipkart.exporter import FlipkartExporter
-
-
 def flipkart_export_view(request):
     exporter = FlipkartExporter()
     return exporter.export()
+
+
+
+
+def View__VMS(request):
+    if request.method == 'GET':
+        search_query = request.GET.get('search', '').strip()
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        vms_list = VMS.objects.all().order_by('-id')
+
+        # Filter by start date
+        if start_date:
+            try:
+                parsed_start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                vms_list = vms_list.filter(created_at__gte=parsed_start_date)
+            except ValueError:
+                pass  # Ignore invalid date
+
+        # Filter by end date (inclusive of the entire day)
+        if end_date:
+            try:
+                parsed_end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+                vms_list = vms_list.filter(created_at__lt=parsed_end_date)
+            except ValueError:
+                pass
+
+        # Search filter by tracking_id
+        if search_query:
+            vms_list = vms_list.filter(Q(tracking_id__icontains=search_query))
+
+        # Pagination
+        paginator = Paginator(vms_list, 10)
+        page = request.GET.get('page', 1)
+        try:
+            vms = paginator.page(page)
+        except PageNotAnInteger:
+            vms = paginator.page(1)
+        except EmptyPage:
+            vms = paginator.page(paginator.num_pages)
+
+        context = {
+            'vms': vms,
+            'search_query': search_query,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+
+        return render(request, 'vms/view_vms.html', context)
+
+
+
+
+@csrf_exempt
+def save_video(request):
+    if request.method == 'POST':
+        tracking_id = request.POST.get('tracking_id')
+        video_file = request.FILES.get('video_file')
+        transaction_type = request.POST.get('transaction_type')
+
+        vms = VMS.objects.create(
+            tracking_id=tracking_id,
+            video_type=transaction_type,
+            video_file=video_file
+        )
+
+        return JsonResponse({'status': 'success', 'vms_id': vms.id})
+
+    return JsonResponse({'status': 'error'}, status=400)
+
+
+def record_video_page(request):
+    return render(request, 'vms/record_video.html')  # use the full path inside 'templates'

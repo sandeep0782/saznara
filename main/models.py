@@ -1,15 +1,14 @@
 import os
 
-from django.db import models
-from django.core.files import File
 from barcode.writer import ImageWriter
-from io import BytesIO
+from django.core.files import File
+from django.utils import timezone
+from datetime import timedelta
 from datetime import datetime
+from django.db import models
+from io import BytesIO
 import barcode
 import time
-
-
-
 
 
 
@@ -18,7 +17,6 @@ import time
 from django.db import models
 
 from accounts.models import Profile
-
 
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True, null=True, blank=True)
@@ -738,3 +736,28 @@ class SKU(models.Model):
             self.barcode_image.save(f'{self.ean}.png', File(buffer), save=False)
 
 
+
+class VMS(models.Model):
+    VIDEO_TYPE_CHOICES = [
+        ('forward', 'Forward'),
+        ('return', 'Return'),
+    ]
+
+    tracking_id = models.CharField(max_length=50, null=True, blank=True)  # e.g., 'purchase', 'sale', 'return'
+    video_file = models.FileField(upload_to='videos/')
+    video_type = models.CharField(max_length=20, choices=VIDEO_TYPE_CHOICES, default='forward')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Video [{self.video_type}] for {self.tracking_id}"
+    
+    @classmethod
+    def delete_old_videos(cls):
+        expiry_date = timezone.now() - timedelta(days=45)
+
+        old_videos = cls.objects.filter(created_at__lt=expiry_date)
+
+        for video in old_videos:
+            if video.video_file:
+                video.video_file.delete(save=False)
+            video.delete()

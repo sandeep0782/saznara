@@ -68,6 +68,11 @@ urlpatterns = [
     path('test_flipkart/', flipkart_export_view, name='test_flipkart'),
     path('test_meesho/', meesho_export_view, name='test_meesho'),
 
+    path('save_video/', save_video, name='save_video'),
+    path('record/', record_video_page, name='record_video'),
+    path('view_vms/', View__VMS, name='view_vms'),
+
+
 
 
 ]
