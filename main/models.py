@@ -751,9 +751,14 @@ class VMS(models.Model):
     def __str__(self):
         return f"Video [{self.video_type}] for {self.tracking_id}"
     
+    def delete(self, *args, **kwargs):
+        if self.video_file:
+            self.video_file.delete(save=False)
+        super().delete(*args, **kwargs)
+
     @classmethod
     def delete_old_videos(cls):
-        expiry_date = timezone.now() - timedelta(days=45)
+        expiry_date = timezone.now() - timedelta(days=0)
 
         old_videos = cls.objects.filter(created_at__lt=expiry_date)
 

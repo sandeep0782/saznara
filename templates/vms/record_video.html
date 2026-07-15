@@ -184,7 +184,7 @@
         formData.append('transaction_type', transactionType);
         formData.append('video_file', blob, filename);
 
-        fetch('/main/save_video/', {
+        fetch('/save_video/', {
             method: 'POST',
             body: formData
         })
