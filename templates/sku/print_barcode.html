@@ -1,0 +1,102 @@
+
+
+    <style>
+        @media print {
+            @page {
+                size: 7.62cm 5.08cm; /* 3 inch wide, 2 inch tall */
+                margin: 0;
+            }
+
+            body {
+                margin: 0;
+                background-color: white;
+            }
+
+            .price-sticker {
+                width: 7.62cm;
+                height: 4.48cm; /* 5.08cm total page height - 0.3cm top + bottom padding */
+                padding: 0.3cm;
+                box-sizing: border-box;
+                font-size: 11px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+                page-break-inside: avoid;
+            }
+
+            .barcode {
+                text-align: center;
+                width: 100%;
+            }
+
+            .barcode img {
+                width: 100%;
+                height: auto;
+                max-height: 3cm;
+            }
+
+            button {
+                display: none; /* Hide buttons during print */
+                
+            }
+        }
+
+        /* On-screen styling */
+        .price-sticker {
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            margin: 20px auto;
+        }
+
+        .barcode img {
+            width: 100%;
+            height: auto;
+        }
+
+        .action-buttons {
+
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            margin-top: 20px;
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 200px;
+            align-items: center;
+        }
+
+        .action-buttons button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="action-buttons">
+        <button onclick="window.history.back()">Back</button>
+        <button onclick="window.print()">Print</button>
+    </div>
+
+
+    <div class="price-sticker">
+        <div class="barcode">
+            {% if sku.barcode_image %}
+                <img src="{{ sku.barcode_image.url }}" alt="Barcode" />
+            {% else %}
+                <p>No barcode available.</p>
+            {% endif %}
+        </div>
+        <div>
+            <p>{{ sku.name }}</p>
+        </div>
+    </div>
+</body>
+

@@ -60,10 +60,8 @@ urlpatterns = [
     path('delete_uom/<int:id>/', Delete__UOM, name='delete_uom'),
     path('copy-sku/<int:pid>/', Copy__SKU, name='copy_sku'),
 
-
     path('meesho/', Meesho_Template, name='meesho'),
     path('flipkart/', Flipkart_Template, name='flipkart'),
-
 
     path('test_flipkart/', flipkart_export_view, name='test_flipkart'),
     path('test_meesho/', meesho_export_view, name='test_meesho'),
@@ -72,7 +70,6 @@ urlpatterns = [
     path('record/', record_video_page, name='record_video'),
     path('view_vms/', View__VMS, name='view_vms'),
 
-
-
-
+    path('print_sku/<int:pid>/', Print__SKU, name='print_sku'),
+    path('print_barcode/<int:pid>/', Print__Barcode, name='print_barcode'),
 ]

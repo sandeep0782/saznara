@@ -1063,3 +1063,26 @@ def save_video(request):
 
 def record_video_page(request):
     return render(request, 'vms/record_video.html')  # use the full path inside 'templates'
+
+
+@login_required
+def Print__SKU(request, pid):
+    sku = SKU.objects.get(id=pid)  # Fetch the SKU object
+    if len(sku.sku) < 18:
+        messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
+        return redirect('view_sku')
+    
+    if sku.brand.name == "SUHA":
+        return render(request, 'sku/print_suha.html', {'sku': sku})
+    elif sku.brand.name == "NYRIKA" or sku.brand.name == "INDIE PICKS" or sku.brand.name == "FYREROSE" or sku.brand.name == "BUDA JEANS" or sku.brand.name == "SVARAA":
+        return render(request, 'sku/print_ajio.html', {'sku': sku})
+    else:
+        return render(request, 'sku/print_myntra.html', {'sku': sku})
+        
+@login_required
+def Print__Barcode(request, pid):
+    sku = SKU.objects.get(id=pid)  # Fetch the SKU object
+    if len(sku.sku) < 18:
+        messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
+        return redirect('view_sku')
+    return render(request, 'sku/print_barcode.html', {'sku': sku})
