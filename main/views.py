@@ -1314,6 +1314,55 @@ def View__VMS(request):
 
         return render(request, 'vms/view_vms.html', context)
 
+
+def Delete__VMS(request):
+    if request.method == 'GET':
+        search_query = request.GET.get('search', '').strip()
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+
+        vms_list = VMS.objects.all().order_by('-id')
+
+        # Filter by start date
+        if start_date:
+            try:
+                parsed_start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                vms_list = vms_list.filter(created_at__gte=parsed_start_date)
+            except ValueError:
+                pass  # Ignore invalid date
+
+        # Filter by end date (inclusive of the entire day)
+        if end_date:
+            try:
+                parsed_end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+                vms_list = vms_list.filter(created_at__lt=parsed_end_date)
+            except ValueError:
+                pass
+
+        # Search filter by tracking_id
+        if search_query:
+            vms_list = vms_list.filter(Q(tracking_id__icontains=search_query))
+
+        # Pagination
+        paginator = Paginator(vms_list, 10)
+        page = request.GET.get('page', 1)
+        try:
+            vms = paginator.page(page)
+        except PageNotAnInteger:
+            vms = paginator.page(1)
+        except EmptyPage:
+            vms = paginator.page(paginator.num_pages)
+
+        context = {
+            'vms': vms,
+            'search_query': search_query,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+
+        return render(request, 'vms/view_vms.html', context)
+
+
 @csrf_exempt
 def save_video(request):
     if request.method == 'POST':
