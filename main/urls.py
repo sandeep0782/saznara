@@ -62,9 +62,7 @@ urlpatterns = [
 
     path('meesho/', Meesho_Template, name='meesho'),
     path('flipkart/', Flipkart_Template, name='flipkart'),
-
-    path('test_flipkart/', flipkart_export_view, name='test_flipkart'),
-    path('test_meesho/', meesho_export_view, name='test_meesho'),
+    path('snapdeal/', Snapdeal_Template, name='snapdeal'),
 
     path('save_video/', save_video, name='save_video'),
     path('record/', record_video_page, name='record_video'),

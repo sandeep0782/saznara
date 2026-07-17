@@ -40,6 +40,7 @@
                         <a href="?search={{ search_query }}&export=meesho" class="btn btn-warning">Meesho</a>
                         <!-- <a href="{% url 'flipkart' %}" class="btn btn-success">Flipkart</a> -->
                         <a href="?search={{ search_query }}&export=flipkart" class="btn btn-success">Flipkart</a>
+                        <a href="?search={{ search_query }}&export=snapdeal" class="btn btn-secondary">Snapdeal</a>
                     </div>
                 </div>
 
@@ -89,8 +90,12 @@
                         <th>Pattern</th> -->
 
                         <th>Copy</th>
+                        {% if request.user.is_staff or request.user.is_superuser or user.profile.user_role == 2 %}
                         <th>Delete</th>
+                        {% endif %}
                         <th>Edit</th>
+                        <th>Barcode</th>
+                        <th>Barcode</th>
                     </tr>
                 </thead>
 
@@ -170,6 +175,7 @@
                                 <i class="fas fa-copy"></i>
                             </a>
                         </td>
+                        {% if request.user.is_staff or request.user.is_superuser or user.profile.user_role == 2 %}
 
                         <td>
                             <a class="btn btn-danger"
@@ -178,7 +184,11 @@
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
-
+                        {% endif %}
+                        <td>
+                            <a class="btn btn-primary" href="{% url 'change_sku' i.id %}"><i
+                                    class="fas fa-edit"></i></a>
+                        </td>
             
                         <td>
                             <a class="btn btn-warning" href="{% url 'print_sku' i.id %}"><i

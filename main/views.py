@@ -1,10 +1,9 @@
 from .models import BLOUSE_CHOICES, BLOUSE_COLOR_CHOICES, BLOUSE_FABRIC_CHOICES, BLOUSE_LENGTH_SIZE_CHOICES, BLOUSE_PATTERN_CHOICES, BORDER_CHOICES, BORDER_WIDTH_CHOICES, DESIGN_PATTERN_CHOICES, LOOM_TYPE_CHOICES, OCCASION_CHOICES, ORNAMENTATION_CHOICES, PALLU_DETAILS_CHOICES, PRINT_PATTERN_TYPE_CHOICES, SAREE_FABRIC_CHOICES, SAREE_LENGTH_SIZE_CHOICES, SKU, TRANSPARENCY_CHOICES, TYPE_CHOICES, VMS
-from main.utils.mappings import FLIPKART_COLOR_MAPPING, FLIPKART_OCCASION_MAPPING, MEESHO_COLOR_MAPPING, MEESHO_OCCASION_MAPPING
+from main.utils.mappings import FLIPKART_COLOR_MAPPING, FLIPKART_OCCASION_MAPPING, MEESHO_COLOR_MAPPING, MEESHO_OCCASION_MAPPING, SNAPDEAL_COLOR_MAPPING, SNAPDEAL_SET_CONTENTS_MAPPING
 from main.forms import ATForm, BrandForm, ColorForm, GenderForm, SKUForm, SizeForm, UnitForm
 from accounts.decorators import unauthenticated_user, allowed_users, admin_only
 from main.models import SKU, Article_Type, Brand, Color, Gender, Size, Unit
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from main.exporters.flipkart.exporter import FlipkartExporter
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, time as dtime, timedelta
 from django.db.models import Sum, Max, Q, Count, Min
@@ -375,6 +374,9 @@ def View__SKU(request):
 
     if export == "flipkart":
         return Flipkart_Template(request, sku_list)
+    
+    if export == "snapdeal":
+        return Snapdeal_Template(request, sku_list)
 
     # 🔹 PAGINATION (ONLY FOR NORMAL VIEW)
     paginator = Paginator(sku_list, 10)
@@ -391,7 +393,6 @@ def View__SKU(request):
         'sku': sku,
         'search_query': search_query
     })
-
 
 @login_required
 def Change__SKU(request, pid=None):
@@ -464,6 +465,28 @@ def Delete__SKU(request, pid):
     sku.delete()
     return redirect('view_sku')
 
+@login_required
+def Print__SKU(request, pid):
+    sku = SKU.objects.get(id=pid)  # Fetch the SKU object
+    if len(sku.sku) < 18:
+        messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
+        return redirect('view_sku')
+    
+    if sku.brand.name == "SUHA":
+        return render(request, 'sku/print_suha.html', {'sku': sku})
+    elif sku.brand.name == "NYRIKA" or sku.brand.name == "INDIE PICKS" or sku.brand.name == "FYREROSE" or sku.brand.name == "BUDA JEANS" or sku.brand.name == "SVARAA":
+        return render(request, 'sku/print_ajio.html', {'sku': sku})
+    else:
+        return render(request, 'sku/print_myntra.html', {'sku': sku})
+        
+@login_required
+def Print__Barcode(request, pid):
+    sku = SKU.objects.get(id=pid)  # Fetch the SKU object
+    if len(sku.sku) < 18:
+        messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
+        return redirect('view_sku')
+    return render(request, 'sku/print_barcode.html', {'sku': sku})
+
 
 @login_required
 def Copy__SKU(request, pid=None):
@@ -519,14 +542,9 @@ def Copy__SKU(request, pid=None):
     )
 
     return redirect("view_sku")
-import openpyxl
-from decimal import Decimal
-from django.http import HttpResponse
-from .models import SKU
 
 @login_required
 def Meesho_Template(request, sku_list):
-
     sku_list, _ = get_filtered_skus(request)
 
     wb = openpyxl.Workbook()
@@ -702,8 +720,6 @@ def Meesho_Template(request, sku_list):
 
     wb.save(response)
     return response
-
-
 
 @login_required
 def Flipkart_Template(request, sku_list):
@@ -977,21 +993,279 @@ def Flipkart_Template(request, sku_list):
     wb.save(response)
     return response
 
+@login_required
+def Snapdeal_Template(request, sku_list):
+    sku_list, _ = get_filtered_skus(request)
 
-from django.http import HttpResponse
-from main.exporters.meesho.exporter import MeeshoExporter
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Snapdeal Saree Template"
 
-def meesho_export_view(request):
-    exporter = MeeshoExporter()
-    return exporter.export(request.user)
+    # =========================================================
+    # SNAPDEAL HEADERS
+    # =========================================================
+    headers = [
+        "Offer Group Name",
+        "SKU Code",
+        "Brand",
+        "Product Name",
+        "Color",
+        "Fabric",
+        "Set Contents",
+        "Type",
+        "Manufacturer's Name & Address",
+        "Saree Length(in metre)",
+        "Blouse Piece Length (in meter)",
+        "Country of Origin or Manufacture or Assembly",
+        "Packer's Name & Address",
+        "Net Contents",
+        "Pattern",
+        "Pack",
+        "Saree Type",
+        "Style Code/Name",
+        "MRP",
+        "Selling Price",
+        "Inventory",
+        "Shipping Time in Days",
+        "Height (cm)",
+        "Width (cm)",
+        "Length (cm)",
+        "Weight (g)",
+        "Image 1",
+        "Image 2",
+        "Image 3",
+        "Image 4",
+        "Image 5",
+        "Image 6",
+        "Image 7",
+        "Image 8",
+        "Image 9",
+        "Image 10",
+        "Image 11",
+        "Image 12",
+        "Description",
+        "EAN",
+        "UPC",
+        "Blouse Fabric",
+        "Blouse Color",
+        "Border Specific",
+        "Saree width(in metre)",
+        "Product Weight (in kg)",
+        "Common or Generic Name of the commodity",
+        "Importer's Name & Address",
+        "Marketer's Name & Address",
+        "Blouse Pattern",
+        "Pattern or Print Type",
+        "Shop By Occasion",
+        "Brand Color",
+        "Generic Keywords",
+    ]
 
+    ws.append(headers)
 
-def flipkart_export_view(request):
-    exporter = FlipkartExporter()
-    return exporter.export()
+    # =========================================================
+    # ROWS
+    # =========================================================
+    for sku in sku_list:
 
+        vendor_address = ""
 
+        if sku.vendor:
+            vendor_address = (
+                f"{sku.vendor.company}, {sku.vendor.address}"
+            )
 
+        color = ""
+        if sku.color:
+            color = SNAPDEAL_COLOR_MAPPING.get(
+                sku.color.color,
+                sku.color.color
+            )
+
+        blouse_color = ""
+        if sku.get_blouse_color_display:
+            blouse_color = MEESHO_COLOR_MAPPING.get(
+                sku.get_blouse_color_display(),
+                sku.get_blouse_color_display()
+            )
+
+        occasion = ""
+        if sku.occasion:
+            occasion = MEESHO_OCCASION_MAPPING.get(
+                sku.get_occasion_display(),
+                sku.get_occasion_display()
+            )
+
+        ws.append([
+
+            # Offer Group Name
+            "",
+
+            # SKU Code
+            sku.sku or "",
+
+            # Brand
+            sku.brand.name if sku.brand else "",
+
+            # Product Name
+            sku.style_description or "",
+
+            # Color
+            color,
+
+            # Fabric
+            sku.get_saree_fabric_display()
+            if sku.saree_fabric else "",
+
+            # Set Contents
+            SNAPDEAL_SET_CONTENTS_MAPPING.get(
+            sku.blouse,
+            "Without Blouse Piece"
+            ),
+
+            # Type
+            sku.get_type_display()
+            if sku.type else "",
+
+            # Manufacturer Name & Address
+            vendor_address,
+
+            # Saree Length
+            float(sku.saree_length or 5.5),
+
+            # Blouse Length
+            float(sku.blouse_length or 0.8),
+
+            # Country
+            "India",
+
+            # Packer
+            vendor_address,
+
+            # Net Contents
+            "1",
+
+            # Pattern
+            sku.get_pattern_display()
+            if sku.pattern else "",
+
+            # Pack
+            "1",
+
+            # Saree Type
+            sku.article_type.name
+            if sku.article_type else "",
+
+            # Style Code/Name
+            sku.sku or sku.style_description or "",
+
+            # MRP
+            sku.mrp or "",
+
+            # Selling Price
+            sku.sale_price or "",
+
+            # Inventory
+            100,
+
+            # Shipping Time
+            "",
+
+            # Height
+            "",
+
+            # Width
+            "",
+
+            # Length
+            "",
+
+            # Weight grams
+            400,
+
+            # Images
+            sku.product_image_link_1 or "",
+            sku.product_image_link_2 or "",
+            sku.product_image_link_3 or "",
+            sku.product_image_link_4 or "",
+
+            # Image 5-12 blank
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+
+            # Description
+            sku.style_description or "",
+
+            # EAN
+            "",
+
+            # UPC
+            "",
+
+            # Blouse Fabric
+            sku.get_blouse_fabric_display()
+            if sku.blouse_fabric else "",
+
+            # Blouse Color
+            blouse_color,
+
+            # Border Specific
+            sku.get_border_display()
+            if sku.border else "",
+
+            # Saree width
+            "",
+
+            # Product Weight kg
+            0.4,
+
+            # Generic Name
+            "Saree",
+
+            # Importer
+            "",
+
+            # Marketer
+            vendor_address,
+
+            # Blouse Pattern
+            sku.get_blouse_pattern_display()
+            if sku.blouse_pattern else "",
+
+            # Pattern or Print Type
+            sku.get_print_or_pattern_type_display()
+            if sku.print_or_pattern_type else "",
+
+            # Occasion
+            occasion,
+
+            # Brand Color
+            color,
+
+            # Generic Keywords
+            "",
+        ])
+
+    # =========================================================
+    # RESPONSE
+    # =========================================================
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response["Content-Disposition"] = (
+        'attachment; filename="snapdeal_saree_template.xlsx"'
+    )
+
+    wb.save(response)
+
+    return response
 
 def View__VMS(request):
     if request.method == 'GET':
@@ -1040,9 +1314,6 @@ def View__VMS(request):
 
         return render(request, 'vms/view_vms.html', context)
 
-
-
-
 @csrf_exempt
 def save_video(request):
     if request.method == 'POST':
@@ -1065,24 +1336,3 @@ def record_video_page(request):
     return render(request, 'vms/record_video.html')  # use the full path inside 'templates'
 
 
-@login_required
-def Print__SKU(request, pid):
-    sku = SKU.objects.get(id=pid)  # Fetch the SKU object
-    if len(sku.sku) < 18:
-        messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
-        return redirect('view_sku')
-    
-    if sku.brand.name == "SUHA":
-        return render(request, 'sku/print_suha.html', {'sku': sku})
-    elif sku.brand.name == "NYRIKA" or sku.brand.name == "INDIE PICKS" or sku.brand.name == "FYREROSE" or sku.brand.name == "BUDA JEANS" or sku.brand.name == "SVARAA":
-        return render(request, 'sku/print_ajio.html', {'sku': sku})
-    else:
-        return render(request, 'sku/print_myntra.html', {'sku': sku})
-        
-@login_required
-def Print__Barcode(request, pid):
-    sku = SKU.objects.get(id=pid)  # Fetch the SKU object
-    if len(sku.sku) < 18:
-        messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
-        return redirect('view_sku')
-    return render(request, 'sku/print_barcode.html', {'sku': sku})

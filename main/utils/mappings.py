@@ -129,3 +129,70 @@ MEESHO_COLOR_MAPPING = {
     "Light Green": "Mehendi",
     "Magenta": "Pink",
 }
+
+SNAPDEAL_COLOR_MAPPING = {
+    "Aqua Blue": "Aqua Blue",
+    "Beige": "Beige",
+    "Black": "Black",
+    "Blue": "Blue",
+    "Brown": "Brown",
+    "Coral": "Coral",
+    "Cream": "Cream",
+    "Gold": "Gold",
+    "Green": "Green",
+    "Grey": "Grey",
+    "Grey Melange": "Grey Melange",
+    "Khaki": "Khaki",
+    "Lavender": "Lavender",
+    "Maroon": "Maroon",
+    "Multicolor": "Multicolor",
+    "Mustard": "Mustard",
+    "Navy Blue": "Navy Blue",
+    "Nude": "Nude",
+    "Olive": "Olive",
+    "Orange": "Orange",
+    "Peach": "Peach",
+    "Pink": "Pink",
+    "Purple": "Purple",
+    "Red": "Red",
+    "Rust": "Rust",
+    "Silver": "Silver",
+    "Teal": "Teal",
+    "White": "White",
+    "Yellow": "Yellow",
+
+    # Meesho values not available exactly in Snapdeal
+    "Dark Blue": "Navy Blue",
+    "Dark Green": "Green",
+    "Mehendi": "Olive",
+    "Metallic": "Silver",
+
+    # Additional Snapdeal supported normalization
+    "Burgundy": "Maroon",
+    "Wine": "Wine",
+    "Coffee": "Coffee",
+    "Coffee Brown": "Coffee Brown",
+    "Charcoal": "Charcoal",
+    "Mauve": "Mauve",
+    "Mint Green": "Mint Green",
+    "Sea Green": "Sea Green",
+    "Sky Blue": "Sky Blue",
+    "Fuchsia": "Fuchsia",
+    "Rama": "Rama",
+    "Rani": "Rani",
+    "Rose Gold": "Rose Gold",
+    "Off White": "Off White",
+    "Indigo": "Indigo",
+    "Lime Green": "Lime Green",
+}
+
+SNAPDEAL_SET_CONTENTS_MAPPING = {
+    "running_blouse": "With Unstitched Blouse Piece",
+    "saree_with_multiple_blouse": "With Unstitched Blouse Piece",
+    "semi_stitched_blouse": "With Unstitched Blouse Piece",
+    "separate_blouse_piece": "With Unstitched Blouse Piece",
+
+    "stitched_blouse": "With Stitched Blouse",
+
+    "without_blouse": "Without Blouse Piece",
+}
