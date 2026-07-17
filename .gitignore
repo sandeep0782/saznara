@@ -1,11 +1,69 @@
+# ==========================
+# Environment
+# ==========================
 .env
+.env.*
+!.env.example
+
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# ==========================
+# Django
+# ==========================
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Migrations (optional)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# ==========================
+# Logs
+# ==========================
+*.log
+
+# ==========================
+# Node
+# ==========================
 node_modules/
 dist/
 build/
-__pycache__/
-*.log
+
+# ==========================
+# IDE
+# ==========================
+.vscode/
+.idea/
+*.swp
+
+# ==========================
+# OS Files
+# ==========================
 .DS_Store
+Thumbs.db
 
-staticfiles/
+# ==========================
+# Testing
+# ==========================
+.coverage
+.pytest_cache/
+htmlcov/
 
-venv/
+# ==========================
+# Packaging
+# ==========================
+*.egg-info/
+.eggs/

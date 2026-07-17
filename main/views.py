@@ -9,6 +9,7 @@ from datetime import datetime, time as dtime, timedelta
 from django.db.models import Sum, Max, Q, Count, Min
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
+from openpyxl.styles import PatternFill, Alignment
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -20,7 +21,6 @@ from copy import copy
 from .utils import *
 import openpyxl
 import re
-
 
 
 
@@ -377,6 +377,9 @@ def View__SKU(request):
     
     if export == "snapdeal":
         return Snapdeal_Template(request, sku_list)
+    
+    if export == "myntra":
+        return Myntra_Template(request, sku_list)
 
     # 🔹 PAGINATION (ONLY FOR NORMAL VIEW)
     paginator = Paginator(sku_list, 10)
@@ -1266,6 +1269,261 @@ def Snapdeal_Template(request, sku_list):
     wb.save(response)
 
     return response
+
+
+@login_required
+def Myntra_Template(request, sku_list):
+    sku_list, _ = get_filtered_skus(request)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Sarees"
+
+    # ======================================================
+    # TOP HEADERS
+    # ======================================================
+
+    ws.merge_cells("A1:J1")
+    ws["A1"] = "Version-8"
+    ws["A1"].alignment = Alignment(horizontal="left")
+
+    yellow = PatternFill(fill_type="solid", start_color="FFFF99", end_color="FFFF99")
+    pink = PatternFill(fill_type="solid", start_color="E53888", end_color="E53888")
+    green = PatternFill(fill_type="solid", start_color="7ED4AD", end_color="7ED4AD")
+    orange = PatternFill(fill_type="solid", start_color="EB5B00", end_color="EB5B00")
+
+    ws.merge_cells("A2:AE2")
+    ws["A2"] = "Business (Information required for Style Creation/Legal Compliance/Order Tracking)"
+    ws["A2"].fill = yellow
+
+    ws.merge_cells("AF2:BK2")
+    ws["AF2"] = "Discoverability - Attributes required for Product Description and Cataloguing"
+    ws["AF2"].fill = pink
+
+    ws.merge_cells("BL2:BP2")
+    ws["BL2"] = "Sizing - Mandatory Measurements"
+    ws["BL2"].fill = green
+
+    ws.merge_cells("BQ2:BW2")
+    ws["BQ2"] = "Images"
+    ws["BQ2"].fill = orange
+
+    headers = [
+        "styleId",
+        "styleGroupId",
+        "vendorSkuCode",
+        "vendorArticleNumber",
+        "vendorArticleName",
+        "brand",
+        "Manufacturer Name and Address with Pincode",
+        "Packer Name and Address with Pincode",
+        "Importer Name and Address with Pincode",
+        "Country Of Origin",
+        "Country Of Origin2",
+        "Country Of Origin3",
+        "Country Of Origin4",
+        "Country Of Origin5",
+        "articleType",
+        "Brand Size",
+        "Standard Size",
+        "is Standard Size present on Label",
+        "Brand Colour (Remarks)",
+        "GTIN",
+        "HSN",
+        "SKUCode",
+        "MRP",
+        "AgeGroup",
+        "Prominent Colour",
+        "Second Prominent Colour",
+        "Third Prominent Colour",
+        "FashionType",
+        "Usage",
+        "Year",
+        "season",
+        "Product Details",
+        "styleNote",
+        "materialCareDescription",
+        "sizeAndFitDescription",
+        "productDisplayName",
+        "tags",
+        "addedDate",
+        "Color Variant GroupId",
+        "Type",
+        "Saree Fabric",
+        "Blouse Fabric",
+        "Blouse",
+        "Pattern",
+        "Print or Pattern Type",
+        "Ornamentation",
+        "Border",
+        "Occasion",
+        "Wash Care",
+        "Trends",
+        "Sustainable",
+        "Main Trend",
+        "Multipack Set",
+        "Net Quantity Unit",
+        "Theme",
+        "Stitch",
+        "Care for me",
+        "Where-to-wear",
+        "Style Tip",
+        "BIS Expiry Date",
+        "BIS Certificate Image URL",
+        "BIS Certificate Number",
+        "Net Quantity",
+        "Bust ( Inches )",
+        "Hip ( Inches )",
+        "Outseam Length ( Inches )",
+        "To Fit Waist ( Inches )",
+        "Waist ( Inches )",
+        "Front Image",
+        "Side Image",
+        "Back Image",
+        "Detail Angle",
+        "Look Shot Image",
+        "Additional Image 1",
+        "Additional Image 2",
+    ]
+
+    ws.append(headers)
+
+    # ======================================================
+    # STYLE GROUP
+    # ======================================================
+
+    sku_list = sku_list.order_by("van")
+
+    previous_van = None
+    style_group_id = 0
+
+    for sku in sku_list:
+
+        if previous_van != sku.van:
+            style_group_id += 1
+            previous_van = sku.van
+
+        manufacturer = ""
+        if sku.vendor:
+            manufacturer = (
+                f"{sku.vendor.company}, "
+                f"{sku.vendor.address}, "
+                f"{sku.vendor.pin}"
+            )
+
+        ws.append([
+
+            sku.old_sku or "",
+            style_group_id,
+            sku.sku or "",
+            sku.van or "",
+            sku.style_description or "",
+
+            sku.brand.name if sku.brand else "",
+
+            manufacturer,
+            manufacturer,
+            "",
+
+            "India",
+            "",
+            "",
+            "",
+            "",
+
+            sku.article_type.name.title() if sku.article_type else "",
+
+            sku.size.size if sku.size else "FREE SIZE",
+            sku.size.size.replace(" ", "").title() if sku.size else "FREESIZE",
+
+            "Yes",
+
+            sku.color.color if sku.color else "",
+
+            "",
+
+            sku.hsn or "",
+            "",
+
+            sku.mrp or "",
+
+            "Adults-Women",
+
+            sku.color.color if sku.color else "",
+            "",
+            "",
+
+            "Fashion",
+            "Ethnic",
+
+            "",
+            "Spring",
+
+            sku.style_description or "",
+            sku.style_description or "",
+
+            "Dry Clean",
+
+            "",
+            sku.style_description or "",
+
+            "",
+            "",
+
+            "",
+
+            sku.get_type_display() if sku.type else "",
+            sku.get_saree_fabric_display() if sku.saree_fabric else "",
+            sku.get_blouse_fabric_display() if sku.blouse_fabric else "",
+            sku.get_blouse_display() if sku.blouse else "",
+            sku.get_pattern_display() if sku.pattern else "",
+            sku.get_print_or_pattern_type_display() if sku.print_or_pattern_type else "",
+            sku.get_ornamentation_display() if sku.ornamentation else "",
+            sku.get_border_display() if sku.border else "",
+            sku.get_occasion_display() if sku.occasion else "",
+
+            "Dry Clean",
+
+            "",
+            "",
+            "",
+
+            "NA",
+
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+
+            "1",
+
+            "", "", "", "", "",
+
+            sku.product_image_link_1 or "",
+            sku.product_image_link_2 or "",
+            sku.product_image_link_3 or "",
+            sku.product_image_link_4 or "",
+            "",
+            "",
+            "",
+        ])
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response["Content-Disposition"] = (
+        'attachment; filename="Myntra Listing Template.xlsx"'
+    )
+
+    wb.save(response)
+
+    return response
+
 
 def View__VMS(request):
     if request.method == 'GET':
