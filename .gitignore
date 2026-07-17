@@ -66,4 +66,4 @@ htmlcov/
 # Packaging
 # ==========================
 *.egg-info/
-.eggs/
+.eggs/mbdb/db.sqlite3
