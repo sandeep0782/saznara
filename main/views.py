@@ -1296,17 +1296,17 @@ def Myntra_Template(request, sku_list):
     ws["A2"] = "Business (Information required for Style Creation/Legal Compliance/Order Tracking)"
     ws["A2"].fill = yellow
 
-    ws.merge_cells("AF2:BK2")
+    ws.merge_cells("AF2:BL2")
     ws["AF2"] = "Discoverability - Attributes required for Product Description and Cataloguing"
     ws["AF2"].fill = pink
 
-    ws.merge_cells("BL2:BP2")
-    ws["BL2"] = "Sizing - Mandatory Measurements"
-    ws["BL2"].fill = green
+    ws.merge_cells("BM2:BQ2")
+    ws["BM2"] = "Sizing - Mandatory Measurements"
+    ws["BM2"].fill = green
 
-    ws.merge_cells("BQ2:BW2")
-    ws["BQ2"] = "Images"
-    ws["BQ2"].fill = orange
+    ws.merge_cells("BR2:BX2")
+    ws["BR2"] = "Images"
+    ws["BR2"].fill = orange
 
     headers = [
         "styleId",
@@ -1434,8 +1434,8 @@ def Myntra_Template(request, sku_list):
 
             sku.article_type.name.title() if sku.article_type else "",
 
-            "OneSize" if sku.size and sku.size.size == "Free Size" else (sku.size.size if sku.size else "FREE SIZE"),
-            "OneSize" if sku.size and sku.size.size == "Free Size" else (sku.size.size if sku.size else "FREE SIZE"),
+            "One Size" if sku.size and sku.size.size == "Free Size" else (sku.size.size if sku.size else "FREE SIZE"),
+            "Onesize" if sku.size and sku.size.size == "Free Size" else (sku.size.size if sku.size else "FREE SIZE"),
 
             "Yes",
 
@@ -1447,7 +1447,7 @@ def Myntra_Template(request, sku_list):
             "",
 
             sku.mrp or "",
-            "",
+            sku.sale_price or "",
             "Adults-Women",
 
             sku.color.color if sku.color else "",
@@ -1493,6 +1493,7 @@ def Myntra_Template(request, sku_list):
 
             "NA",
 
+            "Piece",
             "",
             "",
             "",
@@ -1504,7 +1505,7 @@ def Myntra_Template(request, sku_list):
 
             "1",
 
-            "", "", "", "", "",
+             "", "", "", "",
 
             sku.product_image_link_1 or "",
             sku.product_image_link_2 or "",
