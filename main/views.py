@@ -1332,6 +1332,7 @@ def Myntra_Template(request, sku_list):
         "HSN",
         "SKUCode",
         "MRP",
+        "ISP",
         "AgeGroup",
         "Prominent Colour",
         "Second Prominent Colour",
@@ -1433,8 +1434,8 @@ def Myntra_Template(request, sku_list):
 
             sku.article_type.name.title() if sku.article_type else "",
 
-            sku.size.size if sku.size else "FREE SIZE",
-            sku.size.size.replace(" ", "").title() if sku.size else "FREESIZE",
+            "OneSize" if sku.size and sku.size.size == "Free Size" else (sku.size.size if sku.size else "FREE SIZE"),
+            "OneSize" if sku.size and sku.size.size == "Free Size" else (sku.size.size if sku.size else "FREE SIZE"),
 
             "Yes",
 
@@ -1442,11 +1443,11 @@ def Myntra_Template(request, sku_list):
 
             "",
 
-            sku.hsn or "",
+            sku.hsn or "5407",
             "",
 
             sku.mrp or "",
-
+            "",
             "Adults-Women",
 
             sku.color.color if sku.color else "",
@@ -1456,13 +1457,15 @@ def Myntra_Template(request, sku_list):
             "Fashion",
             "Ethnic",
 
-            "",
+            datetime.now().year if sku.style_description else "",
+
             "Spring",
 
             sku.style_description or "",
             sku.style_description or "",
-
-            "Dry Clean",
+            
+            # content
+            "",
 
             "",
             sku.style_description or "",
