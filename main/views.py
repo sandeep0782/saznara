@@ -1,6 +1,4 @@
-from .models import BLOUSE_CHOICES, BLOUSE_COLOR_CHOICES, BLOUSE_FABRIC_CHOICES, BLOUSE_LENGTH_SIZE_CHOICES, BLOUSE_PATTERN_CHOICES, BORDER_CHOICES, BORDER_WIDTH_CHOICES, DESIGN_PATTERN_CHOICES, LOOM_TYPE_CHOICES, OCCASION_CHOICES, ORNAMENTATION_CHOICES, PALLU_DETAILS_CHOICES, PRINT_PATTERN_TYPE_CHOICES, SAREE_FABRIC_CHOICES, SAREE_LENGTH_SIZE_CHOICES, SKU, TRANSPARENCY_CHOICES, TYPE_CHOICES, VMS
-from main.utils.mappings import FLIPKART_COLOR_MAPPING, FLIPKART_OCCASION_MAPPING, MEESHO_COLOR_MAPPING, MEESHO_OCCASION_MAPPING, SNAPDEAL_COLOR_MAPPING, SNAPDEAL_SET_CONTENTS_MAPPING
-from main.forms import ATForm, BrandForm, ColorForm, GenderForm, SKUForm, SizeForm, UnitForm
+
 from accounts.decorators import unauthenticated_user, allowed_users, admin_only
 from main.models import SKU, Article_Type, Brand, Color, Gender, Size, Unit
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -13,12 +11,17 @@ from openpyxl.styles import PatternFill, Alignment
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.http import HttpResponse
+from main.template.mappings import *
 from django.contrib import messages
 from accounts.models import Profile
 from django.db import transaction
 from decimal import Decimal
 from copy import copy
-from .utils import *
+
+from main.marketplaces.myntra.validator import validate_myntra_colors, validate_myntra_template
+from main.marketplaces.myntra.mappings import get_myntra_blouse, get_myntra_blouse_fabric, get_myntra_border, get_myntra_color, get_myntra_occasion, get_myntra_ornamentation, get_myntra_pattern, get_myntra_print_or_pattern_type, get_myntra_saree_fabric, get_myntra_technique
+from .models import *
+from main.forms import *
 import openpyxl
 import re
 
@@ -228,7 +231,6 @@ def View__UOM(request):
     d = {'uom': uom}  # Pass the search query to the template
     return render(request, 'bag/uom/view_uom.html', d)
 
-
 @login_required
 def Change__UOM(request, id=None):
     uom = None
@@ -256,13 +258,11 @@ def Change__UOM(request, id=None):
     d = { 'uom': uom }
     return render(request, 'bag/uom/change_uom.html', d)
 
-
 @login_required
 def Delete__UOM(request, id):
     uom = Unit.objects.filter(id=id)
     uom.delete()
     return redirect('view_uom')
-
 
 @login_required
 def View__Color(request):
@@ -281,7 +281,6 @@ def View__Color(request):
         color = paginator.page(paginator.num_pages)
     d = {'color': color, 'search_query':search_query}  # Pass the search query to the template
     return render(request, 'bag/color/view_color.html', d)
-
 
 @login_required
 def Change__Color(request, id=None):
@@ -310,13 +309,13 @@ def Change__Color(request, id=None):
     d = { 'color': color }
     return render(request, 'bag/color/change_color.html', d)
 
-
 @login_required
 def Delete__Color(request, id):
     c = Color.objects.filter(id=id)
     c.delete()
     return redirect('view_color')
 
+@login_required
 def get_filtered_skus(request):
     search_query = request.GET.get('search', '').strip()
 
@@ -340,7 +339,6 @@ def get_filtered_skus(request):
 
     return sku_list, search_query
     
-
 @login_required(login_url='login')
 def View__SKU(request):
 
@@ -489,7 +487,6 @@ def Print__Barcode(request, pid):
         messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
         return redirect('view_sku')
     return render(request, 'sku/print_barcode.html', {'sku': sku})
-
 
 @login_required
 def Copy__SKU(request, pid=None):
@@ -1270,10 +1267,20 @@ def Snapdeal_Template(request, sku_list):
 
     return response
 
-
 @login_required
 def Myntra_Template(request, sku_list):
     sku_list, _ = get_filtered_skus(request)
+
+    validation_errors = validate_myntra_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "myntra/validation_error.html",
+            {
+                "validation_errors": validation_errors
+            }
+        )
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -1284,29 +1291,29 @@ def Myntra_Template(request, sku_list):
     # ======================================================
 
     ws.merge_cells("A1:J1")
-    ws["A1"] = "Version-8"
+    ws["A1"] = "Version : 13"
     ws["A1"].alignment = Alignment(horizontal="left")
 
     yellow = PatternFill(fill_type="solid", start_color="FFFF99", end_color="FFFF99")
     pink = PatternFill(fill_type="solid", start_color="E53888", end_color="E53888")
-    green = PatternFill(fill_type="solid", start_color="7ED4AD", end_color="7ED4AD")
+    green = PatternFill(fill_type="solid", start_color="00FF00", end_color="00FF00")
     orange = PatternFill(fill_type="solid", start_color="EB5B00", end_color="EB5B00")
 
-    ws.merge_cells("A2:AE2")
+    ws.merge_cells("A2:AG2")
     ws["A2"] = "Business (Information required for Style Creation/Legal Compliance/Order Tracking)"
-    ws["A2"].fill = yellow
+    ws["A2"].fill = green
 
-    ws.merge_cells("AF2:BL2")
-    ws["AF2"] = "Discoverability - Attributes required for Product Description and Cataloguing"
-    ws["AF2"].fill = pink
+    ws.merge_cells("AH2:BP2")
+    ws["AH2"] = "Discoverability - Attributes required for Product Description and Cataloguing"
+    ws["AH2"].fill = pink
 
-    ws.merge_cells("BM2:BQ2")
-    ws["BM2"] = "Sizing - Mandatory Measurements"
-    ws["BM2"].fill = green
+    ws.merge_cells("BQ2:BU2")
+    ws["BQ2"] = "Sizing - Mandatory Measurements"
+    ws["BQ2"].fill = green
 
-    ws.merge_cells("BR2:BX2")
-    ws["BR2"] = "Images"
-    ws["BR2"].fill = orange
+    ws.merge_cells("BV2:CB2")
+    ws["BV2"] = "Images"
+    ws["BV2"].fill = orange
 
     headers = [
         "styleId",
@@ -1341,6 +1348,8 @@ def Myntra_Template(request, sku_list):
         "Usage",
         "Year",
         "season",
+        "AI Label",
+        "List View Name",
         "Product Details",
         "styleNote",
         "materialCareDescription",
@@ -1366,6 +1375,8 @@ def Myntra_Template(request, sku_list):
         "Net Quantity Unit",
         "Theme",
         "Stitch",
+        "Theme 1",
+        "Technique",
         "Care for me",
         "Where-to-wear",
         "Style Tip",
@@ -1439,7 +1450,9 @@ def Myntra_Template(request, sku_list):
 
             "Yes",
 
-            sku.color.color if sku.color else "",
+            get_myntra_color(
+            sku.color.color
+             ) if sku.color else "",
 
             "",
 
@@ -1447,10 +1460,10 @@ def Myntra_Template(request, sku_list):
             "",
 
             sku.mrp or "",
-            sku.sale_price or "",
+            sku.mrp or "",
             "Adults-Women",
 
-            sku.color.color if sku.color else "",
+            get_myntra_color(sku.color.color) if sku.color else "",
             "",
             "",
 
@@ -1460,7 +1473,8 @@ def Myntra_Template(request, sku_list):
             datetime.now().year if sku.style_description else "",
 
             "Spring",
-
+            "",
+            "",
             sku.style_description or "",
             sku.style_description or "",
             
@@ -1475,15 +1489,19 @@ def Myntra_Template(request, sku_list):
 
             "",
 
-            sku.get_type_display() if sku.type else "",
-            sku.get_saree_fabric_display() if sku.saree_fabric else "",
-            sku.get_blouse_fabric_display() if sku.blouse_fabric else "",
-            sku.get_blouse_display() if sku.blouse else "",
-            sku.get_pattern_display() if sku.pattern else "",
-            sku.get_print_or_pattern_type_display() if sku.print_or_pattern_type else "",
-            sku.get_ornamentation_display() if sku.ornamentation else "",
-            sku.get_border_display() if sku.border else "",
-            sku.get_occasion_display() if sku.occasion else "",
+            # sku.get_type_display() if sku.type else "",
+            get_myntra_technique(sku.type) if sku.type else "",
+            get_myntra_saree_fabric(sku.saree_fabric) if sku.saree_fabric else "",
+            get_myntra_blouse_fabric(sku.blouse_fabric) if sku.blouse_fabric else "",
+            get_myntra_blouse(sku.blouse) if sku.blouse else "",
+            get_myntra_pattern(sku.pattern) if sku.pattern else "",
+            get_myntra_print_or_pattern_type(sku.print_or_pattern_type) if sku.print_or_pattern_type else "",
+            get_myntra_ornamentation(sku.ornamentation) if sku.ornamentation else "",
+            get_myntra_border(sku.border) if sku.border else "",
+
+            # get_myntra_occasion(sku.get_occasion_display()) if sku.occasion else "",
+            get_myntra_occasion(sku.occasion) if sku.occasion else "",
+
 
             "Dry Clean",
 
@@ -1502,10 +1520,12 @@ def Myntra_Template(request, sku_list):
             "",
             "",
             "",
+            "",
+            "",
 
             "1",
 
-             "", "", "", "",
+             "", "", "", "","",
 
             sku.product_image_link_1 or "",
             sku.product_image_link_2 or "",
@@ -1528,7 +1548,7 @@ def Myntra_Template(request, sku_list):
 
     return response
 
-
+@login_required
 def View__VMS(request):
     if request.method == 'GET':
         search_query = request.GET.get('search', '').strip()
@@ -1576,7 +1596,7 @@ def View__VMS(request):
 
         return render(request, 'vms/view_vms.html', context)
 
-
+@login_required
 def Delete__VMS(request):
     if request.method == 'GET':
         search_query = request.GET.get('search', '').strip()
@@ -1624,7 +1644,6 @@ def Delete__VMS(request):
 
         return render(request, 'vms/view_vms.html', context)
 
-
 @csrf_exempt
 def save_video(request):
     if request.method == 'POST':
@@ -1642,7 +1661,7 @@ def save_video(request):
 
     return JsonResponse({'status': 'error'}, status=400)
 
-
+@login_required
 def record_video_page(request):
     return render(request, 'vms/record_video.html')  # use the full path inside 'templates'
 

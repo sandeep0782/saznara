@@ -196,3 +196,4 @@ SNAPDEAL_SET_CONTENTS_MAPPING = {
 
     "without_blouse": "Without Blouse Piece",
 }
+
