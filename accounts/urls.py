@@ -3,8 +3,11 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    
-    path('update_profile/', views.update_profile, name='update_profile'),
+    # path('profile/', views.user_profile, name='user-profile'),
+    # path('update_profile/', views.update_profile, name='update_profile'),
+
+    path('profile/<int:id>/', views.view_profile, name='user-profile'),
+    path('profile/<int:id>/edit/', views.update_profile, name='edit-profile'),
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -16,9 +19,6 @@ urlpatterns = [
     path('not_authorised/', views.Not_Authorised, name='not_authorised'),
     path('is_active/', views.Is_Active, name='toggle_is_active'),
     path('is_approved/', views.Is_Approved, name='toggle_is_approved'),
-
-    path('add_vendor/', views.Change_Vendor, name='add_vendor'),
-    path('change_vendor/<int:id>/', views.Change_Vendor, name='change_vendor'),
 
     path('account-access-denied/', views.account_access_denied, name='account_access_denied'),
 

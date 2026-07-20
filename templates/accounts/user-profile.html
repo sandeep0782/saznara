@@ -1,0 +1,134 @@
+{% extends 'base/main.html' %} {% block content %}
+
+<style>
+    .profile-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        max-width: 500px;
+        margin: auto;
+    }
+
+    .profile-header {
+        height: 140px;
+        background: linear-gradient(135deg, #0d6efd, #6610f2);
+    }
+
+    .profile-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 5px solid white;
+        margin-top: -60px;
+        background: white;
+    }
+
+    .profile-name {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .role-badge {
+        background: #e7f1ff;
+        color: #0d6efd;
+        padding: 7px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        display: inline-block;
+    }
+
+    .info-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #eeeeee;
+        font-size: 15px;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .btn-modern {
+        border-radius: 25px;
+        padding: 10px 30px;
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="text-center mt-4 mb-4">
+        <h3 class="fw-bold">My Profile</h3>
+
+        <p class="text-muted">View your account information</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-5 col-lg-6 col-md-8">
+            <div class="card profile-card text-center">
+                <div class="profile-header"></div>
+
+                <div class="card-body">
+                    {% if profile.image %}
+
+                    <img src="{{ profile.image.url }}" class="profile-img" />
+
+                    {% else %}
+
+                    <img src="/static/images/default-user.png" class="profile-img" />
+
+                    {% endif %}
+
+                    <h4 class="profile-name mt-3">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </h4>
+
+                    <p class="text-muted mb-2">@{{ request.user.username }}</p>
+
+                    <span class="role-badge"> {{ profile.user_role }} </span>
+
+                    <hr />
+
+                    <div class="text-start mt-3 px-3">
+                        <div class="info-item">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+
+                            {{ request.user.email }}
+                        </div>
+
+                        <div class="info-item">
+                            <i class="fas fa-building text-primary me-2"></i>
+
+                            {{ profile.company|default:"Not Available" }}
+                        </div>
+
+                        <div class="info-item">
+                            <i class="fas fa-phone text-primary me-2"></i>
+
+                            {{ profile.mobile_no|default:"Not Available" }}
+                        </div>
+
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+
+                            {{ profile.address|default:"Not Available" }}
+                        </div>
+
+                        <div class="info-item">
+                            <i class="fas fa-map-pin text-primary me-2"></i>
+
+                            {{ profile.pin|default:"Not Available" }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 mb-2">
+                        <a href="{% url 'edit-profile' profile.id %}" class="btn btn-primary">
+                            Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

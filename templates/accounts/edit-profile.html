@@ -1,0 +1,186 @@
+{% extends 'base/main.html' %}
+{% block content %}
+
+<div class="container-fluid px-4">
+
+    <h4 class="mt-4">Profile</h4>
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item">
+            <a href="">Home</a>
+        </li>
+        <li class="breadcrumb-item active">
+            Edit Profile
+        </li>
+    </ol>
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <i class="fas fa-user-edit me-2"></i>
+            Edit Profile
+        </div>
+
+        <form action="{% url 'edit-profile' profile.id %}" method="post" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <!-- Email -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-floating">
+                            <input type="email" class="form-control" id="email" name="email"
+                                value="{{ profile.user.email }}" required>
+
+                            <label for="email">
+                                Email Address
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Company -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="company" name="company"
+                                value="{{ profile.company|default:'' }}">
+
+                            <label for="company">
+                                Company
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="mobile" name="mobile_no" maxlength="10"
+                                pattern="[0-9]{10}" value="{{ profile.mobile_no|default:'' }}">
+
+                            <label for="mobile">
+                                Mobile Number
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- PIN -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="pin" name="pin" maxlength="6" pattern="[0-9]{6}"
+                                value="{{ profile.pin|default:'' }}">
+
+                            <label for="pin">
+                                PIN Code
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <textarea class="form-control" id="address" name="address"
+                                style="height:120px">{{ profile.address|default:'' }}</textarea>
+
+                            <label for="address">
+                                Address
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="col-md-6 d-flex flex-column justify-content-center">
+
+                        <label for="image" class="form-label fw-bold">
+                            Profile Image
+                        </label>
+
+                        <input class="form-control" type="file" id="image" name="image"
+                            accept="image/png,image/jpeg,image/jpg,image/webp">
+
+                        <small class="text-muted mt-2">
+                            Allowed: JPG, PNG, WEBP (Max 5 MB)
+                        </small>
+
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div class="col-md-6 text-center">
+
+                        {% if profile.image %}
+
+                        <img id="imagePreview" src="{{ profile.image.url }}" class="rounded-circle border shadow"
+                            style="width:220px;height:220px;object-fit:cover;">
+
+                        {% else %}
+
+                        <img id="imagePreview" src="" class="rounded-circle border shadow d-none"
+                            style="width:220px;height:220px;object-fit:cover;">
+
+                        <div id="imagePlaceholder">
+                            <i class="fas fa-user-circle text-secondary" style="font-size:220px;"></i>
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card-footer text-center">
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>
+                    Update Profile
+                </button>
+
+                <a href="{% url 'user-profile' profile.id %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+    document.getElementById("image").addEventListener("change", function () {
+
+        const file = this.files[0];
+
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image size should be less than 5 MB.");
+            this.value = "";
+            return;
+        }
+
+        if (!file.type.startsWith("image/")) {
+            alert("Please choose an image.");
+            this.value = "";
+            return;
+        }
+
+        const preview = document.getElementById("imagePreview");
+        const placeholder = document.getElementById("imagePlaceholder");
+
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove("d-none");
+
+        if (placeholder) {
+            placeholder.style.display = "none";
+        }
+
+    });
+
+</script>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from main.marketplaces.snapdeal.mappings import ( get_snapdeal_blouse,get_snapdeal_blouse_fabric, get_snapdeal_border, get_snapdeal_color, get_snapdeal_ornamentation, get_snapdeal_pattern, get_snapdeal_print_or_pattern_type, get_snapdeal_saree_fabric, get_snapdeal_technique
+from main.marketplaces.snapdeal.mappings import ( get_snapdeal_blouse,get_snapdeal_blouse_fabric, get_snapdeal_blouse_pattern, get_snapdeal_border, get_snapdeal_color, get_snapdeal_ornamentation, get_snapdeal_pattern, get_snapdeal_print_or_pattern_type, get_snapdeal_saree_fabric, get_snapdeal_technique
 )
 
 
@@ -385,7 +385,6 @@ def validate_snapdeal_blouse(sku_list):
 
 
 # SNAPDEAL PATTERN
-
 SNAPDEAL_ALLOWED_PATTERN = {
     "Applique",
     "Colorblock",
@@ -401,7 +400,6 @@ SNAPDEAL_ALLOWED_PATTERN = {
     "Checked",
     "Woven Design",
 }
-
 
 def validate_snapdeal_pattern(sku_list):
 
@@ -429,6 +427,52 @@ def validate_snapdeal_pattern(sku_list):
 
     return list(set(invalid_pattern))
 
+
+
+# SNAPDEAL BLOUSE PATTERN
+SNAPDEAL_ALLOWED_BLOUSE_PATTERN = {
+"Applique",
+"Checks",
+"Colorblock",
+"Dyed",
+"Embellished",
+"Embroidered",
+"Printed",
+"Self Design",
+"Plain",
+"Striped",
+"Cut-Outs",
+"Sequined",
+"Jacquard",
+"Solid",
+"Zari Woven",
+}
+
+def validate_snapdeal_blouse_pattern(sku_list):
+
+    invalid_blouse_pattern = []
+
+    for sku in sku_list:
+
+        if not sku.blouse_pattern:
+            continue
+
+        original_blouse_pattern = sku.blouse_pattern
+
+        mapped_blouse_pattern = get_snapdeal_blouse_pattern(original_blouse_pattern)
+
+        if not mapped_blouse_pattern:
+            invalid_blouse_pattern.append(
+                f"{original_blouse_pattern} - Missing mapping"
+            )
+            continue
+
+        if mapped_blouse_pattern not in SNAPDEAL_ALLOWED_BLOUSE_PATTERN:
+            invalid_blouse_pattern.append(
+                f"{original_blouse_pattern} -> {mapped_blouse_pattern} - Not a valid Snapdeal Blouse Pattern"
+            )
+
+    return list(set(invalid_blouse_pattern))
 
 
 # SNAPDEAL PRINT OR PATTERN TYPE
@@ -668,6 +712,13 @@ def validate_snapdeal_template(sku_list):
 
     if pattern_errors:
         errors["Pattern"] = pattern_errors
+
+
+    # BLOUSE PATTERN
+    blouse_pattern_errors = validate_snapdeal_blouse_pattern(sku_list)
+
+    if blouse_pattern_errors:
+        errors["Blouse Pattern"] = blouse_pattern_errors
 
 
 

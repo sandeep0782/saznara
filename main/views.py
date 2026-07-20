@@ -23,6 +23,7 @@ from main.marketplaces.myntra.mappings import *
 from main.marketplaces.meesho.validator import *
 from main.marketplaces.flipkart.validator import validate_flipkart_template
 from main.marketplaces.snapdeal.validator import validate_snapdeal_template
+from main.marketplaces.snapdeal.mappings import get_snapdeal_blouse_pattern
 from .models import *
 from main.forms import *
 import openpyxl
@@ -1097,7 +1098,6 @@ def Snapdeal_Template(request, sku_list):
         "Marketer's Name & Address",
         "Blouse Pattern",
         "Pattern or Print Type",
-        "Shop By Occasion",
         "Brand Color",
         "Generic Keywords",
     ]
@@ -1149,7 +1149,7 @@ def Snapdeal_Template(request, sku_list):
             sku.brand.name if sku.brand else "",
 
             # Product Name
-            sku.style_description or "",
+            "", # Is should be blank as per snapdeal template
 
             # Color
             color,
@@ -1191,35 +1191,33 @@ def Snapdeal_Template(request, sku_list):
             if sku.pattern else "",
 
             # Pack
-            "1",
+            "Pack of 1",
 
             # Saree Type
-            sku.article_type.name
-            if sku.article_type else "",
+            "Regular Saree",
 
             # Style Code/Name
-            sku.sku or sku.style_description or "",
+            sku.sku or sku.ref_no or "",
 
             # MRP
             sku.mrp or "",
 
             # Selling Price
-            sku.sale_price or "",
-
+            (sku.sale_price + 300) if sku.sale_price else "",
             # Inventory
             100,
 
             # Shipping Time
-            "",
+            "2",
 
             # Height
-            "",
+            "30",
 
             # Width
-            "",
+            "25",
 
             # Length
-            "",
+            "5",
 
             # Weight grams
             400,
@@ -1261,7 +1259,7 @@ def Snapdeal_Template(request, sku_list):
             if sku.border else "",
 
             # Saree width
-            "",
+            "1.08",
 
             # Product Weight kg
             0.4,
@@ -1276,8 +1274,10 @@ def Snapdeal_Template(request, sku_list):
             vendor_address,
 
             # Blouse Pattern
-            sku.get_blouse_pattern_display()
-            if sku.blouse_pattern else "",
+            get_snapdeal_blouse_pattern(sku.blouse_pattern) if sku.blouse_pattern else "",
+
+            # sku.get_blouse_pattern_display()
+            # if sku.blouse_pattern else "",
 
             # Pattern or Print Type
             sku.get_print_or_pattern_type_display()

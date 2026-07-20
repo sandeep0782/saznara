@@ -92,6 +92,19 @@ def get_snapdeal_pattern(pattern):
         pattern.strip()
     )
 
+
+# SNAPDEAL BLOUSE PATTERN
+SNAPDEAL_BLOUSE_PATTERN_MAPPING = {
+"same_as_saree": "Self Design",
+}
+
+def get_snapdeal_blouse_pattern(blouse_pattern):
+    if not blouse_pattern:
+        return None
+    return SNAPDEAL_BLOUSE_PATTERN_MAPPING.get(
+        blouse_pattern.strip()
+    )
+
 # SNAPDEAL PRINT/PATTERN TYPE
 SNAPDEAL_PRINT_OR_PATTERN_TYPE_MAPPING = {
     "solid": "Solid",

@@ -1,20 +1,21 @@
 from .decorators import unauthenticated_user, allowed_users, admin_only
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from accounts.forms import UserRegisterForm
+from accounts.forms import ProfileUpdateForm, UserRegisterForm
 from django.core.mail import send_mail
 from django.contrib.auth import logout
-from django.http import HttpResponse
-from .forms import ProfileUpdateForm
+from django.http import JsonResponse
 from django.contrib import messages
-from .models import USER_ROLE, Profile
+from .models import Profile
 import json
+
 
 def account_access_denied(request):
     reason = request.GET.get('reason')
     return render(request, 'accounts/account_access_denied.html', {'reason': reason})
+
 
 # Create your views here.
 @unauthenticated_user
@@ -29,14 +30,8 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'accounts/register.html', {'form': form})
 
-from django.contrib.auth import authenticate, login
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Profile
-
 
 def login_view(request):
-
     if request.method == 'POST':
 
         username = request.POST.get('username')
@@ -83,87 +78,79 @@ def logout_view(request):
     messages.success(request, 'You have successfully logged out.')
     return redirect('login')
 
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, ProfileUpdateForm
-
-@login_required
-def Change_Vendor(request, id=None):
-    vendor = None
-    if id:
-        try:
-            vendor = Profile.objects.get(id=id)
-        except ObjectDoesNotExist:
-            messages.error(request, "Vendor profile not found.")
-            return redirect('view_vendor')  # Redirect to a default page if the vendor is not found
-    
-    if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        form1 = ProfileUpdateForm(request.POST)
-        
-        if form.is_valid() and form1.is_valid():
-            user = form.save()
-            # Now create the vendor profile associated with the user
-            profile = form1.save(commit=False)  # Don't save yet
-            profile.user = user  # Associate the user with the profile
-            profile.save()  # Save the profile
-            
-            messages.success(request, 'Account created successfully! You can now log in.')
-            return redirect('login')  # Redirect to login after account creation
-        
-        # Handle form errors
-        else:
-            messages.error(request, 'Please correct the errors below.')
-
-    else:
-        form = UserRegisterForm()
-        form1 = ProfileUpdateForm()
-
-    user_role = USER_ROLE  # Ensure this is defined properly elsewhere
-
-    return render(request, 'accounts/vendor/change_vendor.html', {
-        'form': form,
-        'form1': form1,
-        'user_role': user_role,
-        'vendor': vendor,  # Pass the vendor profile if it's being edited
-    })
-
-
-
 @login_required
 def dashboard(request):
-    # Check if the profile is incomplete
-    if not request.user.profile.address:
-        messages.warning(request, "Please update your profile before accessing the dashboard.")
+
+    if request.user.is_superuser or request.user.groups.filter(name='Admin').exists():
+        return render(request, 'accounts/dashboard.html')
+
+    profile = getattr(request.user, 'profile', None)
+
+    if not profile:
+        messages.warning(request, "Please complete your profile.")
         return redirect('update_profile')
 
-    # Check if the user is approved by the admin
-    if not request.user.profile.is_approved:
-        messages.error(request, "Your account is not approved by the admin yet.")
+    if not profile.address:
+        messages.warning(request, "Please update your profile before accessing dashboard.")
+        return redirect('update_profile')
+
+    if not profile.is_approved:
+        messages.error(request, "Your account is not approved.")
         return redirect('not_approved')
 
     return render(request, 'accounts/dashboard.html')
 
+
 @login_required
-def update_profile(request):
-    if request.method == 'POST':
-        form = ProfileUpdateForm(request.POST, instance=request.user.profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your profile has been updated!')
-            return redirect('dashboard')
-    else:
-        form = ProfileUpdateForm(instance=request.user.profile)
-    return render(request, 'accounts/user-profile.html', {'form': form})
+def view_profile(request,id):
+
+    profile=get_object_or_404(Profile,id=id)
+
+    if not (
+        request.user == profile.user or
+        request.user.is_superuser
+    ):
+        return redirect('Not_Authorised')
+
+    return render(
+        request,
+        'accounts/user-profile.html',
+        {'profile':profile}
+    )
 
 
-# views.py
+@login_required
+def update_profile(request, id):
+    profile = get_object_or_404( Profile, id=id, user=request.user)
 
+    if not profile.is_profile_complete:
+        messages.warning(
+            request,
+            "Please complete your profile before continuing."
+        )
 
-# @csrf_exempt
+    if request.method == "POST":
+
+        profile.user.email = request.POST.get("email")
+        profile.user.save()
+
+        profile.company = request.POST.get("company")
+        profile.mobile_no = request.POST.get("mobile_no")
+        profile.pin = request.POST.get("pin")
+        profile.address = request.POST.get("address")
+
+        if request.FILES.get("image"):
+            profile.image = request.FILES["image"]
+
+        profile.save()
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect("user-profile", id=profile.id)
+
+    return render(request, "accounts/edit-profile.html", {
+        "profile": profile,
+    })
+
 def send_email(request):
     if request.method == 'POST':
         message = request.POST.get('message')
@@ -177,22 +164,24 @@ def send_email(request):
                 fail_silently=False,
             )
             messages.success(request, 'Email sent successfully!')
-        except:
-            pass
+        except Exception as e:
+            messages.error(request, str(e))
     return render(request, 'profile_not_approved.html')
-    
+
+@login_required    
 def Not_Authorised(request):
     return render(request, '401.html')
 
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-
-@csrf_exempt  # Only if you're handling the CSRF token manually in the JS
+@login_required
+@admin_only
+@require_POST
 def Is_Active(request):
     if request.method == "POST":
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'},status=400)
+        
         item_id = data.get('id')
         is_active = data.get('is_active')
 
@@ -206,8 +195,9 @@ def Is_Active(request):
 
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
-
-@csrf_exempt  # Only if you're handling the CSRF token manually in the JS
+@login_required
+@admin_only
+@require_POST
 def Is_Approved(request):
     if request.method == "POST":
         data = json.loads(request.body)

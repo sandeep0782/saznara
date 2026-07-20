@@ -18,14 +18,30 @@ USER_ROLE = (
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    user_role  = models.CharField(max_length=50, choices=USER_ROLE, default='None')
+    user_role = models.CharField(max_length=50, choices=USER_ROLE, default='None')
     company = models.CharField(max_length=50, null=True, blank=True)
     mobile_no = models.CharField(max_length=12, null=True, blank=True)
     image = models.ImageField(upload_to='profile_image/', null=True, blank=True)
     address = models.TextField(blank=True, null=True)
-    pin = models.CharField(max_length=6, validators=[RegexValidator(r'^\d{6}$', 'Enter a valid 6-digit PIN code')], null=True, blank=True )
+    pin = models.CharField(
+        max_length=6,
+        validators=[RegexValidator(r'^\d{6}$', 'Enter a valid 6-digit PIN code')],
+        null=True,
+        blank=True
+    )
     is_approved = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
+    @property
+    def is_profile_complete(self):
+        return all([
+            self.user.email,
+            self.company,
+            self.mobile_no,
+            self.address,
+            self.pin,
+            self.image,
+        ])
+
     def __str__(self):
-        return f'{self.user.username}'
+        return self.user.username
