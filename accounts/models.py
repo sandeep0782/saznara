@@ -40,7 +40,6 @@ class Profile(models.Model):
             self.mobile_no,
             self.address,
             self.pin,
-            self.image,
         ])
 
     def __str__(self):
