@@ -600,15 +600,15 @@ BLOUSE_CHOICES = [
 ]
 
 class SKU(models.Model):
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    vendor = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    gender = models.ForeignKey(Gender, on_delete=models.CASCADE)
-    color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    article_type = models.ForeignKey('Article_Type', on_delete=models.CASCADE)
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT)
+    vendor = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    gender = models.ForeignKey(Gender, on_delete=models.PROTECT)
+    color = models.ForeignKey(Color, on_delete=models.PROTECT)
+    article_type = models.ForeignKey('Article_Type', on_delete=models.PROTECT)
     style_no = models.CharField(max_length=4, null=True, blank=True)
     style_description = models.CharField(max_length=500, null=True, blank=True)
     style_id = models.CharField(max_length=8, null=True, blank=True)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE)
+    size = models.ForeignKey(Size, on_delete=models.PROTECT)
     ref_no = models.CharField(max_length=40, null=True, blank=True)
     hsn = models.CharField(max_length=8, null=True, blank=True)
     purchase_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)

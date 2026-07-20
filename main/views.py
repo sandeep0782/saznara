@@ -19,7 +19,10 @@ from decimal import Decimal
 from copy import copy
 
 from main.marketplaces.myntra.validator import validate_myntra_colors, validate_myntra_template
-from main.marketplaces.myntra.mappings import get_myntra_blouse, get_myntra_blouse_fabric, get_myntra_border, get_myntra_color, get_myntra_occasion, get_myntra_ornamentation, get_myntra_pattern, get_myntra_print_or_pattern_type, get_myntra_saree_fabric, get_myntra_technique
+from main.marketplaces.myntra.mappings import *
+from main.marketplaces.meesho.validator import *
+from main.marketplaces.flipkart.validator import validate_flipkart_template
+from main.marketplaces.snapdeal.validator import validate_snapdeal_template
 from .models import *
 from main.forms import *
 import openpyxl
@@ -547,6 +550,18 @@ def Copy__SKU(request, pid=None):
 def Meesho_Template(request, sku_list):
     sku_list, _ = get_filtered_skus(request)
 
+    validation_errors = validate_meesho_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/meesho_error.html",
+            {
+                "validation_errors": validation_errors
+            }
+        )
+
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Meesho Saree Template"
@@ -725,6 +740,19 @@ def Meesho_Template(request, sku_list):
 def Flipkart_Template(request, sku_list):
 
     sku_list, _ = get_filtered_skus(request)
+
+    validation_errors = validate_flipkart_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/flipkart_error.html",
+            {
+                "validation_errors": validation_errors
+            }
+        )
+
+
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -996,6 +1024,19 @@ def Flipkart_Template(request, sku_list):
 @login_required
 def Snapdeal_Template(request, sku_list):
     sku_list, _ = get_filtered_skus(request)
+
+    validation_errors = validate_snapdeal_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/snapdeal_error.html",
+            {
+                "validation_errors": validation_errors
+            }
+        )
+
+
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -1276,7 +1317,7 @@ def Myntra_Template(request, sku_list):
     if validation_errors:
         return render(
             request,
-            "myntra/validation_error.html",
+            "validation/myntra_error.html",
             {
                 "validation_errors": validation_errors
             }
