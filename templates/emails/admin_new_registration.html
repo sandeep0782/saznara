@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>New Registration</title>
+</head>
+
+<body style="font-family:Arial,sans-serif;">
+
+<h2>New User Registration - Octo</h2>
+
+<p>
+A new user has registered on the platform.
+</p>
+
+<table border="1" cellpadding="8" cellspacing="0">
+
+<tr>
+    <td><b>Username</b></td>
+    <td>{{ user.username }}</td>
+</tr>
+
+<tr>
+    <td><b>Name</b></td>
+    <td>{{ user.get_full_name }}</td>
+</tr>
+
+<tr>
+    <td><b>Email</b></td>
+    <td>{{ user.email }}</td>
+</tr>
+
+<tr>
+    <td><b>Registered On</b></td>
+    <td>{{ registered_on }}</td>
+</tr>
+
+</table>
+
+<br>
+
+<a href="{{ admin_url }}">
+    Open Admin Panel
+</a>
+
+<p>
+Please review and approve the account.
+</p>
+
+<br>
+
+<p>
+Regards,<br>
+Octo System
+</p>
+
+</body>
+</html>

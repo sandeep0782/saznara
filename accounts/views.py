@@ -18,17 +18,147 @@ def account_access_denied(request):
 
 
 # Create your views here.
+# @unauthenticated_user
+# def register(request):
+#     if request.method == 'POST':
+#         form = UserRegisterForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, 'Account created successfully! You can now log in.')
+#             return redirect('login')
+#     else:
+#         form = UserRegisterForm()
+#     return render(request, 'accounts/register.html', {'form': form})
+
+from django.conf import settings
+from django.core.mail import send_mail
+
+from django.contrib.auth import get_user_model
+from django.utils.crypto import get_random_string
+
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.urls import reverse
+from django.utils import timezone
+
+User = get_user_model()
+
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.crypto import get_random_string
+from django.utils import timezone
+from django.urls import reverse
+
+
 @unauthenticated_user
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
+
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Account created successfully! You can now log in.')
-            return redirect('login')
+
+            # Create user with temporary password
+            user = form.save(commit=False)
+
+            temp_password = get_random_string(length=10)
+
+            user.set_password(temp_password)
+            user.save()
+
+            login_url = request.build_absolute_uri(
+                reverse('login')
+            )
+
+            try:
+                # -------------------------
+                # Email to User
+                # -------------------------
+                user_html = render_to_string(
+                    "emails/user_registration.html",
+                    {
+                        "user": user,
+                        "password": temp_password,
+                        "login_url": login_url,
+                    }
+                )
+
+                user_email = EmailMultiAlternatives(
+                    subject="Welcome to Octo - Account Created",
+                    body=(
+                        f"Welcome to Octo.\n\n"
+                        f"Login ID: {user.username}\n"
+                        f"Temporary Password: {temp_password}\n\n"
+                        f"Login URL: {login_url}\n\n"
+                        "Please change your password after first login."
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[user.email],
+                )
+
+                user_email.attach_alternative(
+                    user_html,
+                    "text/html"
+                )
+
+                user_email.send()
+
+
+                # -------------------------
+                # Email to Admin
+                # -------------------------
+                admin_html = render_to_string(
+                    "emails/admin_new_registration.html",
+                    {
+                        "user": user,
+                        "registered_on": timezone.now(),
+                        "admin_url": request.build_absolute_uri(
+                            "/admin/"
+                        ),
+                    }
+                )
+
+                admin_email = EmailMultiAlternatives(
+                    subject="New User Registration - Approval Required",
+                    body=(
+                        f"New user registered on Saznara.\n\n"
+                        f"Username: {user.username}\n"
+                        f"Email: {user.email}\n"
+                        f"Name: {user.get_full_name()}"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[settings.ADMIN_EMAIL],
+                )
+
+                admin_email.attach_alternative(
+                    admin_html,
+                    "text/html"
+                )
+
+                admin_email.send()
+
+
+                messages.success(
+                    request,
+                    "Account created. Login details have been sent to your email."
+                )
+
+            except Exception as e:
+                messages.warning(
+                    request,
+                    f"Account created, but email delivery failed: {e}"
+                )
+
+            return redirect("login")
+
     else:
         form = UserRegisterForm()
-    return render(request, 'accounts/register.html', {'form': form})
+
+    return render(
+        request,
+        "accounts/register.html",
+        {"form": form}
+    )
 
 
 def login_view(request):

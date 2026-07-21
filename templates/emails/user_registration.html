@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Octo</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
+
+<table width="600" align="center" 
+       style="background:white; padding:30px; border-radius:8px;">
+
+    <tr>
+        <td>
+
+            <h2 style="color:#333;">
+                Welcome to Octo
+            </h2>
+
+            <p>
+                Dear {{ user.first_name|default:user.username }},
+            </p>
+
+            <p>
+                Your account has been created successfully.
+            </p>
+
+            <h3>Login Details</h3>
+
+            <table>
+                <tr>
+                    <td><b>Login ID:</b></td>
+                    <td>{{ user.username }}</td>
+                </tr>
+
+                <tr>
+                    <td><b>Email:</b></td>
+                    <td>{{ user.email }}</td>
+                </tr>
+
+                <tr>
+                    <td><b>Temporary Password:</b></td>
+                    <td>{{ password }}</td>
+                </tr>
+            </table>
+
+            <br>
+
+            <a href="{{ login_url }}"
+               style="
+               background:#0066cc;
+               color:white;
+               padding:12px 20px;
+               text-decoration:none;
+               border-radius:5px;">
+                Login Now
+            </a>
+
+            <p style="margin-top:20px;">
+                Your account is pending administrator approval.
+                Once approved, you will have full access.
+            </p>
+
+            <p>
+                Please change your password after your first login.
+            </p>
+
+            <br>
+
+            <p>
+                Regards,<br>
+                <b>Octo Team</b>
+            </p>
+
+        </td>
+    </tr>
+
+</table>
+
+</body>
+</html>
