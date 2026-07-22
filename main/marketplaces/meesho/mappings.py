@@ -197,6 +197,7 @@ MEESHO_PRINT_OR_PATTERN_TYPE_MAPPING = {
     "woven_design": "Woven Design",
     "botanical": "Floral",
     "floral": "Floral",
+    "ethnic_motif": "Ethnic Motifs",
 }
 
 
