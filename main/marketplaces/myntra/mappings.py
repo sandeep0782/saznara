@@ -205,13 +205,6 @@ MYNTRA_BORDER = {
 def get_myntra_border(border):
     if not border:
         return None
-    
-    key = border.strip().lower()
-
-    print("Border Original:", repr(border))
-    print("Border Key:", repr(key))
-    print("Border Mapping Result:", MYNTRA_BORDER.get(key))
-
 
     return MYNTRA_BORDER.get(
         border.strip()
