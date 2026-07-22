@@ -178,7 +178,7 @@ MEESHO_PATTERN_MAPPING = {
    "SELF_DESIGN": "Woven Design",
    "EMBROIDERED": "Embroidered",
    "DIGITAL_PRINT": "Printed",
-   "ZARI_EMBROIDERED":"ZARI_EMBROIDERED"
+   "ZARI_EMBROIDERED":"Zari Embroidered"
 }
 
 
