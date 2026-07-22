@@ -177,7 +177,8 @@ MEESHO_PATTERN_MAPPING = {
     # Direct matches
    "SELF_DESIGN": "Woven Design",
    "EMBROIDERED": "Embroidered",
-   "DIGITAL_PRINT": "Printed"
+   "DIGITAL_PRINT": "Printed",
+   "ZARI_EMBROIDERED":"ZARI_EMBROIDERED"
 }
 
 

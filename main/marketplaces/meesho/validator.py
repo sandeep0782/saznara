@@ -376,15 +376,21 @@ def validate_meesho_blouse(sku_list):
 
 # MEESHO BLOUSE FABRIC
 MEESHO_ALLOWED_PATTERN = {
+"Applique"
 "Checked",
+"Chikankari",
 "Colourblocked",
+"Digital Print",
+"Dyed/ Washed",
 "Embellished",
 "Embroidered",
 "Printed",
-"Woven Design",
+"Self-Design"
 "Solid",
 "Striped",
-"Dyed",
+"Woven Design",
+"Zari Embroidered",
+"Zari Woven",
 }
 
 def validate_meesho_pattern(sku_list):

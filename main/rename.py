@@ -1,6 +1,6 @@
 import os
 
-root_path = r'/Users/sandeep/Desktop/New Listing/DUCK'
+root_path = r'/Users/sandeep/Desktop/New Listing/Pending/maya/'
 
 # image extensions to target
 image_exts = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
