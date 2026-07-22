@@ -544,7 +544,7 @@ def validate_myntra_border(sku_list):
             )
             continue
 
-        if mapped_border not in MYNTRA_ALLOWED_ORNAMENTATION:
+        if mapped_border not in MYNTRA_ALLOWED_BORDER:
             invalid_border.append(
                 f"{original_border} -> {mapped_border} - Not a valid Myntra Border"
             )
