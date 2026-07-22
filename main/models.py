@@ -19,6 +19,7 @@ from django.db import models
 from accounts.models import Profile
 
 class Brand(models.Model):
+    vendor = models.OneToOneField(Profile, on_delete=models.PROTECT, null=True, blank=True,)
     name = models.CharField(max_length=100, unique=True, null=True, blank=True)
     abb = models.CharField(max_length=2, unique=True, )
 
@@ -742,7 +743,7 @@ class VMS(models.Model):
         ('forward', 'Forward'),
         ('return', 'Return'),
     ]
-
+    vendor = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, blank=True)
     tracking_id = models.CharField(max_length=50, null=True, blank=True)  # e.g., 'purchase', 'sale', 'return'
     video_file = models.FileField(upload_to='videos/')
     video_type = models.CharField(max_length=20, choices=VIDEO_TYPE_CHOICES, default='forward')

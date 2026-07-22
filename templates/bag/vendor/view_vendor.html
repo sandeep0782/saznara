@@ -1,0 +1,556 @@
+{% extends 'base/main.html' %}
+{% block content %}
+<div class="container-fluid px-4">
+<h4 class="mt-4">Vendor View</h4>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item">
+        <a href="">Home</a>
+    </li>
+    <li class="breadcrumb-item active">
+        Vendors
+    </li>
+</ol>
+
+
+<div class="card mb-4">
+
+<div class="card-header d-flex justify-content-between align-items-center">
+
+    <div>
+        <i class="fas fa-users me-1"></i>
+        Vendor List
+    </div>  
+    <div>
+        <form method="GET" class="d-flex align-items-center gap-2" role="search">
+                    <input class="form-control me-2" type="search" name="search" value="{{ search_query }}"
+                        placeholder="Search by SKU or Name" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+            </div>
+            <div>
+                {% if request.user.is_superuser %}
+                <a href="{% url 'add_vendor' %}" class="btn btn-primary">Add Vendor</a>
+                {% endif %}
+            </div>
+    </div>
+
+
+
+<div class="card-body">
+
+
+<table class="table table-striped table-bordered">
+
+
+<thead>
+
+<tr>
+
+<th>S.No</th>
+<th>Name</th>
+<th>Email</th>
+<th>Company</th>
+<th>Mobile</th>
+<th>Address</th>
+<th>Active</th>
+<th>Approved</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody>
+
+
+{% for i in vendors %}
+
+
+<tr>
+
+
+<td>
+{{ forloop.counter }}
+</td>
+
+
+<td>
+{{ i.user.get_full_name }}
+</td>
+
+
+<td>
+{{ i.user.email }}
+</td>
+
+
+<td>
+{{ i.company }}
+</td>
+
+
+<td>
+{{ i.mobile_no }}
+</td>
+
+
+<td>
+{{ i.address }}
+</td>
+
+
+
+<!-- ACTIVE TOGGLE -->
+
+<td>
+
+
+<label class="switch">
+
+
+<input 
+type="checkbox"
+class="toggle-active"
+data-id="{{ i.id }}"
+{% if i.is_active %}checked{% endif %}>
+
+
+<span class="slider"></span>
+
+
+</label>
+
+
+</td>
+
+
+
+
+
+<!-- APPROVED TOGGLE -->
+
+<td>
+
+
+<label class="switch">
+
+
+<input 
+type="checkbox"
+class="toggle-approved"
+data-id="{{ i.id }}"
+{% if i.is_approved %}checked{% endif %}>
+
+
+<span class="slider"></span>
+
+
+</label>
+
+
+</td>
+
+
+
+</tr>
+
+
+
+{% empty %}
+
+
+<tr>
+
+<td colspan="8" class="text-center">
+
+No vendors found
+
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+</tbody>
+
+
+</table>
+
+
+
+
+<!-- PAGINATION -->
+
+
+<nav>
+
+<ul class="pagination justify-content-center">
+
+
+{% if vendors.has_previous %}
+
+
+<li class="page-item">
+
+<a class="page-link"
+href="?page=1&search={{search_query}}">
+
+First
+
+</a>
+
+</li>
+
+
+
+<li class="page-item">
+
+<a class="page-link"
+href="?page={{vendors.previous_page_number}}&search={{search_query}}">
+
+Previous
+
+</a>
+
+</li>
+
+
+{% endif %}
+
+
+
+
+{% for page_num in vendors.paginator.page_range %}
+
+
+<li class="page-item 
+{% if page_num == vendors.number %}active{% endif %}">
+
+
+<a class="page-link"
+href="?page={{page_num}}&search={{search_query}}">
+
+{{page_num}}
+
+</a>
+
+
+</li>
+
+
+{% endfor %}
+
+
+
+
+
+{% if vendors.has_next %}
+
+
+<li class="page-item">
+
+<a class="page-link"
+href="?page={{vendors.next_page_number}}&search={{search_query}}">
+
+Next
+
+</a>
+
+</li>
+
+
+<li class="page-item">
+
+<a class="page-link"
+href="?page={{vendors.paginator.num_pages}}&search={{search_query}}">
+
+Last
+
+</a>
+
+</li>
+
+
+{% endif %}
+
+
+</ul>
+
+</nav>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<style>
+
+
+.switch {
+
+position:relative;
+display:inline-block;
+width:50px;
+height:25px;
+
+}
+
+
+
+.switch input {
+
+opacity:0;
+width:0;
+height:0;
+
+}
+
+
+
+.slider {
+
+position:absolute;
+cursor:pointer;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:#dc3545;
+transition:.4s;
+border-radius:25px;
+
+}
+
+
+
+.slider:before {
+
+
+position:absolute;
+content:"";
+height:19px;
+width:19px;
+left:3px;
+bottom:3px;
+background:white;
+transition:.4s;
+border-radius:50%;
+
+
+}
+
+
+
+input:checked + .slider {
+
+background:#198754;
+
+}
+
+
+
+input:checked + .slider:before {
+
+transform:translateX(25px);
+
+}
+
+
+</style>
+
+
+
+
+
+<script>
+
+
+function getCookie(name) {
+
+let cookieValue = null;
+
+
+if(document.cookie && document.cookie !== '') {
+
+
+let cookies=document.cookie.split(';');
+
+
+for(let i=0;i<cookies.length;i++){
+
+
+let cookie=cookies[i].trim();
+
+
+if(cookie.substring(0,name.length+1)===(name+'=')){
+
+
+cookieValue=decodeURIComponent(
+cookie.substring(name.length+1)
+);
+
+break;
+
+
+}
+
+
+}
+
+
+}
+
+
+return cookieValue;
+
+}
+
+
+
+const csrftoken=getCookie('csrftoken');
+
+
+
+
+
+// ACTIVE TOGGLE
+
+
+document.querySelectorAll('.toggle-active').forEach(function(toggle){
+
+
+toggle.addEventListener('change',function(){
+
+
+
+fetch("{% url 'toggle_is_active' %}",{
+
+
+method:"POST",
+
+
+headers:{
+
+
+"X-CSRFToken":csrftoken,
+
+"Content-Type":"application/json"
+
+},
+
+
+body:JSON.stringify({
+
+id:this.dataset.id,
+
+is_active:this.checked
+
+})
+
+
+})
+
+
+.then(response=>response.json())
+
+
+.then(data=>{
+
+
+if(!data.success){
+
+alert("Unable to update status");
+
+}
+
+
+});
+
+
+});
+
+
+});
+
+
+
+
+
+
+
+// APPROVED TOGGLE
+
+
+document.querySelectorAll('.toggle-approved').forEach(function(toggle){
+
+
+toggle.addEventListener('change',function(){
+
+
+
+fetch("{% url 'toggle_is_approved' %}",{
+
+
+method:"POST",
+
+
+headers:{
+
+
+"X-CSRFToken":csrftoken,
+
+"Content-Type":"application/json"
+
+},
+
+
+body:JSON.stringify({
+
+id:this.dataset.id,
+
+is_approved:this.checked
+
+})
+
+
+})
+
+
+.then(response=>response.json())
+
+
+.then(data=>{
+
+
+if(!data.success){
+
+alert("Unable to update approval");
+
+}
+
+
+});
+
+
+});
+
+
+});
+
+
+
+</script>
+
+
+
+{% endblock content %}  

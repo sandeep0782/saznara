@@ -17,17 +17,20 @@ from accounts.models import Profile
 from django.db import transaction
 from decimal import Decimal
 from copy import copy
+from django.contrib.admin.views.decorators import staff_member_required
 
 from main.marketplaces.myntra.validator import validate_myntra_colors, validate_myntra_template
 from main.marketplaces.myntra.mappings import *
 from main.marketplaces.meesho.validator import *
 from main.marketplaces.flipkart.validator import validate_flipkart_template
 from main.marketplaces.snapdeal.validator import validate_snapdeal_template
-from main.marketplaces.snapdeal.mappings import get_snapdeal_blouse_pattern
+from main.marketplaces.snapdeal.mappings import get_snapdeal_blouse_color, get_snapdeal_blouse_pattern
 from .models import *
 from main.forms import *
 import openpyxl
 import re
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from .models import Profile
 
 
 
@@ -37,40 +40,182 @@ import re
 def home(request):
 
     return render(request, 'index.html')
+@admin_only
+@login_required
+
+def View__Vendors(request):
+
+    search_query = request.GET.get('search', '').strip()
+
+    # Admin sees all profiles
+    vendor_list = Profile.objects.all().order_by('-id')
+
+
+    if search_query:
+        vendor_list = vendor_list.filter(
+            company__icontains=search_query
+        )
+
+
+    paginator = Paginator(vendor_list, 10)
+
+    page = request.GET.get('page')
+
+    try:
+        vendors = paginator.page(page)
+
+    except PageNotAnInteger:
+        vendors = paginator.page(1)
+
+    except EmptyPage:
+        vendors = paginator.page(paginator.num_pages)
+
+
+    return render(
+        request,
+        'bag/vendor/view_vendor.html',
+        {
+            'vendors': vendors,
+            'search_query': search_query,
+        }
+    )
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Profile
+
+
+@login_required
+@admin_only
+def Change__Vendor(request, id):
+
+    vendor = get_object_or_404(
+        Profile,
+        id=id
+    )
+
+
+    if request.method == "POST":
+
+        vendor.user.first_name = request.POST.get(
+            "first_name"
+        )
+
+        vendor.user.last_name = request.POST.get(
+            "last_name"
+        )
+
+        vendor.user.email = request.POST.get(
+            "email"
+        )
+
+        vendor.user.save()
+
+
+
+        vendor.company = request.POST.get(
+            "company"
+        )
+
+        vendor.mobile_no = request.POST.get(
+            "mobile_no"
+        )
+
+        vendor.address = request.POST.get(
+            "address"
+        )
+
+        vendor.pin = request.POST.get(
+            "pin"
+        )
+
+
+        if request.FILES.get("image"):
+
+            vendor.image = request.FILES["image"]
+
+
+        vendor.save()
+
+
+        messages.success(
+            request,
+            "Vendor updated successfully."
+        )
+
+
+        return redirect(
+            "view_vendors"
+        )
+
+
+
+    return render(
+        request,
+        "bag/vendor/change_vendor.html",
+        {
+            "vendor": vendor
+        }
+    )
 
 @login_required
 def View__Brand(request):
     search_query = request.GET.get('search', '').strip()
-    brand_list = Brand.objects.all().order_by('-id')
-    if search_query:
-        brand_list = brand_list.filter(name=search_query)
 
-    paginator = Paginator(brand_list, 10)  # Show 10 products per page
+    if request.user.is_superuser:
+        brand_list = Brand.objects.all().order_by('-id')
+    else:
+        brand_list = Brand.objects.filter(
+            vendor=request.user.profile
+        ).order_by('-id')
+
+    if search_query:
+        brand_list = brand_list.filter(name__icontains=search_query)
+
+    paginator = Paginator(brand_list, 10)
     page = request.GET.get('page')
+
     try:
         brand = paginator.page(page)
     except PageNotAnInteger:
         brand = paginator.page(1)
     except EmptyPage:
         brand = paginator.page(paginator.num_pages)
-    d = {'brand': brand, 'search_query':search_query}
-    return render(request, 'bag/brand/view_brand.html', d)
+
+    return render(request, 'bag/brand/view_brand.html', {
+        'brand': brand,
+        'search_query': search_query,
+    })
+
 
 @login_required
 def Change__Brand(request, id=None):
     brand = None
     if id:
         try:
-            brand = Brand.objects.get(id=id)
+            if request.user.is_superuser:
+                brand = Brand.objects.get(id=id)
+            else:
+                brand = Brand.objects.get( id=id,vendor=request.user.profile)
         except Brand.DoesNotExist:
             messages.info(request, 'Brand does not exist')
             return redirect('view_brand')
     if request.method == "POST":
         form = BrandForm(request.POST, request.FILES, instance=brand)
         if form.is_valid():
-            pro = form.save(commit=False)  # Don't save yet to modify additional fields
+            pro = form.save(commit=False)
+
+             # Assign vendor
+            if not request.user.is_superuser:
+                pro.vendor = request.user.profile
+
+                # Prevent multiple brands per vendor
+                if not id and Brand.objects.filter(vendor=request.user.profile).exists():
+                    messages.error(request, "You have already created your brand.")
+                    return redirect("view_brand")
+                
             if id:
-                pro.modified_by = request.user  # Set the user who modified the SKU
+                pro.modified_by = request.user
                 messages.info(request, 'Brand modified successfully')
             else:
                 pro.created_by = request.user  # Set the user who created the SKU
@@ -82,11 +227,22 @@ def Change__Brand(request, id=None):
     d = { 'brand': brand }
     return render(request, 'bag/brand/change_brand.html', d)
 
+
 @login_required
 def Delete__Brand(request, id):
-    brand = Brand.objects.filter(id=id)
-    brand.delete()
-    return redirect('view_brand')
+    if not request.user.is_superuser:
+        messages.error(request, "Only the administrator can delete brands.")
+        return redirect("view_brand")
+
+    try:
+        brand = Brand.objects.get(id=id)
+        brand.delete()
+        messages.success(request, "Brand deleted successfully.")
+    except Brand.DoesNotExist:
+        messages.error(request, "Brand not found.")
+
+    return redirect("view_brand")
+
 
 @login_required
 def View__Article__Type(request):
@@ -106,7 +262,8 @@ def View__Article__Type(request):
     d = {'at': at, 'search_query':search_query}  # Pass the search query to the template
     return render(request, 'bag/at/view_article_type.html', d)
 
-@login_required
+
+@staff_member_required
 def Change__Article__Type(request, id=None):
     at = None
     if id:
@@ -133,11 +290,13 @@ def Change__Article__Type(request, id=None):
     d = { 'at': at }
     return render(request, 'bag/at/change_article_type.html', d)
 
-@login_required
+
+@staff_member_required
 def Delete__Article__Type(request, id):
     at = Article_Type.objects.filter(id=id)
     at.delete()
     return redirect('view_article_type')
+
 
 @login_required
 def View__Gender(request):
@@ -145,7 +304,8 @@ def View__Gender(request):
     d = {'gender': gender}  # Pass the search query to the template
     return render(request, 'bag/gender/view_gender.html', d)
 
-@login_required
+
+@staff_member_required
 def Change__Gender(request, id=None):
     gender = None
     if id:
@@ -172,11 +332,13 @@ def Change__Gender(request, id=None):
     d = { 'gender': gender }
     return render(request, 'bag/gender/change_gender.html', d)
 
-@login_required
+
+@staff_member_required
 def Delete__Gender(request, id):
     gender = Gender.objects.filter(id=id)
     gender.delete()
     return redirect('view_gender')
+
 
 @login_required
 def View__Size(request):
@@ -196,7 +358,8 @@ def View__Size(request):
     d = {'size': size, 'search_query':search_query}  # Pass the search query to the template
     return render(request, 'bag/size/view_size.html', d)
 
-@login_required
+
+@staff_member_required
 def Change__Size(request, id=None):
     size = None
     if id:
@@ -223,11 +386,13 @@ def Change__Size(request, id=None):
     d = { 'size': size }
     return render(request, 'bag/size/change_size.html', d)
 
-@login_required
+
+@staff_member_required
 def Delete__Size(request, id):
     size = Size.objects.filter(id=id)
     size.delete()
     return redirect('view_size')
+
 
 @login_required
 def View__UOM(request):
@@ -235,7 +400,8 @@ def View__UOM(request):
     d = {'uom': uom}  # Pass the search query to the template
     return render(request, 'bag/uom/view_uom.html', d)
 
-@login_required
+
+@staff_member_required
 def Change__UOM(request, id=None):
     uom = None
     if id:
@@ -262,11 +428,13 @@ def Change__UOM(request, id=None):
     d = { 'uom': uom }
     return render(request, 'bag/uom/change_uom.html', d)
 
-@login_required
+
+@staff_member_required
 def Delete__UOM(request, id):
     uom = Unit.objects.filter(id=id)
     uom.delete()
     return redirect('view_uom')
+
 
 @login_required
 def View__Color(request):
@@ -286,7 +454,8 @@ def View__Color(request):
     d = {'color': color, 'search_query':search_query}  # Pass the search query to the template
     return render(request, 'bag/color/view_color.html', d)
 
-@login_required
+
+@staff_member_required
 def Change__Color(request, id=None):
     color = None
     if id:
@@ -313,11 +482,13 @@ def Change__Color(request, id=None):
     d = { 'color': color }
     return render(request, 'bag/color/change_color.html', d)
 
-@login_required
+
+@staff_member_required
 def Delete__Color(request, id):
     c = Color.objects.filter(id=id)
     c.delete()
     return redirect('view_color')
+
 
 @login_required
 def get_filtered_skus(request):
@@ -343,22 +514,31 @@ def get_filtered_skus(request):
 
     return sku_list, search_query
     
+
 @login_required(login_url='login')
 def View__SKU(request):
 
-    # 🔹 GET PARAMETERS (ALL TOGETHER HERE)
+    # GET PARAMETERS
     search_query = request.GET.get('search', '').strip()
-    export = request.GET.get('export')   # ✅ ADD HERE
+    export = request.GET.get('export')
 
-    # 🔹 BASE QUERYSET
-    sku_list = SKU.objects.all().order_by('-id')
+    # BASE QUERYSET
+    if request.user.is_superuser:
+        # Admin can see all SKUs
+        sku_list = SKU.objects.all().order_by('-id')
+    else:
+        # Vendor can see only own SKUs
+        sku_list = SKU.objects.filter(
+            vendor=request.user.profile
+        ).order_by('-id')
 
-    # 🔹 FILTERING
+    # FILTERING
     if search_query:
         search_terms = search_query.split('%')
 
         for term in search_terms:
             term = term.strip()
+
             if term:
                 sku_list = sku_list.filter(
                     Q(ref_no__icontains=term) |
@@ -370,20 +550,20 @@ def View__SKU(request):
                     Q(article_type__name__icontains=term)
                 )
 
-    # 🔥 EXPORT CHECK (OPTIONAL: if export happens, return early)
+    # EXPORT
     if export == "meesho":
         return Meesho_Template(request, sku_list)
 
     if export == "flipkart":
         return Flipkart_Template(request, sku_list)
-    
+
     if export == "snapdeal":
         return Snapdeal_Template(request, sku_list)
-    
+
     if export == "myntra":
         return Myntra_Template(request, sku_list)
 
-    # 🔹 PAGINATION (ONLY FOR NORMAL VIEW)
+    # PAGINATION
     paginator = Paginator(sku_list, 10)
     page = request.GET.get('page')
 
@@ -394,10 +574,15 @@ def View__SKU(request):
     except EmptyPage:
         sku = paginator.page(paginator.num_pages)
 
-    return render(request, 'sku/view_sku.html', {
-        'sku': sku,
-        'search_query': search_query
-    })
+    return render(
+        request,
+        'sku/view_sku.html',
+        {
+            'sku': sku,
+            'search_query': search_query
+        }
+    )
+
 
 @login_required
 def Change__SKU(request, pid=None):
@@ -433,6 +618,7 @@ def Change__SKU(request, pid=None):
                 messages.success(request, "SKU updated successfully")
             else:
                 obj.created_by = request.user
+                obj.vendor = request.user.profile
                 obj.gender = selected_gender
                 obj.article_type = selected_article_type
                 obj.size = selected_size
@@ -464,11 +650,13 @@ def Change__SKU(request, pid=None):
 
     return render(request, 'sku/change_sku.html', context)
 
+
 @login_required
 def Delete__SKU(request, pid):
     sku = SKU.objects.get(id=pid)  # Fetch the SKU object
     sku.delete()
     return redirect('view_sku')
+
 
 @login_required
 def Print__SKU(request, pid):
@@ -483,7 +671,8 @@ def Print__SKU(request, pid):
         return render(request, 'sku/print_ajio.html', {'sku': sku})
     else:
         return render(request, 'sku/print_myntra.html', {'sku': sku})
-        
+
+
 @login_required
 def Print__Barcode(request, pid):
     sku = SKU.objects.get(id=pid)  # Fetch the SKU object
@@ -491,6 +680,7 @@ def Print__Barcode(request, pid):
         messages.warning(request, 'SKU code is not in a proper format, hence barcode cannot be printed')
         return redirect('view_sku')
     return render(request, 'sku/print_barcode.html', {'sku': sku})
+
 
 @login_required
 def Copy__SKU(request, pid=None):
@@ -546,6 +736,7 @@ def Copy__SKU(request, pid=None):
     )
 
     return redirect("view_sku")
+
 
 @login_required
 def Meesho_Template(request, sku_list):
@@ -736,6 +927,7 @@ def Meesho_Template(request, sku_list):
 
     wb.save(response)
     return response
+
 
 @login_required
 def Flipkart_Template(request, sku_list):
@@ -1022,6 +1214,7 @@ def Flipkart_Template(request, sku_list):
     wb.save(response)
     return response
 
+
 @login_required
 def Snapdeal_Template(request, sku_list):
     sku_list, _ = get_filtered_skus(request)
@@ -1252,7 +1445,9 @@ def Snapdeal_Template(request, sku_list):
             if sku.blouse_fabric else "",
 
             # Blouse Color
-            blouse_color,
+            # blouse_color,
+            get_snapdeal_blouse_color(sku.blouse_color) if sku.blouse_color else "",
+
 
             # Border Specific
             sku.get_border_display()
@@ -1307,6 +1502,7 @@ def Snapdeal_Template(request, sku_list):
     wb.save(response)
 
     return response
+
 
 @login_required
 def Myntra_Template(request, sku_list):
@@ -1589,14 +1785,21 @@ def Myntra_Template(request, sku_list):
 
     return response
 
+
 @login_required
 def View__VMS(request):
+    if request.user.is_staff:
+        vms_list = VMS.objects.all().order_by('-id')
+    else:
+        profile = Profile.objects.get(user=request.user)
+        print(profile)
+        vms_list = VMS.objects.filter(vendor=profile).order_by('-id')
+        print(vms_list.count())
+
     if request.method == 'GET':
         search_query = request.GET.get('search', '').strip()
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
-
-        vms_list = VMS.objects.all().order_by('-id')
 
         # Filter by start date
         if start_date:
@@ -1634,7 +1837,8 @@ def View__VMS(request):
             'start_date': start_date,
             'end_date': end_date,
         }
-
+        print("FINAL VMS COUNT:", vms_list.count())
+        print("FINAL VMS:", list(vms_list))
         return render(request, 'vms/view_vms.html', context)
 
 @login_required
@@ -1686,13 +1890,16 @@ def Delete__VMS(request):
         return render(request, 'vms/view_vms.html', context)
 
 @csrf_exempt
+@login_required
 def save_video(request):
     if request.method == 'POST':
         tracking_id = request.POST.get('tracking_id')
         video_file = request.FILES.get('video_file')
         transaction_type = request.POST.get('transaction_type')
+        profile = Profile.objects.get(user=request.user)
 
         vms = VMS.objects.create(
+            vendor=profile,
             tracking_id=tracking_id,
             video_type=transaction_type,
             video_file=video_file

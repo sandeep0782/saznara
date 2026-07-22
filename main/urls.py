@@ -22,6 +22,10 @@ from .views import *
 urlpatterns = [
     path('', home, name='home'),
 
+    path('add_vendor/', Change__Vendor, name='add_vendor'),
+    path( 'vendor/change/<int:pid>/', Change__Vendor, name='change_vendor' ),
+    path('view_vendors/', View__Vendors, name='view_vendors'),
+
     path('view_sku/', View__SKU, name='view_sku'),
     path('add_sku/', Change__SKU, name='add_sku'),
     path('change_sku/<int:pid>/', Change__SKU, name='change_sku'),

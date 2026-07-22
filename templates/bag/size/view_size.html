@@ -20,7 +20,11 @@
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
             </div>
-            <a href="{% url 'add_size' %}" class="btn btn-primary">Add Size</a>
+            <div>
+                {% if request.user.is_superuser %}
+                <a href="{% url 'add_size' %}" class="btn btn-primary">Add Size</a>
+                {% endif %}
+            </div>
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped table-bordered">
@@ -29,8 +33,10 @@
                         <th>S.No</th>
                         <th>Name</th>
                         <th>Abb</th>
+                        {% if request.user.is_superuser %}
                         <th>Edit</th>
                         <th>Delete</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -39,16 +45,20 @@
                         <td>{{ forloop.counter }}</td>
                         <td>{{ i.size }}</td>
                         <td>{{ i.abb }}</td>
+                        {% if request.user.is_superuser %}
                         <td>
-                            <a class="btn btn-primary btn-sm" href="{% url 'change_size' i.id %}" aria-label="Edit Size">
+                            <a class="btn btn-primary btn-sm" href="{% url 'change_size' i.id %}"
+                                aria-label="Edit Size">
                                 <i class="fas fa-edit"></i>
                             </a>
                         </td>
                         <td>
-                            <a class="btn btn-danger btn-sm" href="{% url 'delete_size' i.id %}" aria-label="Delete Size">
+                            <a class="btn btn-danger btn-sm" href="{% url 'delete_size' i.id %}"
+                                aria-label="Delete Size">
                                 <i class="fas fa-trash"></i>
                             </a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -60,27 +70,30 @@
                         <a class="page-link" href="?page=1&search={{ search_query }}">&laquo; First</a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ size.previous_page_number }}&search={{ search_query }}">Previous</a>
+                        <a class="page-link"
+                            href="?page={{ size.previous_page_number }}&search={{ search_query }}">Previous</a>
                     </li>
                     {% endif %}
-                    
+
                     <!-- Page Numbers -->
                     {% for page_num in size.paginator.page_range %}
-                    {% if page_num >= size.number|add:-2 and page_num <= size.number|add:2 %}
-                    <li class="page-item {% if page_num == size.number %}active{% endif %}">
+                    {% if page_num >= size.number|add:-2 and page_num <= size.number|add:2 %} <li
+                        class="page-item {% if page_num == size.number %}active{% endif %}">
                         <a class="page-link" href="?page={{ page_num }}&search={{ search_query }}">{{ page_num }}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                    
-                    {% if size.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ size.next_page_number }}&search={{ search_query }}">Next</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ size.paginator.num_pages }}&search={{ search_query }}">Last &raquo;</a>
-                    </li>
-                    {% endif %}
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if size.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page={{ size.next_page_number }}&search={{ search_query }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page={{ size.paginator.num_pages }}&search={{ search_query }}">Last &raquo;</a>
+                        </li>
+                        {% endif %}
                 </ul>
             </nav>
         </div>

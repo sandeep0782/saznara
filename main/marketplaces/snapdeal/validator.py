@@ -1,4 +1,4 @@
-from main.marketplaces.snapdeal.mappings import ( get_snapdeal_blouse,get_snapdeal_blouse_fabric, get_snapdeal_blouse_pattern, get_snapdeal_border, get_snapdeal_color, get_snapdeal_ornamentation, get_snapdeal_pattern, get_snapdeal_print_or_pattern_type, get_snapdeal_saree_fabric, get_snapdeal_technique
+from main.marketplaces.snapdeal.mappings import ( get_snapdeal_blouse, get_snapdeal_blouse_color,get_snapdeal_blouse_fabric, get_snapdeal_blouse_pattern, get_snapdeal_border, get_snapdeal_color, get_snapdeal_ornamentation, get_snapdeal_pattern, get_snapdeal_print_or_pattern_type, get_snapdeal_saree_fabric, get_snapdeal_technique
 )
 
 
@@ -138,6 +138,90 @@ def validate_snapdeal_colors(sku_list):
             )
 
     return list(set(invalid_colors))
+
+
+SNAPDEAL_ALLOWED_BLOUSE_COLORS = {
+    "Beige",
+    "Black",
+    "Blue",
+    "Brown",
+    "Gold",
+    "Grey",
+    "Green",
+    "Maroon",
+    "Orange",
+    "Pink",
+    "Purple",
+    "Red",
+    "Silver",
+    "White",
+    "Yellow",
+    "Not Applicable",
+    "Multicolor",
+    "Cream",
+    "Nude",
+    "Navy Blue",
+    "Teal",
+    "Indigo",
+    "Light Blue",
+    "Bronze",
+    "Camel",
+    "Coffee",
+    "Fluorescent Green",
+    "Olive",
+    "Sea Green",
+    "Mint Green",
+    "Lime Green",
+    "Charcoal",
+    "Grey Melange",
+    "Dark Grey",
+    "Light Grey",
+    "Rust",
+    "Fluorescent Orange",
+    "Fluorescent Pink",
+    "Magenta",
+    "Rose Gold",
+    "Mauve",
+    "Violet",
+    "Lavender",
+    "Burgundy",
+    "Wine",
+    "Khaki",
+    "Tan",
+    "Turquoise",
+    "Coral",
+    "Peach",
+    "Off White",
+    "Mustard",
+    "Aqua Blue",
+}
+
+
+def validate_snapdeal_blouse_colors(sku_list):
+
+    invalid_blouse_colors = []
+
+    for sku in sku_list:
+
+        if not sku.blouse_color:
+            continue
+
+        original_blouse_color = sku.blouse_color
+
+        mapped_color = get_snapdeal_blouse_color(original_blouse_color)
+
+        if not mapped_color:
+            invalid_blouse_colors.append(
+                f"{original_blouse_color} - Missing mapping"
+            )
+            continue
+
+        if mapped_color not in SNAPDEAL_ALLOWED_BLOUSE_COLORS:
+            invalid_blouse_colors.append(
+                f"{original_blouse_color} -> {mapped_color} - Not a valid Snapdeal color"
+            )
+
+    return list(set(invalid_blouse_colors))
 
 
 
@@ -673,6 +757,13 @@ def validate_snapdeal_template(sku_list):
 
     if color_errors:
         errors["Color"] = color_errors
+
+
+    # BLOUSE COLORS
+    blouse_color_errors = validate_snapdeal_blouse_colors(sku_list)
+
+    if blouse_color_errors:
+        errors["Blouse Color"] = blouse_color_errors
 
 
 

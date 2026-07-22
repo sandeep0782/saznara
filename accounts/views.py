@@ -11,6 +11,16 @@ from django.contrib import messages
 from .models import Profile
 import json
 
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth import get_user_model
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+
 
 def account_access_denied(request):
     reason = request.GET.get('reason')
@@ -343,3 +353,54 @@ def Is_Approved(request):
             return JsonResponse({'success': False, 'error': 'Item not found'}, status=404)
 
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.contrib.auth.views import PasswordResetView
+from django.template.loader import render_to_string
+
+class CustomPasswordResetView(PasswordResetView):
+
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name=None,
+    ):
+
+        subject = render_to_string(
+            subject_template_name,
+            context
+        )
+
+        subject = ''.join(subject.splitlines())
+
+        # Plain text version
+        text_content = render_to_string(
+            "accounts/password_reset_email.txt",
+            context
+        )
+
+        # HTML version
+        html_content = render_to_string(
+            "accounts/password_reset_email.html",
+            context
+        )
+
+        email = EmailMultiAlternatives(
+            subject,
+            text_content,   # IMPORTANT: txt file here
+            settings.DEFAULT_FROM_EMAIL,
+            [to_email]
+        )
+
+        email.attach_alternative(
+            html_content,
+            "text/html"
+        )
+
+        email.send()

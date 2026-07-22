@@ -25,6 +25,24 @@ def get_snapdeal_color(color_name):
         color_name.strip()
     )
 
+SNAPDEAL_BLOUSE_COLOR_MAPPING = {
+    "pink": "Pink",
+    "yellow": "Yellow",
+    "peach": "Peach",
+    "purple": "Purple",
+    "maroon": "Maroon",
+    "mehendi": "Olive",
+    "blue": "Blue",
+}
+
+
+def get_snapdeal_blouse_color(blouse_color_name):
+    if not blouse_color_name:
+        return None
+    return SNAPDEAL_BLOUSE_COLOR_MAPPING.get(
+        blouse_color_name.strip()
+    )
+
 # SNAPDEAL TECHNIQUE MAPPING
 SNAPDEAL_TECHNIQUE_MAPPING = {
     "bollywood":"Regular Saree",
