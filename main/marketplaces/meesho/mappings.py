@@ -140,6 +140,7 @@ MEESHO_BLOUSE_FABRIC_MAPPING = {
     "linen_blend":"Linen Blend",
     "chiffon":"Poly Chiffon",
     "jacquard": "Jacquard",
+    "dupion_silk": "Dupion Silk",
 
 }
 
