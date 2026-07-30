@@ -122,6 +122,7 @@ MEESHO_SAREE_FABRIC_MAPPING = {
     "georgette": "Poly Georgette",
     "simmer": "Polyester",
     "linen_blend": "Linen Blend",
+    "jacquard": "Jacquard",
 }
 
 
@@ -138,6 +139,7 @@ MEESHO_BLOUSE_FABRIC_MAPPING = {
     "georgette":"Poly Georgette",
     "linen_blend":"Linen Blend",
     "chiffon":"Poly Chiffon",
+    "jacquard": "Jacquard",
 
 }
 
@@ -178,7 +180,9 @@ MEESHO_PATTERN_MAPPING = {
    "SELF_DESIGN": "Woven Design",
    "EMBROIDERED": "Embroidered",
    "DIGITAL_PRINT": "Printed",
-   "ZARI_EMBROIDERED":"Zari Embroidered"
+   "ZARI_EMBROIDERED":"Zari Embroidered",
+   "WOVEN_DESIGN":"Woven Design"
+
 }
 
 
@@ -213,7 +217,8 @@ MEESHO_ORNAMENTATION = {
     # Direct matches
     "cutwork": "Jaali",
     "embroidered": "Embroidered",
-    "tassels_latkans": "NA"
+    "tassels_latkans": "NA",
+    "jacquard": "Jacquard",
 
 }
 
@@ -232,6 +237,7 @@ MEESHO_BORDER = {
     # Direct matches
     "embroidered": "Embroidered",
     "printed": "Printed",
+    "woven_design": "Woven Design",
 }
 
 
