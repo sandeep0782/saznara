@@ -1916,7 +1916,7 @@ def record_video_page(request):
     return render(request, 'vms/record_video.html')  # use the full path inside 'templates'
 
 
-@admin_only
+@login_required
 def download_database(request):
     db_path = settings.DATABASES["default"]["NAME"]
     db_file = Path(db_path)
