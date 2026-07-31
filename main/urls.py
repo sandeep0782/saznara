@@ -75,4 +75,7 @@ urlpatterns = [
 
     path('print_sku/<int:pid>/', Print__SKU, name='print_sku'),
     path('print_barcode/<int:pid>/', Print__Barcode, name='print_barcode'),
+
+    path("download-database/", download_database, name="download_database"),
+
 ]

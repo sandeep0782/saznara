@@ -10,27 +10,29 @@ from django.contrib.auth import authenticate, login
 from openpyxl.styles import PatternFill, Alignment
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.http import HttpResponse
 from main.template.mappings import *
 from django.contrib import messages
 from accounts.models import Profile
 from django.db import transaction
 from decimal import Decimal
 from copy import copy
-from django.contrib.admin.views.decorators import staff_member_required
-
+from main.marketplaces.snapdeal.mappings import get_snapdeal_blouse_color, get_snapdeal_blouse_pattern
 from main.marketplaces.myntra.validator import validate_myntra_colors, validate_myntra_template
-from main.marketplaces.myntra.mappings import *
-from main.marketplaces.meesho.validator import *
 from main.marketplaces.flipkart.validator import validate_flipkart_template
 from main.marketplaces.snapdeal.validator import validate_snapdeal_template
-from main.marketplaces.snapdeal.mappings import get_snapdeal_blouse_color, get_snapdeal_blouse_pattern
-from .models import *
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import FileResponse, HttpResponse
+from main.marketplaces.myntra.mappings import *
+from main.marketplaces.meesho.validator import *
+from django.conf import settings
+from .models import Profile
+from pathlib import Path
 from main.forms import *
+from .models import *
 import openpyxl
 import re
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from .models import Profile
+
 
 
 
@@ -1914,3 +1916,19 @@ def record_video_page(request):
     return render(request, 'vms/record_video.html')  # use the full path inside 'templates'
 
 
+@admin_only
+def download_database(request):
+    db_path = settings.DATABASES["default"]["NAME"]
+    db_file = Path(db_path)
+
+    if not db_file.exists():
+        return HttpResponse("Database file not found", status=404)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{timestamp}_database_backup.sqlite3"
+
+    return FileResponse(
+        open(db_file, "rb"),
+        as_attachment=True,
+        filename=filename,
+    )
