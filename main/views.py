@@ -2262,7 +2262,7 @@ def Flipkart_Template(request, sku_list):
         )
 
         technique = get_marketplace_value(
-            "MEESHO",
+            "FLIPKART",
             "TECHNIQUE",
             sku.get_type_display() if sku.type else None,
         )
