@@ -4,9 +4,9 @@ from main.models import MarketplaceMapping
 def get_marketplace_value(marketplace, attribute, value):
 
     if not value:
-        return ""
+        return "Error is not mapped"
 
-    return (
+    mapped_value = (
         MarketplaceMapping.objects.filter(
             marketplace=marketplace,
             attribute=attribute,
@@ -15,5 +15,6 @@ def get_marketplace_value(marketplace, attribute, value):
         )
         .values_list("mapped_value", flat=True)
         .first()
-        or ""
     )
+
+    return mapped_value or "Error is not mapped"

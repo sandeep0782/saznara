@@ -1,7 +1,12 @@
+import os
+import random
 import re
+import string
+import uuid
 from copy import copy
 from datetime import datetime, timedelta
 from decimal import Decimal
+from io import BytesIO
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -17,7 +22,9 @@ from django.db.models import Q
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
+from openpyxl import load_workbook
 from openpyxl.styles import Alignment, PatternFill
+from xlutils.copy import copy
 
 from accounts.decorators import admin_only
 from accounts.models import Profile
@@ -27,10 +34,6 @@ from main.marketplaces.meesho.validator import *
 from main.marketplaces.myntra.mappings import *
 from main.marketplaces.myntra.validator import (
     validate_myntra_template,
-)
-from main.marketplaces.snapdeal.mappings import (
-    get_snapdeal_blouse_color,
-    get_snapdeal_blouse_pattern,
 )
 from main.marketplaces.snapdeal.validator import validate_snapdeal_template
 from main.models import SKU, Article_Type, Brand, Color, Gender, Size, Unit
@@ -1000,7 +1003,7 @@ def Flipkart_Template1(request, sku_list):
 
 
 @login_required
-def Snapdeal_Template(request, sku_list):
+def Snapdeal_Template1(request, sku_list):
     sku_list, _ = get_filtered_skus(request)
 
     validation_errors = validate_snapdeal_template(sku_list)
@@ -1500,9 +1503,7 @@ def View__VMS(request):
         vms_list = VMS.objects.all().order_by("-id")
     else:
         profile = Profile.objects.get(user=request.user)
-        print(profile)
         vms_list = VMS.objects.filter(vendor=profile).order_by("-id")
-        print(vms_list.count())
 
     if request.method == "GET":
         search_query = request.GET.get("search", "").strip()
@@ -1547,8 +1548,7 @@ def View__VMS(request):
             "start_date": start_date,
             "end_date": end_date,
         }
-        print("FINAL VMS COUNT:", vms_list.count())
-        print("FINAL VMS:", list(vms_list))
+
         return render(request, "vms/view_vms.html", context)
 
 
@@ -2048,10 +2048,6 @@ def Meesho_Template(request, sku_list):
 #             sku.get_border_width_display() if sku.border_width else None,
 #         )
 
-#         # print("SKU:", sku.sku)
-#         # print("border_width raw:", sku.border_width)
-#         # print("border_width display:", sku.get_border_width_display() if sku.border_width else "NO VALUE")
-#         # print("FINAL border_width:", repr(border_width))
 #         ws.append(
 #             [
 #                 sku.sku or "",
@@ -2175,19 +2171,20 @@ def Meesho_Template(request, sku_list):
 
 #     return response
 
-import os
-import random
-import string
-import uuid
-
-from django.contrib.auth.decorators import login_required
-from xlutils.copy import copy
-
 
 @login_required
 def Flipkart_Template(request, sku_list):
 
     sku_list, _ = get_filtered_skus(request)
+
+    validation_errors = validate_flipkart_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/flipkart_error.html",
+            {"validation_errors": validation_errors},
+        )
 
     template_path = os.path.join(
         settings.BASE_DIR,
@@ -2398,5 +2395,206 @@ def Flipkart_Template(request, sku_list):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
     wb.save(response)
+
+    return response
+
+
+@login_required
+def Snapdeal_Template(request, sku_list):
+
+    sku_list, _ = get_filtered_skus(request)
+
+    validation_errors = validate_snapdeal_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/snapdeal_error.html",
+            {"validation_errors": validation_errors},
+        )
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        "main",
+        "marketplaces",
+        "snapdeal",
+        "Sdb673_Women's Saree_1727_1785657826347.xlsx",
+    )
+
+    wb = load_workbook(template_path)
+
+    # IMPORTANT: select correct sheet
+    ws = wb["Women's Saree_1727"]
+
+    # Remove merged cells from data area
+    for merged in list(ws.merged_cells.ranges):
+        if merged.min_row >= 5:
+            ws.unmerge_cells(str(merged))
+
+    # Start writing from A5
+    row = 4
+    col = 1
+
+    for sku in sku_list:
+        color = get_marketplace_value(
+            "SNAPDEAL", "COLOR", sku.color.color if sku.color else None
+        )
+
+        blouse = get_marketplace_value(
+            "SNAPDEAL", "BLOUSE", sku.get_blouse_display() if sku.blouse else None
+        )
+
+        border = get_marketplace_value(
+            "SNAPDEAL", "BORDER", sku.get_border_display() if sku.border else None
+        )
+
+        saree_fabric = get_marketplace_value(
+            "SNAPDEAL",
+            "SAREE_FABRIC",
+            sku.get_saree_fabric_display() if sku.saree_fabric else None,
+        )
+
+        blouse_fabric = get_marketplace_value(
+            "SNAPDEAL",
+            "BLOUSE_FABRIC",
+            sku.get_blouse_fabric_display() if sku.blouse_fabric else None,
+        )
+
+        occasion = get_marketplace_value(
+            "SNAPDEAL", "OCCASION", sku.get_occasion_display() if sku.occasion else None
+        )
+
+        ornamentation = get_marketplace_value(
+            "SNAPDEAL",
+            "ORNAMENTATION",
+            sku.get_ornamentation_display() if sku.ornamentation else None,
+        )
+
+        pattern = get_marketplace_value(
+            "SNAPDEAL", "PATTERN", sku.get_pattern_display() if sku.pattern else None
+        )
+
+        blouse_pattern = get_marketplace_value(
+            "SNAPDEAL",
+            "BLOUSE_PATTERN",
+            sku.get_blouse_pattern_display() if sku.blouse_pattern else None,
+        )
+
+        print_pattern_type = get_marketplace_value(
+            "SNAPDEAL",
+            "PRINT_OR_PATTERN_TYPE",
+            sku.get_print_or_pattern_type_display()
+            if sku.print_or_pattern_type
+            else None,
+        )
+
+        technique = get_marketplace_value(
+            "SNAPDEAL", "TECHNIQUE", sku.get_type_display() if sku.type else None
+        )
+
+        border_width = get_marketplace_value(
+            "SNAPDEAL",
+            "BORDER_WIDTH",
+            sku.get_border_width_display() if sku.border_width else None,
+        )
+
+        values = [
+            sku.id or "",
+            sku.sku or "",
+            sku.brand.name if sku.brand else "",
+            "",
+            color,
+            blouse,
+            technique,
+            saree_fabric,
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.company if sku.vendor else "",
+                        sku.vendor.address if sku.vendor else "",
+                        str(sku.vendor.pin) if sku.vendor else "",
+                    ],
+                )
+            ),
+            float(sku.saree_length or 5.5),
+            float(sku.blouse_length or 0.8),
+            "India",
+            "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.company if sku.vendor else "",
+                        sku.vendor.address if sku.vendor else "",
+                        str(sku.vendor.pin) if sku.vendor else "",
+                    ],
+                )
+            ),
+            "",
+            pattern,
+            "Pack of 1",
+            "Regular Saree",
+            sku.ref_no or "",
+            sku.mrp or "",
+            (sku.sale_price + 300) if sku.sale_price else "",
+            "100",
+            "2",
+            "5",
+            "20",
+            "25",
+            "0.400",
+            sku.product_image_link_1 or "",
+            sku.product_image_link_2 or "",
+            sku.product_image_link_3 or "",
+            sku.product_image_link_4 or "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            sku.style_description or "",
+            "",
+            "",
+            blouse_fabric,
+            color,  # blouse color
+            border,
+            "1.08",
+            "0.400",
+            "Sarees",
+            "",
+            blouse_pattern,
+            print_pattern_type,
+            occasion,
+            # keep remaining values exactly same as your existing list
+        ]
+
+        # Write starting from A5
+        for index, value in enumerate(values):
+            ws.cell(row=row, column=col + index, value=value)
+
+        row += 1
+
+    output = BytesIO()
+
+    wb.save(output)
+
+    output.seek(0)
+
+    template_filename = os.path.basename(template_path)
+
+    filename = template_filename
+
+    response = HttpResponse(
+        output.getvalue(),
+        content_type=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+    )
+
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
     return response

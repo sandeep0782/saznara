@@ -1,0 +1,3 @@
+SNAPDEAL_ALLOWED_FABRIC_CARE = {
+   
+}

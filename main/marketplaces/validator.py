@@ -21,11 +21,6 @@ def validate_marketplace_mapping(
 
         source_value = source_value.strip()
 
-        # print("DEBUG LOOKUP:")
-        # print("Marketplace:", repr(marketplace))
-        # print("Attribute:", repr(attribute))
-        # print("Source Value:", repr(source_value))
-
         mapped_value = (
             MarketplaceMapping.objects.filter(
                 marketplace=marketplace,
@@ -36,7 +31,6 @@ def validate_marketplace_mapping(
             .values_list("mapped_value", flat=True)
             .first()
         )
-        print("Mapped Value Found:", repr(mapped_value))
 
         # Missing mapping
         if not mapped_value:

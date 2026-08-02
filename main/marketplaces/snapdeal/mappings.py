@@ -1,165 +1,251 @@
-# SNAPDEAL COLOR MAPPING
-SNAPDEAL_COLOR_MAPPING = {
-    "Maroon": "Maroon",
-    "Peach": "Peach",
-    "Orange": "Orange",
-    "Blue": "Blue",
-    "Green": "Green",
+MEESHO_COLOR_MAPPING = {
+    "Aqua Blue": "Aqua Blue",
+    "Baby Blue": "Baby Blue",
+    "Beige": "Beige",
     "Black": "Black",
-    "Teal": "Teal",
-    "Pink": "Pink",
-    "White": "White",
-    "Mehendi": "Green",
-    "Yellow": "Yellow",
-    "Lavender": "Lavender",
-    "Red": "Red",
+    "Blue": "Blue",
+    "Bronze": "Bronze",
+    "Brown": "Brown",
+    "Copper": "Copper",
+    "Coral": "Coral",
     "Cream": "Cream",
+    "Dark Pink": "Dark Pink",
+    "Gajari": "Gajari",
+    "Gold": "Gold",
+    "Green": "Green",
+    "Grey": "Grey",
+    "Grey Melange": "Grey Melange",
+    "Indigo": "Indigo",
+    "Khaki": "Khaki",
+    "Lavender": "Lavender",
+    "Lemon Yellow": "Lemon Yellow",
+    "Maroon": "Maroon",
+    "Mehendi": "Mehendi",
+    "Metallic": "Metallic",
+    "Mint Green": "Mint Green",
+    "Multicolor": "Multicolor",
+    "Mustard": "Mustard",
+    "Navy Blue": "Navy Blue",
+    "Nude": "Nude",
+    "Olive": "Olive",
+    "Orange": "Orange",
+    "Pastel Blue": "Pastel Blue",
+    "Pastel Brown": "Pastel Brown",
+    "Pastel Orange": "Pastel Orange",
+    "Pastel Pink": "Pastel Pink",
+    "Pastel Red": "Pastel Red",
+    "Pastel Yellow": "Pastel Yellow",
+    "Peach": "Peach",
+    "Pink": "Pink",
     "Purple": "Purple",
+    "Rama": "Rama",
+    "Rani": "Rani",
+    "Red": "Red",
+    "Rust": "Rust",
+    "Sage": "Sage",
+    "Silver": "Silver",
+    "Sky Blue": "Sky Blue",
+    "Teal": "Teal",
+    "Tricolor": "Tricolor",
+    "Turquoise": "Turquoise",
+    "White": "White",
+    "Yellow": "Yellow",
 }
 
-
-def get_snapdeal_color(color_name):
+def get_meesho_color(color_name):
     if not color_name:
         return None
-    return SNAPDEAL_COLOR_MAPPING.get(
+
+    return MEESHO_COLOR_MAPPING.get(
         color_name.strip()
     )
 
-SNAPDEAL_BLOUSE_COLOR_MAPPING = {
-    "pink": "Pink",
-    "yellow": "Yellow",
-    "peach": "Peach",
-    "purple": "Purple",
-    "maroon": "Maroon",
-    "mehendi": "Olive",
-    "blue": "Blue",
+# MEESHO TECHNIQUE
+MEESHO_TECHNIQUE_MAPPING = {
+    # Direct matches
+   "bollywood":"NA",
+   "assam_silk":"NA",
+   "bagh":"Bagh",
+   "balaton_silk":"NA",
+   "baluchari":"Baluchari",
+   "banarasi":"Banarasi",
+   "bandhani":"Bandhani",
+   "bangalori_silk":"NA",
+   "begumpuri":"NA",
+   "belt_saree":"NA",
+   "bhagalpuri":"Bhagalpuri",
+   "bishnupuri":"NA",
+   "bomkai_sonepuri":"Bomkai silk",
+   "brasso":"NA",
+   "cape_saree":"NA",
+   "chanderi":"Chanderi",
+   "chettinad":"Chettinad",
+   "chikankari":"NA",
+   "christian_bride":"NA",
+   "cowdial_sarees":"NA",
 }
 
-
-def get_snapdeal_blouse_color(blouse_color_name):
-    if not blouse_color_name:
-        return None
-    return SNAPDEAL_BLOUSE_COLOR_MAPPING.get(
-        blouse_color_name.strip()
-    )
-
-# SNAPDEAL TECHNIQUE MAPPING
-SNAPDEAL_TECHNIQUE_MAPPING = {
-    "bollywood":"Regular Saree",
-}
-
-def get_snapdeal_technique(type):
+def get_meesho_technique(type):
     if not type:
         return None
-    return SNAPDEAL_TECHNIQUE_MAPPING.get(
+
+    return MEESHO_TECHNIQUE_MAPPING.get(
         type.strip()
     )
 
-# SNAPDEAL SAREE FABRIC
-SNAPDEAL_SAREE_FABRIC_MAPPING = {
-"simmer": "Shimmer",
-"georgette": "Georgette",
-"linen_blend": "Linen",
+# MEESHO OCCATION
+MEESHO_OCCASION_MAPPING = {
+    # Direct matches
+    "party_and_festive": "Party",
+    "party":"Party",
+    "celebrity_inspired":"Party",
+    "bridal_saree":"Traditional",
+    "wedding":"Traditional",
+    "daily":"Daily",
+    "farewell":"Party",
+    "traditional":"Traditional"
 }
 
 
-def get_snapdeal_saree_fabric(saree_fabric):
-    if not saree_fabric:
+def get_meesho_occasion(occasion):
+    if not occasion:
         return None
-    return SNAPDEAL_SAREE_FABRIC_MAPPING.get(
-        saree_fabric.strip()
+
+    return MEESHO_OCCASION_MAPPING.get(
+        occasion.strip()
     )
 
-# SNAPDEAL BLOUSE FABRIC
-SNAPDEAL_BLOUSE_FABRIC_MAPPING = {
-"linen_blend": "Linen",
-"georgette": "Georgette",
-"chiffon": "Chiffon",
+
+# MEESHO SAREE FABRIC
+MEESHO_SAREE_FABRIC_MAPPING = {
+    # Direct matches
+    "georgette": "Poly Georgette",
+    "simmer": "Polyester",
+    "linen_blend": "Linen Blend",
+    "jacquard": "Jacquard",
 }
 
-def get_snapdeal_blouse_fabric(blouse_fabric):
+
+def get_meesho_saree_fabric(saree_fabric):
+    if not saree_fabric:
+        return None
+
+    return MEESHO_SAREE_FABRIC_MAPPING.get(
+        saree_fabric.strip()
+    )
+# MEESHO BLOUSE FABRIC
+MEESHO_BLOUSE_FABRIC_MAPPING = {
+    # Direct matches
+    "georgette":"Poly Georgette",
+    "linen_blend":"Linen Blend",
+    "chiffon":"Poly Chiffon",
+    "jacquard": "Jacquard",
+    "dupion_silk": "Dupion Silk",
+
+}
+
+
+def get_meesho_blouse_fabric(blouse_fabric):
     if not blouse_fabric:
         return None
-    return SNAPDEAL_BLOUSE_FABRIC_MAPPING.get(
+
+    return MEESHO_BLOUSE_FABRIC_MAPPING.get(
         blouse_fabric.strip()
     )
 
-# SNAPDEAL BLOUSE
-SNAPDEAL_BLOUSE_MAPPING = {
-"separate_blouse_piece": "With Unstitched Blouse Piece"
+
+
+# MEESHO BLOUSE 
+MEESHO_BLOUSE_MAPPING = {
+    # Direct matches
+    "separate_blouse_piece":"Blouse Piece",
+    "saree_with_multiple_blouse":"Blouse Piece",
+    "running_blouse":"Blouse Piece",
+    "without_blouse":"NA",
+    "stitched_blouse":"Stitched Blouse",
+    "semi_stitched_blouse": "Blouse Piece"
 }
 
-def get_snapdeal_blouse(blouse):
+
+def get_meesho_blouse(blouse):
     if not blouse:
         return None
-    return SNAPDEAL_BLOUSE_MAPPING.get(
+
+    return MEESHO_BLOUSE_MAPPING.get(
         blouse.strip()
     )
 
-# SNAPDEAL PATTERN
-SNAPDEAL_PATTERN_MAPPING = {
-"SELF_DESIGN": "Self Design",
-"DIGITAL_PRINT": "Printed",
-"EMBROIDERED": "Embroidered",
+# MEESHO PATTERN 
+MEESHO_PATTERN_MAPPING = {
+    # Direct matches
+   "SELF_DESIGN": "Woven Design",
+   "EMBROIDERED": "Embroidered",
+   "DIGITAL_PRINT": "Printed",
+   "ZARI_EMBROIDERED":"Zari Embroidered",
+   "WOVEN_DESIGN":"Woven Design"
+
 }
 
-def get_snapdeal_pattern(pattern):
+
+def get_meesho_pattern(pattern):
     if not pattern:
         return None
-    return SNAPDEAL_PATTERN_MAPPING.get(
+
+    return MEESHO_PATTERN_MAPPING.get(
         pattern.strip()
     )
-
-
-# SNAPDEAL BLOUSE PATTERN
-SNAPDEAL_BLOUSE_PATTERN_MAPPING = {
-"same_as_saree": "Self Design",
-}
-
-def get_snapdeal_blouse_pattern(blouse_pattern):
-    if not blouse_pattern:
-        return None
-    return SNAPDEAL_BLOUSE_PATTERN_MAPPING.get(
-        blouse_pattern.strip()
-    )
-
-# SNAPDEAL PRINT/PATTERN TYPE
-SNAPDEAL_PRINT_OR_PATTERN_TYPE_MAPPING = {
-    "solid": "Solid",
-    "zari_butta": "Zari Work",
-    "woven_design": "Buta",
-    "floral": "Floral",
+# MEESHO PRINT_OR_PATTERN_TYPE_MAPPING
+MEESHO_PRINT_OR_PATTERN_TYPE_MAPPING = {
+    # Direct matches
+    "solid":"Solid",
+    "zari_butta": "Ethnic Motifs",
+    "woven_design": "Woven Design",
     "botanical": "Floral",
+    "floral": "Floral",
+    "ethnic_motif": "Ethnic Motifs",
 }
 
-def get_snapdeal_print_or_pattern_type(print_or_pattern_type):
+
+def get_meesho_print_or_pattern_type(print_or_pattern_type):
     if not print_or_pattern_type:
         return None
-    return SNAPDEAL_PRINT_OR_PATTERN_TYPE_MAPPING.get(
+
+    return MEESHO_PRINT_OR_PATTERN_TYPE_MAPPING.get(
         print_or_pattern_type.strip()
     )
+# MEESHO ORNAMENTATION 
+MEESHO_ORNAMENTATION = {
+    # Direct matches
+    "cutwork": "Jaali",
+    "embroidered": "Embroidered",
+    "tassels_latkans": "NA",
+    "jacquard": "Jacquard",
 
-# SNAPDEAL ORNAMENTATION
-SNAPDEAL_ORNAMENTATION_MAPPING = {
 }
 
 
-def get_snapdeal_ornamentation(ornamentation):
+def get_meesho_ornamentation(ornamentation):
     if not ornamentation:
         return None
-    return SNAPDEAL_ORNAMENTATION_MAPPING.get(
+
+    return MEESHO_ORNAMENTATION.get(
         ornamentation.strip()
     )
 
-# SNAPDEAL BORDER
-SNAPDEAL_BORDER_MAPPING = {
-"embroidered": "Embroidered",
-"printed": "Printed",
+
+# MEESHO BORDER 
+MEESHO_BORDER = {
+    # Direct matches
+    "embroidered": "Embroidered",
+    "printed": "Printed",
+    "woven_design": "Woven Design",
 }
 
-def get_snapdeal_border(border):
+
+def get_meesho_border(border):
     if not border:
         return None
-    return SNAPDEAL_BORDER_MAPPING.get(
+
+    return MEESHO_BORDER.get(
         border.strip()
     )

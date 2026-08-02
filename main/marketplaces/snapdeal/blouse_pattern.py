@@ -1,0 +1,17 @@
+SNAPDEAL_ALLOWED_BLOUSE_PATTERN = {
+    "Applique",
+    "Checks",
+    "Colorblock",
+    "Cut-Outs",
+    "Dyed",
+    "Embellished",
+    "Embroidered",
+    "Jacquard",
+    "Plain",
+    "Printed",
+    "Self Design",
+    "Sequined",
+    "Solid",
+    "Striped",
+    "Zari Woven",
+}

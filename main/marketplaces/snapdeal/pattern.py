@@ -1,0 +1,15 @@
+SNAPDEAL_ALLOWED_PATTERN = {
+    "Applique",
+    "Checked",
+    "Colorblock",
+    "Cut Outs",
+    "Dyed",
+    "Embellished",
+    "Embroidered",
+    "Printed",
+    "Self Design",
+    "Solid",
+    "Striped",
+    "Woven",
+    "Woven Design",
+}
