@@ -1,0 +1,17 @@
+MEESHO_ALLOWED_PATTERN = {
+    "Applique",
+    "Checked",
+    "Chikankari",
+    "Colorblocked",
+    "Digital Print",
+    "Dyed/ Washed",
+    "Embellished",
+    "Embroidered",
+    "Printed",
+    "Self-Design",
+    "Solid",
+    "Striped",
+    "Woven Design",
+    "Zari Embroidered",
+    "Zari Woven",
+}

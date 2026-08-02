@@ -1,741 +1,123 @@
+from main.marketplaces.meesho.blouse_pattern import MEESHO_ALLOWED_BLOUSE_PATTERN
+from main.marketplaces.meesho.pallu_details import MEESHO_ALLOWED_PALLU_DETAILS
+from main.marketplaces.validator import validate_marketplace_mapping
 
-from main.marketplaces.meesho.mappings import (
-    get_meesho_color,
-    get_meesho_technique,
-    get_meesho_occasion,
-    get_meesho_saree_fabric,
-    get_meesho_blouse_fabric,
-    get_meesho_blouse,
-    get_meesho_pattern,
-    get_meesho_print_or_pattern_type,
-    get_meesho_ornamentation,
-    get_meesho_border,
+from .blouse import MEESHO_ALLOWED_BLOUSE
+from .blouse_fabric import (
+    MEESHO_ALLOWED_BLOUSE_FABRIC,
 )
+from .border import MEESHO_ALLOWED_BORDER
+from .color import MEESHO_ALLOWED_COLORS
+from .occasion import MEESHO_ALLOWED_OCCASION
+from .ornamentation import MEESHO_ALLOWED_ORNAMENTATION
+from .pattern import MEESHO_ALLOWED_PATTERN
+from .print_pattern import MEESHO_ALLOWED_PRINT_OR_PATTERN_TYPE
+from .saree_fabric import MEESHO_ALLOWED_SAREE_FABRIC
+from .technique import MEESHO_ALLOWED_TECHNIQUE
 
-MEESHO_ALLOWED_COLORS = {
-"Aqua Blue",
-"Baby Blue",
-"Beige",
-"Black",
-"Blue",
-"Bronze",
-"Brown",
-"Copper",
-"Coral",
-"Cream",
-"Dark Pink",
-"Gajari",
-"Gold",
-"Green",
-"Grey",
-"Grey Melange",
-"Indigo",
-"Khaki",
-"Lavender",
-"Lemon Yellow",
-"Maroon",
-"Mehendi",
-"Metallic",
-"Mint Green",
-"Multicolor",
-"Mustard",
-"Navy Blue",
-"Nude",
-"Olive",
-"Orange",
-"Pastel Blue",
-"Pastel Brown",
-"Pastel Orange",
-"Pastel Pink",
-"Pastel Red",
-"Pastel Yellow",
-"Peach",
-"Pink",
-"Purple",
-"Rama",
-"Rani",
-"Red",
-"Rust",
-"Sage",
-"Silver",
-"Sky Blue",
-"Teal",
-"Tricolor",
-"Turquoise",
-"White",
-"Yellow",
-}
 
-# MEESHO COLORS
-def validate_meesho_colors(sku_list):
-
-    invalid_colors = []
-
-    for sku in sku_list:
-
-        if not sku.color:
-            continue
-
-        original_color = sku.color.color
-
-        mapped_color = get_meesho_color(original_color)
-
-        if not mapped_color:
-            invalid_colors.append(
-                f"{original_color} - Missing mapping"
-            )
-            continue
-
-        if mapped_color not in MEESHO_ALLOWED_COLORS:
-            invalid_colors.append(
-                f"{original_color} -> {mapped_color} - Not a valid Meesho color"
-            )
-
-    return list(set(invalid_colors))
-
-# MEESHO TECHNIQUE
-MEESHO_ALLOWED_TECHNIQUE = {
-"Bagh",
-"Baluchari",
-"Banarasi",
-"Bandhani",
-"Bhagalpuri",
-"Chanderi",
-"Ikat",
-"Jamdani",
-"Kanjeevaram",
-"Kasavu",
-"Kota",
-"Leheriya",
-"Maheshwari",
-"Mangalagiri",
-"Mysore Silk",
-"Narayan Peth",
-"Patola",
-"Pochampally",
-"Sambalpuri",
-"Taant",
-"Tussar",
-"Venkatgiri",
-"Khadi",
-"NA",
-"Dharmavaram",
-"Kovai",
-"Chettinad",
-"Muga",
-"Uppada",
-"Garad",
-"Paithani",
-"Arani",
-"Dabu",
-"Bagru",
-"Sungudi",
-"Murshidabad silk",
-"Bomkai silk",
-"Ilkal",
-"Gadwal",
-"Block Print",
-"Laal Paar",
-}
-
-def validate_meesho_type(sku_list):
-
-    invalid_type = []
-
-    for sku in sku_list:
-
-        if not sku.type:
-            continue
-
-        original_type = sku.type
-
-        mapped_technique = get_meesho_technique(original_type)
-
-        if not mapped_technique:
-            invalid_type.append(
-                f"{original_type} - Missing mapping"
-            )
-            continue
-
-        if mapped_technique not in MEESHO_ALLOWED_TECHNIQUE:
-            invalid_type.append(
-                f"{original_type} -> {mapped_technique} - Not a valid Meesho Type/ Technique"
-            )
-
-    return list(set(invalid_type))
-
-# MEESHO OCCATION
-MEESHO_ALLOWED_OCCASION = {
-"Daily",
-"Party",
-"Traditional",
-"Festive",
-"Work",
-"Fusion",
-}
-
-def validate_meesho_occasion(sku_list):
-
-    invalid_occasion = []
-
-    for sku in sku_list:
-
-        if not sku.occasion:
-            continue
-
-        original_saree_fabric = sku.occasion
-
-        mapped_occasion = get_meesho_occasion(original_saree_fabric)
-
-        if not mapped_occasion:
-            invalid_occasion.append(
-                f"{original_saree_fabric} - Missing mapping"
-            )
-            continue
-
-        if mapped_occasion not in MEESHO_ALLOWED_OCCASION:
-            invalid_occasion.append(
-                f"{original_saree_fabric} -> {mapped_occasion} - Not a valid Meesho Occation"
-            )
-
-    return list(set(invalid_occasion))
-
-# MEESHO SAREE FABRIC
-
-MEESHO_ALLOWED_SAREE_FABRIC = {
-    "Acrylic",
-    "Art Silk",
-    "Aura Silk",
-    "Bamboo",
-    "Banarasi Silk",
-    "Binny Silk",
-    "Brocade",
-    "Chambray",
-    "Chanderi Cotton",
-    "Chanderi Silk",
-    "Chiffon",
-    "Chinnon",
-    "Cotton",
-    "Cotton Blend",
-    "Cotton Cambric",
-    "Cotton Linen",
-    "Cotton Silk",
-    "Cotton Slub",
-    "Crepe",
-    "Denim",
-    "Dola Silk",
-    "Dupion Silk",
-    "Eri Silk",
-    "Georgette",
-    "Italian Silk",
-    "Jacquard",
-    "Jimmy Choo",
-    "Jute Cotton",
-    "Jute Khadi",
-    "Jute Silk",
-    "Kanchi Silk",
-    "Kanjeevaram Silk",
-    "Khadi Cotton",
-    "Khadi Silk",
-    "Khan",
-    "Kora Muslin",
-    "Kota Doria Cotton",
-    "Kota Doria Silk",
-    "Lace",
-    "Linen",
-    "Linen Blend",
-    "Litchi Silk",
-    "Lycra",
-    "Lycra Blend",
-    "Malai Cotton",
-    "Malai Silk",
-    "Modal Silk",
-    "Muga Silk",
-    "Mulberry Silk",
-    "Mulmul",
-    "Murshidabad Silk",
-    "Muslin",
-    "Mysore Silk",
-    "Net",
-    "Net (Soft Net)",
-    "Net (Supernet)",
-    "Nylon",
-    "Organza",
-    "Paper Silk",
-    "Pashmina",
-    "Poly Blend",
-    "Poly Chiffon",
-    "Poly Crepe",
-    "Poly Georgette",
-    "Poly Silk",
-    "Polycotton",
-    "Polyester",
-    "Rayon",
-    "Rayon Slub",
-    "Sana Silk",
-    "Satin",
-    "Satin Silk",
-    "Shantoon",
-    "Silk",
-    "Silk Blend",
-    "Silk Cotton",
-    "Silk Chiffon",
-    "Silk Crepe",
-    "Silk Georgette Satin",
-    "Simmer",
-    "Soft Silk",
-    "Super Net",
-    "Suti",
-    "Synthetic",
-    "Synthetic Crepe",
-    "Taant",
-    "Taffeta Silk",
-    "Tanchoi Silk",
-    "Tissue",
-    "Tripura Silk",
-    "Tussar",
-    "Tussar Silk",
-    "Twill Net",
-    "Vayal",
-    "Velvet",
-    "Vichitra Silk",
-    "Viscose",
-    "Viscose Georgette",
-    "Viscose Rayon",
-    "Viscose Silk",
-    "Voile",
-    "Wool",
-    "Zamato",
-}
-
-def validate_meesho_saree_fabric(sku_list):
-
-    invalid_saree_fabric = []
-
-    for sku in sku_list:
-
-        if not sku.saree_fabric:
-            continue
-
-        original_saree_fabric = sku.saree_fabric
-
-        mapped_saree_fabric = get_meesho_saree_fabric(original_saree_fabric)
-
-        if not mapped_saree_fabric:
-            invalid_saree_fabric.append(
-                f"{original_saree_fabric} - Missing mapping"
-            )
-            continue
-
-        if mapped_saree_fabric not in MEESHO_ALLOWED_SAREE_FABRIC:
-            invalid_saree_fabric.append(
-                f"{original_saree_fabric} -> {mapped_saree_fabric} - Not a valid Meesho Saree Fabric"
-            )
-
-    return list(set(invalid_saree_fabric))
-
-# MEESHO BLOUSE FABRIC
-
-MEESHO_ALLOWED_BLOUSE_FABRIC = {
-    "Acrylic",
-    "Art Silk",
-    "Bamboo",
-    "Banarasi Silk",
-    "Bangalori Silk",
-    "Brocade",
-    "Chambray",
-    "Chanderi Cotton",
-    "Chanderi Silk",
-    "Chiffon",
-    "Cotton",
-    "Cotton Blend",
-    "Cotton Cambric",
-    "Cotton Linen",
-    "Cotton Silk",
-    "Cotton Slub",
-    "Crepe",
-    "Denim",
-    "Dola Silk",
-    "Dupion Silk",
-    "Eri Silk",
-    "Georgette",
-    "Italian Silk",
-    "Jacquard",
-    "Jute Cotton",
-    "Jute Khadi",
-    "Jute Silk",
-    "Kanjeevaram Silk",
-    "Khadi Cotton",
-    "Khadi Silk",
-    "Khan",
-    "Kora Muslin",
-    "Kota Doria Cotton",
-    "Kota Doria Silk",
-    "Lace",
-    "Linen",
-    "Linen Blend",
-    "Litchi Silk",
-    "Lycra",
-    "Lycra Blend",
-    "Malai Silk",
-    "Muga Silk",
-    "Mulberry Silk",
-    "Mulmul",
-    "Muslin",
-    "Mysore Silk",
-    "Net",
-    "No Blouse",
-    "Nylon",
-    "Organza",
-    "Paper Silk",
-    "Pashmina",
-    "Poly Blend",
-    "Poly Chiffon",
-    "Poly Crepe",
-    "Poly Georgette",
-    "Poly Silk",
-    "Polycotton",
-    "Polyester",
-    "Rayon",
-    "Rayon Slub",
-    "Sana Silk",
-    "Satin",
-    "Satin Silk",
-    "Shantoon",
-    "Silk",
-    "Silk Blend",
-    "Soft Silk",
-    "Super Net",
-    "Suti",
-    "Synthetic",
-    "Synthetic Crepe",
-    "Taant",
-    "Taffeta Silk",
-    "Tissue",
-    "Tussar",
-    "Tussar Silk",
-    "Twill Net",
-    "Velvet",
-    "Vichitra Silk",
-    "Viscose",
-    "Viscose Rayon",
-    "Viscose Silk",
-    "Voile",
-    "Wool",
-}
-
-def validate_meesho_blouse_fabric(sku_list):
-
-    invalid_blouse_fabric = []
-
-    for sku in sku_list:
-
-        if not sku.blouse_fabric:
-            continue
-
-        original_blouse_fabric = sku.blouse_fabric
-
-        mapped_blouse_fabric = get_meesho_blouse_fabric(original_blouse_fabric)
-
-        if not mapped_blouse_fabric:
-            invalid_blouse_fabric.append(
-                f"{original_blouse_fabric} - Missing mapping"
-            )
-            continue
-
-        if mapped_blouse_fabric not in MEESHO_ALLOWED_BLOUSE_FABRIC:
-            invalid_blouse_fabric.append(
-                f"{original_blouse_fabric} -> {mapped_blouse_fabric} - Not a valid Meesho Blouse Fabric"
-            )
-
-    return list(set(invalid_blouse_fabric))
-
-# MEESHO BLOUSE FABRIC
-MEESHO_ALLOWED_BLOUSE = {
-"Blouse Piece",
-"NA",
-"Stitched Blouse",
-
-}
-
-def validate_meesho_blouse(sku_list):
-
-    invalid_blouse = []
-
-    for sku in sku_list:
-
-        if not sku.blouse:
-            continue
-
-        original_blouse = sku.blouse
-
-        mapped_blouse = get_meesho_blouse(original_blouse)
-
-        if not mapped_blouse:
-            invalid_blouse.append(
-                f"{original_blouse} - Missing mapping"
-            )
-            continue
-
-        if mapped_blouse not in MEESHO_ALLOWED_BLOUSE:
-            invalid_blouse.append(
-                f"{original_blouse} -> {mapped_blouse} - Not a valid Meesho Blouse"
-            )
-
-    return list(set(invalid_blouse))
-
-# MEESHO BLOUSE FABRIC
-MEESHO_ALLOWED_PATTERN = {
-"Applique"
-"Checked",
-"Chikankari",
-"Colourblocked",
-"Digital Print",
-"Dyed/ Washed",
-"Embellished",
-"Embroidered",
-"Printed",
-"Self-Design"
-"Solid",
-"Striped",
-"Woven Design",
-"Zari Embroidered",
-"Zari Woven",
-}
- 
-
-def validate_meesho_pattern(sku_list):
-
-    invalid_pttern = []
-
-    for sku in sku_list:
-
-        if not sku.pattern:
-            continue
-
-        original_pattern = sku.pattern
-
-        mapped_pattern = get_meesho_pattern(original_pattern)
-
-        if not mapped_pattern:
-            invalid_pttern.append(
-                f"{original_pattern} - Missing mapping"
-            )
-            continue
-
-        if mapped_pattern not in MEESHO_ALLOWED_PATTERN:
-            invalid_pttern.append(
-                f"{original_pattern} -> {mapped_pattern} - Not a valid Meesho Pattern"
-            )
-
-    return list(set(invalid_pttern))
-
-# MEESHO PRINT_OR_PATTERN_TYPE 
-MEESHO_ALLOWED_PRINT_OR_PATTERN_TYPE = {
-"Floral",
-"Paisley",
-"Abstract",
-"Polka Dots",
-"Geometric",
-"Woven Design",
-"Bandhani",
-"Leheriya",
-"Solid",
-"Ethnic Motifs",
-"Tie and Dye",
-"Embellished",
-"Checked",
-"Striped",
-"Colourblocked",
-"Ombre",
-"Bagh",
-"Dabu",
-"Ajrak",
-"Kalamkari",
-"Warli",
-"Batik",
-}
-
-def validate_meesho_print_or_pattern_type(sku_list):
-
-    invalid_print_or_pattern_type = []
-
-    for sku in sku_list:
-
-        if not sku.print_or_pattern_type:
-            continue
-
-        original_print_or_pattern_type = sku.print_or_pattern_type
-
-        mapped_print_or_pattern_type = get_meesho_print_or_pattern_type(original_print_or_pattern_type)
-
-        if not mapped_print_or_pattern_type:
-            invalid_print_or_pattern_type.append(
-                f"{original_print_or_pattern_type} - Missing mapping"
-            )
-            continue
-
-        if mapped_print_or_pattern_type not in MEESHO_ALLOWED_PRINT_OR_PATTERN_TYPE:
-            invalid_print_or_pattern_type.append(
-                f"{original_print_or_pattern_type} -> {mapped_print_or_pattern_type} - Not a valid Meesho Print Or Pattern Type"
-            )
-
-    return list(set(invalid_print_or_pattern_type))
-
-# MEESHO ORNAMENTATION
-
-MEESHO_ALLOWED_ORNAMENTATION = {
-    "Aari Work",
-    "Applique",
-    "Beads & Stones",
-    "Brocade",
-    "Brooch",
-    "Cutwork",
-    "Embroidered",
-    "Frills",
-    "Gota Work",
-    "Jacquard",
-    "Kundan",
-    "Lace border",
-    "Maggam Work",
-    "Mirror Work",
-    "Mukaish",
-    "Not Applicable",
-    "Patchwork",
-    "Pintucks",
-    "Pom - Pom",
-    "Pom-Pom",
-    "Ruffle",
-    "Sequinned",
-    "Tassels and Latkans",
-    "Zardozi",
-}
-
-def validate_meesho_ornamentation(sku_list):
-
-    invalid_ornamentation = []
-
-    for sku in sku_list:
-
-        if not sku.ornamentation:
-            continue
-
-        original_ornamentation = sku.ornamentation
-
-        mapped_ornamentation = get_meesho_ornamentation(original_ornamentation)
-
-        if not mapped_ornamentation:
-            invalid_ornamentation.append(
-                f"{original_ornamentation} - Missing mapping"
-            )
-            continue
-
-        if mapped_ornamentation not in MEESHO_ALLOWED_ORNAMENTATION:
-            invalid_ornamentation.append(
-                f"{original_ornamentation} -> {mapped_ornamentation} - Not a valid Meesho Ornamentation"
-            )
-
-    return list(set(invalid_ornamentation))
-
-# MEESHO BORDER
-MEESHO_ALLOWED_BORDER = {
-    "Embellished",
-    "Embroidered",
-    "Lace",
-    "No Border",
-    "Printed",
-    "Solid",
-    "Temple Border",
-    "Woven Design",
-    "Zari",
-}
-
-def validate_meesho_border(sku_list):
-
-    invalid_border = []
-
-    for sku in sku_list:
-
-        if not sku.border:
-            continue
-
-        original_border = sku.border
-
-        mapped_border = get_meesho_border(original_border)
-
-        if not mapped_border:
-            invalid_border.append(
-                f"{original_border} - Missing mapping"
-            )
-            continue
-
-        if mapped_border not in MEESHO_ALLOWED_BORDER:
-            invalid_border.append(
-                f"{original_border} -> {mapped_border} - Not a valid Meesho Border"
-            )
-
-    return list(set(invalid_border))
-
-# TEMPLATE
 def validate_meesho_template(sku_list):
 
     errors = {}
 
-    # COLORS ERRORS
-    color_errors = validate_meesho_colors(sku_list)
-    if color_errors:
-        errors["Color"] = color_errors
+    validations = [
+        (
+            "Color",
+            "COLOR",
+            lambda sku: sku.color.color if sku.color else None,
+            MEESHO_ALLOWED_COLORS,
+        ),
+        (
+            "Blouse Color",
+            "COLOR",
+            lambda sku: sku.get_blouse_color_display() if sku.blouse_color else None,
+            MEESHO_ALLOWED_COLORS,
+        ),
+        (
+            "Border",
+            "BORDER",
+            lambda sku: sku.get_border_display() if sku.border else None,
+            MEESHO_ALLOWED_BORDER,
+        ),
+        (
+            "Saree Fabric",
+            "SAREE_FABRIC",
+            lambda sku: sku.get_saree_fabric_display() if sku.saree_fabric else None,
+            MEESHO_ALLOWED_SAREE_FABRIC,
+        ),
+        (
+            "Blouse Fabric",
+            "BLOUSE_FABRIC",
+            lambda sku: sku.get_blouse_fabric_display() if sku.blouse_fabric else None,
+            MEESHO_ALLOWED_BLOUSE_FABRIC,
+        ),
+        (
+            "Blouse",
+            "BLOUSE",
+            lambda sku: sku.get_blouse_display() if sku.blouse else None,
+            MEESHO_ALLOWED_BLOUSE,
+        ),
+        (
+            "Blouse Pattern",
+            "BLOUSE_PATTERN",
+            lambda sku: (
+                sku.get_blouse_pattern_display() if sku.blouse_pattern else None
+            ),
+            MEESHO_ALLOWED_BLOUSE_PATTERN,
+        ),
+        (
+            "Pattern",
+            "PATTERN",
+            lambda sku: sku.get_pattern_display() if sku.pattern else None,
+            MEESHO_ALLOWED_PATTERN,
+        ),
+        (
+            "Print Or Pattern Type",
+            "PRINT_OR_PATTERN_TYPE",
+            lambda sku: (
+                sku.get_print_or_pattern_type_display()
+                if sku.print_or_pattern_type
+                else None
+            ),
+            MEESHO_ALLOWED_PRINT_OR_PATTERN_TYPE,
+        ),
+        (
+            "Ornamentation",
+            "ORNAMENTATION",
+            lambda sku: sku.get_ornamentation_display() if sku.ornamentation else None,
+            MEESHO_ALLOWED_ORNAMENTATION,
+        ),
+        (
+            "Occasion",
+            "OCCASION",
+            lambda sku: sku.get_occasion_display() if sku.occasion else None,
+            MEESHO_ALLOWED_OCCASION,
+        ),
+        (
+            "Type",
+            "TECHNIQUE",
+            lambda sku: sku.get_type_display() if sku.type else None,
+            MEESHO_ALLOWED_TECHNIQUE,
+        ),
+        (
+            "Pallu_details",
+            "PALLU_DETAILS",
+            lambda sku: sku.get_pallu_details_display() if sku.pallu_details else None,
+            MEESHO_ALLOWED_PALLU_DETAILS,
+        ),
+    ]
 
+    for field_name, attribute, getter, allowed_values in validations:
+        field_errors = validate_marketplace_mapping(
+            sku_list,
+            "MEESHO",
+            attribute,
+            field_name,
+            getter,
+            allowed_values,
+        )
 
-    # TECHNIQUE ERRORS
-    technique_errors = validate_meesho_type(sku_list)
-    if technique_errors:
-        errors["Type"] = technique_errors
-
-
-    # OCCASION ERRORS
-    occasion_errors = validate_meesho_occasion(sku_list)
-    if occasion_errors:
-        errors["Occasion"] = occasion_errors
-
-    # SAREE FABRIC ERRORS
-    saree_fabric_errors = validate_meesho_saree_fabric(sku_list)
-    if saree_fabric_errors:
-        errors["Saree Fabric"] = saree_fabric_errors
-
-    # BLOUSE FABRIC ERRORS
-    blouse_fabric_errors = validate_meesho_blouse_fabric(sku_list)
-    if blouse_fabric_errors:
-        errors["Blouse Fabric"] = blouse_fabric_errors
-    
-    # BLOUSE ERRORS
-    blouse_errors = validate_meesho_blouse(sku_list)
-    if blouse_errors:
-        errors["Blouse"] = blouse_errors
-
-    # BLOUSE ERRORS
-    pattern_errors = validate_meesho_pattern(sku_list)
-    if pattern_errors:
-        errors["Pattern"] = pattern_errors
-    
-    # print_or_pattern_type ERROR
-    print_or_pattern_type_errors = validate_meesho_print_or_pattern_type(sku_list)
-    if print_or_pattern_type_errors:
-        errors["Print Or Pattern Type"] = print_or_pattern_type_errors
-    
-    # Ornamentation ERROR
-    ornamentation_errors = validate_meesho_ornamentation(sku_list)
-    if ornamentation_errors:
-        errors["Ornamentation"] = ornamentation_errors
-    
-    # BORDER ERROR
-    border_errors = validate_meesho_border(sku_list)
-    if border_errors:
-        errors["Border"] = border_errors
-    
-    # fabric_errors = validate_meesho_fabric(sku_list)
-    # if fabric_errors:
-    #     errors["Fabric"] = fabric_errors
-
+        if field_errors:
+            errors[field_name] = field_errors
 
     return errors
