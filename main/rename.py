@@ -1,6 +1,6 @@
 import os
 
-root_path = r"C:\Users\SUNIL MISHRA\OneDrive\Desktop\Vidhata"
+root_path = r"/Users/krishna/Desktop/Rose Marry"
 # image extensions to target
 image_exts = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
 

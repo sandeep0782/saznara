@@ -3,7 +3,6 @@ import random
 import re
 import string
 import uuid
-from copy import copy
 from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
@@ -24,7 +23,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, PatternFill
-from xlutils.copy import copy
+from xlutils.copy import copy as xl_copy
 
 from accounts.decorators import admin_only
 from accounts.models import Profile
@@ -730,279 +729,6 @@ def Copy__SKU(request, pid=None):
 
 
 @login_required
-def Flipkart_Template1(request, sku_list):
-
-    sku_list, _ = get_filtered_skus(request)
-
-    validation_errors = validate_flipkart_template(sku_list)
-
-    if validation_errors:
-        return render(
-            request,
-            "validation/flipkart_error.html",
-            {"validation_errors": validation_errors},
-        )
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Flipkart Saree Template"
-
-    # =========================================================
-    # HEADERS
-    # =========================================================
-    headers = [
-        "Flipkart Serial Number",
-        "Catalog QC Status",
-        "QC Failed Reason (if any)",
-        "Flipkart Product Link",
-        "Seller SKU ID",
-        "Group ID",
-        "Listing Status",
-        "MRP (INR)",
-        "Your selling price (INR)",
-        "Fullfilment by",
-        "Procurement type",
-        "Procurement SLA (DAY)",
-        "Stock",
-        "Shipping provider",
-        "Local handling fee (INR)",
-        "Zonal handling fee (INR)",
-        "National handling fee (INR)",
-        "Length (CM)",
-        "Breadth (CM)",
-        "Height (CM)",
-        "Weight (KG)",
-        "HSN",
-        "Luxury Cess",
-        "Country Of Origin",
-        "Manufacturer Details",
-        "Packer Details",
-        "Importer Details",
-        "Tax Code",
-        "Minimum Order Quantity (MinOQ)",
-        "Brand",
-        "Occasion",
-        "Fabric",
-        "Pattern",
-        "Type",
-        "Sari Purity",
-        "Ideal For",
-        "Pack of",
-        "Fabric Care",
-        "Sari Length",
-        "Blouse Piece Length (m)",
-        "Sari Style",
-        "Brand Size",
-        "Brand Size - Measuring Unit",
-        "Style Code",
-        "Color",
-        "Brand Color",
-        "Blouse Piece Type",
-        "Main Image URL",
-        "Other Image URL 1",
-        "Other Image URL 2",
-        "Other Image URL 3",
-        "Other Image URL 4",
-        "Other Image URL 5",
-        "Other Image URL 6",
-        "Other Image URL 7",
-        "Main Palette Image URL",
-        "Pattern/Print Type",
-        "Border Details",
-        "Decorative Material",
-        "Blouse Fabric",
-        "Type of Embroidery",
-        "Secondary Color",
-        "Items Included",
-        "Video URL",
-        "Domestic Warranty",
-        "Domestic Warranty - Measuring Unit",
-        "International Warranty",
-        "International Warranty - Measuring Unit",
-        "Uniform",
-        "Construction Type",
-        "Handloom Product",
-        "Hand Embroidery",
-        "Border Length",
-        "Blouse Pattern",
-        "Embroidery Method",
-        "EAN/UPC",
-        "EAN/UPC - Measuring Unit",
-        "Weight (kg)",
-        "Other Details",
-        "Description",
-        "Search Keywords",
-        "Product Title",
-    ]
-
-    ws.append(headers)
-
-    # =========================================================
-    # DATA QUERY
-    # =========================================================
-
-    # =========================================================
-    # ROWS
-    # =========================================================
-    for sku in sku_list:
-        ws.append(
-            [
-                "",
-                "",
-                "",
-                "",
-                sku.sku or "",
-                sku.style_no or "",
-                "",
-                "",
-                "Active",
-                sku.mrp or 0,
-                (sku.sale_price or 0) + 200,
-                "Seller",
-                "instock",
-                2,
-                500,
-                "Flipkart",
-                0,
-                0,
-                0,
-                40,
-                30,
-                10,
-                0.450,
-                sku.hsn or "5407",
-                0,
-                "India",
-                ", ".join(
-                    filter(
-                        None,
-                        [
-                            sku.vendor.company if sku.vendor else "",
-                            sku.vendor.address if sku.vendor else "",
-                            str(sku.vendor.pin) if sku.vendor else "",
-                        ],
-                    )
-                ),
-                ", ".join(
-                    filter(
-                        None,
-                        [
-                            sku.vendor.company if sku.vendor else "",
-                            sku.vendor.address if sku.vendor else "",
-                            str(sku.vendor.pin) if sku.vendor else "",
-                        ],
-                    )
-                ),
-                ", ".join(
-                    filter(
-                        None,
-                        [
-                            sku.vendor.company if sku.vendor else "",
-                            sku.vendor.address if sku.vendor else "",
-                            str(sku.vendor.pin) if sku.vendor else "",
-                        ],
-                    )
-                ),
-                # ", ".join(filter(None, [
-                # getattr(profile, "company", ""),
-                # getattr(profile, "address", "")
-                # ])),
-                # ", ".join(filter(None, [
-                # getattr(profile, "company", ""),
-                # getattr(profile, "address", "")
-                # ])),
-                # ", ".join(filter(None, [
-                # getattr(profile, "company", ""),
-                # getattr(profile, "address", "")
-                # ])),
-                "GST_5",
-                1,
-                sku.brand.name if sku.brand else "",
-                FLIPKART_OCCASION_MAPPING.get(sku.get_occasion_display(), "")
-                if sku.occasion
-                else "",
-                sku.get_saree_fabric_display() if sku.saree_fabric else "",
-                sku.get_pattern_display() if sku.pattern else "",
-                sku.get_type_display() if sku.type else "",
-                "Synthetic" if sku.saree_fabric == "Polyester" else "Blend",
-                sku.gender.name if sku.gender else "Women",
-                1,
-                "Hand Wash::Wash with Like Colors",
-                str(sku.saree_length or 5.5) + "m",
-                sku.blouse_length or 0.8,
-                "Regular Sari",
-                sku.size.size.split()[0] if sku.size else "Free",
-                "Regular",
-                sku.sku or "",
-                FLIPKART_COLOR_MAPPING.get(sku.color.color, "")
-                if sku.color.color
-                else "",
-                FLIPKART_COLOR_MAPPING.get(sku.color.color, "")
-                if sku.color.color
-                else "",
-                "Unstitched",
-                sku.product_image_link_1 or "",
-                sku.product_image_link_2 or "",
-                sku.product_image_link_3 or "",
-                sku.product_image_link_4 or "",
-                sku.product_image_link_5 or "",
-                "",
-                "",
-                "",
-                "",
-                sku.get_print_or_pattern_type_display()
-                if sku.print_or_pattern_type
-                else "",
-                sku.get_border_display() if sku.border else "",
-                "",
-                sku.get_blouse_fabric_display() if sku.blouse_fabric else "",
-                "",
-                "",
-                "1::Saree",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                None
-                if sku.border_width == "no_border"
-                else (
-                    "Thin/Small" if sku.border_width == "small_border" else "Big/Thick"
-                ),
-                "Printed" if sku.blouse_pattern == "printed" else "Solid",
-                "Machine",
-                "",
-                "",
-                "",
-                (
-                    f"{sku.brand.name if sku.brand else ''} "
-                    f"{sku.color.color if sku.color else ''} "
-                    f"{sku.get_saree_fabric_display() if sku.saree_fabric else ''} "
-                    f"{sku.get_pattern_display() if sku.pattern else ''}"
-                ),
-                "women saree, latest saree, designer saree, party wear saree, wedding saree, festive saree, silk saree, cotton saree, georgette saree, traditional saree, ethnic saree, stylish saree, fashion saree, indian saree",
-            ]
-        )
-
-    # =========================================================
-    # RESPONSE
-    # =========================================================
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    response["Content-Disposition"] = (
-        'attachment; filename="flipkart_saree_template.xlsx"'
-    )
-
-    wb.save(response)
-    return response
-
-
-@login_required
 def Snapdeal_Template1(request, sku_list):
     sku_list, _ = get_filtered_skus(request)
 
@@ -1232,7 +958,7 @@ def Snapdeal_Template1(request, sku_list):
 
 
 @login_required
-def Myntra_Template(request, sku_list):
+def Myntra_Template1(request, sku_list):
     sku_list, _ = get_filtered_skus(request)
 
     validation_errors = validate_myntra_template(sku_list)
@@ -2194,14 +1920,18 @@ def Flipkart_Template(request, sku_list):
         "C_sari_f4d245f65fbb4767_0208-0936FK_REQQQKFLOKT6Q.xls",
     )
 
-    rb = xlrd.open_workbook(template_path, formatting_info=True)
-
-    wb = copy(rb)
+    rb = xlrd.open_workbook(
+        template_path,
+        formatting_info=True,
+        on_demand=False,
+    )
 
     sheet_index = rb.sheet_names().index("sari")
 
-    ws = wb.get_sheet(sheet_index)
+    wb = xl_copy(rb)
 
+    ws = wb.get_sheet(sheet_index)
+    
     # Excel G5
     row = 4
     col = 6
@@ -2520,7 +2250,7 @@ def Snapdeal_Template(request, sku_list):
             float(sku.saree_length or 5.5),
             float(sku.blouse_length or 0.8),
             "India",
-            "",
+            "Not Applicable",
             ", ".join(
                 filter(
                     None,
@@ -2531,7 +2261,7 @@ def Snapdeal_Template(request, sku_list):
                     ],
                 )
             ),
-            "",
+            "1",
             pattern,
             "Pack of 1",
             "Regular Saree",
@@ -2596,5 +2326,246 @@ def Snapdeal_Template(request, sku_list):
     )
 
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    return response
+
+
+@login_required
+def Myntra_Template(request, sku_list):
+
+    sku_list, _ = get_filtered_skus(request)
+
+    validation_errors = validate_myntra_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/myntra_error.html",
+            {"validation_errors": validation_errors},
+        )
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        "main",
+        "marketplaces",
+        "myntra",
+        "Myntra-Sku-Template-2026-08-03.xlsx",
+    )
+
+    wb = load_workbook(template_path)
+
+    ws = wb["Sarees"]
+
+    for merged in list(ws.merged_cells.ranges):
+        if merged.min_row >= 5:
+            ws.unmerge_cells(str(merged))
+
+    row = 3
+    col = 1
+
+    for sku in sku_list:
+        # -------------------------------
+        # Myntra mappings per SKU
+        # -------------------------------
+
+        color = get_marketplace_value(
+            "MYNTRA",
+            "COLOR",
+            sku.color.color if sku.color else None,
+        )
+
+        blouse = get_marketplace_value(
+            "MYNTRA",
+            "BLOUSE",
+            sku.get_blouse_display() if sku.blouse else None,
+        )
+
+        border = get_marketplace_value(
+            "MYNTRA",
+            "BORDER",
+            sku.get_border_display() if sku.border else None,
+        )
+
+        saree_fabric = get_marketplace_value(
+            "MYNTRA",
+            "SAREE_FABRIC",
+            sku.get_saree_fabric_display() if sku.saree_fabric else None,
+        )
+
+        blouse_fabric = get_marketplace_value(
+            "MYNTRA",
+            "BLOUSE_FABRIC",
+            sku.get_blouse_fabric_display() if sku.blouse else None,
+        )
+
+        occasion = get_marketplace_value(
+            "MYNTRA",
+            "OCCASION",
+            sku.get_occasion_display() if sku.occasion else None,
+        )
+
+        ornamentation = get_marketplace_value(
+            "MYNTRA",
+            "ORNAMENTATION",
+            sku.get_ornamentation_display() if sku.ornamentation else None,
+        )
+
+        pattern = get_marketplace_value(
+            "MYNTRA",
+            "PATTERN",
+            sku.get_pattern_display() if sku.pattern else None,
+        )
+
+        blouse_pattern = get_marketplace_value(
+            "MYNTRA",
+            "BLOUSE_PATTERN",
+            sku.get_blouse_pattern_display() if sku.blouse_pattern else None,
+        )
+
+        print_pattern_type = get_marketplace_value(
+            "MYNTRA",
+            "PRINT_OR_PATTERN_TYPE",
+            sku.get_print_or_pattern_type_display()
+            if sku.print_or_pattern_type
+            else None,
+        )
+
+        technique = get_marketplace_value(
+            "MYNTRA",
+            "TECHNIQUE",
+            sku.get_type_display() if sku.type else None,
+        )
+
+        border_width = get_marketplace_value(
+            "MYNTRA",
+            "BORDER_WIDTH",
+            sku.get_border_width_display() if sku.border_width else None,
+        )
+
+        # -------------------------------
+        # Excel row data
+        # -------------------------------
+
+        size = (
+            "Onesize"
+            if sku.size and sku.size.size == "Free Size"
+            else (sku.size.size if sku.size else "Onesize")
+        )
+
+        values = [
+            sku.id or "",
+            sku.sku or "",
+            sku.ref_no or "",
+            sku.sku or "",
+            sku.brand.name if sku.brand else "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.company if sku.vendor else "",
+                        sku.vendor.address if sku.vendor else "",
+                        str(sku.vendor.pin) if sku.vendor else "",
+                    ],
+                )
+            ),
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.company if sku.vendor else "",
+                        sku.vendor.address if sku.vendor else "",
+                        str(sku.vendor.pin) if sku.vendor else "",
+                    ],
+                )
+            ),
+            "",
+            "India",
+            "",
+            "",
+            "",
+            "",
+            "Sarees",
+            size,
+            size,
+            "Yes",
+            "",
+            "",
+            "5407",
+            "",
+            sku.mrp or "",
+            sku.mrp or "",
+            "Adults-Women",
+            color,
+            "",
+            "",
+            "Fashion",
+            occasion,
+            "2026",
+            "Spring",
+            "",
+            "",
+            sku.style_description or "",
+            "",
+            "Dry Clean Only",
+            "",
+            "",
+            "",
+            technique,
+            saree_fabric,
+            blouse_fabric,
+            blouse,
+            pattern,
+            print_pattern_type,
+            ornamentation,
+            border,
+            occasion,
+            "Dry Clean",
+            "",
+            "Regular",
+            "",
+            "NA",
+            "Piece",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "1",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            sku.product_image_link_1 or "",
+            sku.product_image_link_2 or "",
+            sku.product_image_link_3 or "",
+            sku.product_image_link_4 or "",
+            "",
+            "",
+            "",
+        ]
+
+        # Write row
+        for offset, value in enumerate(values):
+            ws.cell(row=row + 1, column=col + offset + 1, value=value)
+
+        row += 1
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    filename = "C_sari_myntra_template.xlsx"
+
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    wb.save(response)
 
     return response

@@ -1,34 +1,67 @@
-MYNTRA_COLOR_MAPPING = {
-    # Direct matches
+MEESHO_COLOR_MAPPING = {
+    "Aqua Blue": "Aqua Blue",
+    "Baby Blue": "Baby Blue",
+    "Beige": "Beige",
     "Black": "Black",
     "Blue": "Blue",
+    "Bronze": "Bronze",
     "Brown": "Brown",
+    "Copper": "Copper",
+    "Coral": "Coral",
     "Cream": "Cream",
+    "Dark Pink": "Dark Pink",
+    "Gajari": "Gajari",
     "Gold": "Gold",
-    "Mehendi":"Olive",
-    "Red":"Red",
-    "Teal":"Teal",
-    "Peach":"Peach",
-    "Lavender":"Lavender",
-    "Yellow":"Yellow",
-    "Purple":"Purple",
-    "Green":"Green",
-    "White":"White",
-    "Maroon":"Maroon",
-    "Orange":"Orange",
-    "Pink":"Pink"
+    "Green": "Green",
+    "Grey": "Grey",
+    "Grey Melange": "Grey Melange",
+    "Indigo": "Indigo",
+    "Khaki": "Khaki",
+    "Lavender": "Lavender",
+    "Lemon Yellow": "Lemon Yellow",
+    "Maroon": "Maroon",
+    "Mehendi": "Mehendi",
+    "Metallic": "Metallic",
+    "Mint Green": "Mint Green",
+    "Multicolor": "Multicolor",
+    "Mustard": "Mustard",
+    "Navy Blue": "Navy Blue",
+    "Nude": "Nude",
+    "Olive": "Olive",
+    "Orange": "Orange",
+    "Pastel Blue": "Pastel Blue",
+    "Pastel Brown": "Pastel Brown",
+    "Pastel Orange": "Pastel Orange",
+    "Pastel Pink": "Pastel Pink",
+    "Pastel Red": "Pastel Red",
+    "Pastel Yellow": "Pastel Yellow",
+    "Peach": "Peach",
+    "Pink": "Pink",
+    "Purple": "Purple",
+    "Rama": "Rama",
+    "Rani": "Rani",
+    "Red": "Red",
+    "Rust": "Rust",
+    "Sage": "Sage",
+    "Silver": "Silver",
+    "Sky Blue": "Sky Blue",
+    "Teal": "Teal",
+    "Tricolor": "Tricolor",
+    "Turquoise": "Turquoise",
+    "White": "White",
+    "Yellow": "Yellow",
 }
 
-def get_myntra_color(color_name):
+def get_meesho_color(color_name):
     if not color_name:
         return None
 
-    return MYNTRA_COLOR_MAPPING.get(
+    return MEESHO_COLOR_MAPPING.get(
         color_name.strip()
     )
 
-# MYNTRA TECHNIQUE
-MYNTRA_TECHNIQUE_MAPPING = {
+# MEESHO TECHNIQUE
+MEESHO_TECHNIQUE_MAPPING = {
     # Direct matches
    "bollywood":"NA",
    "assam_silk":"NA",
@@ -52,16 +85,16 @@ MYNTRA_TECHNIQUE_MAPPING = {
    "cowdial_sarees":"NA",
 }
 
-def get_myntra_technique(type):
+def get_meesho_technique(type):
     if not type:
         return None
 
-    return MYNTRA_TECHNIQUE_MAPPING.get(
+    return MEESHO_TECHNIQUE_MAPPING.get(
         type.strip()
     )
 
-# MYNTRA OCCATION
-MYNTRA_OCCASION_MAPPING = {
+# MEESHO OCCATION
+MEESHO_OCCASION_MAPPING = {
     # Direct matches
     "party_and_festive": "Party",
     "party":"Party",
@@ -74,54 +107,56 @@ MYNTRA_OCCASION_MAPPING = {
 }
 
 
-def get_myntra_occasion(occasion):
+def get_meesho_occasion(occasion):
     if not occasion:
         return None
 
-    return MYNTRA_OCCASION_MAPPING.get(
+    return MEESHO_OCCASION_MAPPING.get(
         occasion.strip()
     )
 
 
-
-# MYNTRA SAREE FABRIC
-MYNTRA_SAREE_FABRIC_MAPPING = {
+# MEESHO SAREE FABRIC
+MEESHO_SAREE_FABRIC_MAPPING = {
     # Direct matches
     "georgette": "Poly Georgette",
     "simmer": "Polyester",
     "linen_blend": "Linen Blend",
+    "jacquard": "Jacquard",
 }
 
 
-def get_myntra_saree_fabric(saree_fabric):
+def get_meesho_saree_fabric(saree_fabric):
     if not saree_fabric:
         return None
 
-    return MYNTRA_SAREE_FABRIC_MAPPING.get(
+    return MEESHO_SAREE_FABRIC_MAPPING.get(
         saree_fabric.strip()
     )
-# MYNTRA BLOUSE FABRIC
-MYNTRA_BLOUSE_FABRIC_MAPPING = {
+# MEESHO BLOUSE FABRIC
+MEESHO_BLOUSE_FABRIC_MAPPING = {
     # Direct matches
     "georgette":"Poly Georgette",
     "linen_blend":"Linen Blend",
     "chiffon":"Poly Chiffon",
+    "jacquard": "Jacquard",
+    "dupion_silk": "Dupion Silk",
 
 }
 
 
-def get_myntra_blouse_fabric(blouse_fabric):
+def get_meesho_blouse_fabric(blouse_fabric):
     if not blouse_fabric:
         return None
 
-    return MYNTRA_BLOUSE_FABRIC_MAPPING.get(
+    return MEESHO_BLOUSE_FABRIC_MAPPING.get(
         blouse_fabric.strip()
     )
 
 
 
-# MYNTRA BLOUSE 
-MYNTRA_BLOUSE_MAPPING = {
+# MEESHO BLOUSE 
+MEESHO_BLOUSE_MAPPING = {
     # Direct matches
     "separate_blouse_piece":"Blouse Piece",
     "saree_with_multiple_blouse":"Blouse Piece",
@@ -132,80 +167,85 @@ MYNTRA_BLOUSE_MAPPING = {
 }
 
 
-def get_myntra_blouse(blouse):
+def get_meesho_blouse(blouse):
     if not blouse:
         return None
 
-    return MYNTRA_BLOUSE_MAPPING.get(
+    return MEESHO_BLOUSE_MAPPING.get(
         blouse.strip()
     )
 
-# MYNTRA PATTERN 
-MYNTRA_PATTERN_MAPPING = {
+# MEESHO PATTERN 
+MEESHO_PATTERN_MAPPING = {
     # Direct matches
    "SELF_DESIGN": "Woven Design",
    "EMBROIDERED": "Embroidered",
-   "DIGITAL_PRINT": "Printed"
+   "DIGITAL_PRINT": "Printed",
+   "ZARI_EMBROIDERED":"Zari Embroidered",
+   "WOVEN_DESIGN":"Woven Design"
+
 }
 
 
-def get_myntra_pattern(pattern):
+def get_meesho_pattern(pattern):
     if not pattern:
         return None
 
-    return MYNTRA_PATTERN_MAPPING.get(
+    return MEESHO_PATTERN_MAPPING.get(
         pattern.strip()
     )
-# MYNTRA PRINT_OR_PATTERN_TYPE_MAPPING
-MYNTRA_PRINT_OR_PATTERN_TYPE_MAPPING = {
+# MEESHO PRINT_OR_PATTERN_TYPE_MAPPING
+MEESHO_PRINT_OR_PATTERN_TYPE_MAPPING = {
     # Direct matches
     "solid":"Solid",
     "zari_butta": "Ethnic Motifs",
     "woven_design": "Woven Design",
     "botanical": "Floral",
     "floral": "Floral",
+    "ethnic_motif": "Ethnic Motifs",
 }
 
 
-def get_myntra_print_or_pattern_type(print_or_pattern_type):
+def get_meesho_print_or_pattern_type(print_or_pattern_type):
     if not print_or_pattern_type:
         return None
 
-    return MYNTRA_PRINT_OR_PATTERN_TYPE_MAPPING.get(
+    return MEESHO_PRINT_OR_PATTERN_TYPE_MAPPING.get(
         print_or_pattern_type.strip()
     )
-# MYNTRA ORNAMENTATION 
-MYNTRA_ORNAMENTATION = {
+# MEESHO ORNAMENTATION 
+MEESHO_ORNAMENTATION = {
     # Direct matches
     "cutwork": "Jaali",
     "embroidered": "Embroidered",
-    "tassels_latkans": "NA"
+    "tassels_latkans": "NA",
+    "jacquard": "Jacquard",
 
 }
 
 
-def get_myntra_ornamentation(ornamentation):
+def get_meesho_ornamentation(ornamentation):
     if not ornamentation:
         return None
 
-    return MYNTRA_ORNAMENTATION.get(
+    return MEESHO_ORNAMENTATION.get(
         ornamentation.strip()
     )
 
 
-# MYNTRA BORDER 
-MYNTRA_BORDER = {
+# MEESHO BORDER 
+MEESHO_BORDER = {
     # Direct matches
     "embroidered": "Embroidered",
     "printed": "Printed",
-
+    "woven_design": "Woven Design",
 }
 
 
-def get_myntra_border(border):
+def get_meesho_border(border):
     if not border:
         return None
 
-    return MYNTRA_BORDER.get(
+    return MEESHO_BORDER.get(
         border.strip()
     )
