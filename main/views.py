@@ -1931,7 +1931,7 @@ def Flipkart_Template(request, sku_list):
     wb = xl_copy(rb)
 
     ws = wb.get_sheet(sheet_index)
-    
+
     # Excel G5
     row = 4
     col = 6
@@ -2488,9 +2488,9 @@ def Myntra_Template(request, sku_list):
             size,
             size,
             "Yes",
+            color,
             "",
-            "",
-            "5407",
+            "54075490",
             "",
             sku.mrp or "",
             sku.mrp or "",
@@ -2507,6 +2507,8 @@ def Myntra_Template(request, sku_list):
             sku.style_description or "",
             "",
             "Dry Clean Only",
+            "",
+            "",
             "",
             "",
             "",
@@ -2541,8 +2543,6 @@ def Myntra_Template(request, sku_list):
             "",
             "",
             "",
-            "",
-            "",
             sku.product_image_link_1 or "",
             sku.product_image_link_2 or "",
             sku.product_image_link_3 or "",
@@ -2562,9 +2562,12 @@ def Myntra_Template(request, sku_list):
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-    filename = "C_sari_myntra_template.xlsx"
+    filename = "myntra_template.xlsx"
 
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    new_filename = f"Myntra-Sku-Template-{date_str}{os.path.splitext(filename)[1]}"
+
+    response["Content-Disposition"] = f'attachment; filename="{new_filename}"'
 
     wb.save(response)
 
