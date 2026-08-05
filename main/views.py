@@ -3,6 +3,7 @@ import random
 import re
 import string
 import uuid
+from copy import copy
 from datetime import datetime, timedelta
 from decimal import Decimal
 from io import BytesIO
