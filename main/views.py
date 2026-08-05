@@ -2234,9 +2234,9 @@ def Snapdeal_Template(request, sku_list):
             sku.brand.name if sku.brand else "",
             "",
             color,
+            saree_fabric,
             blouse,
             technique,
-            saree_fabric,
             ", ".join(
                 filter(
                     None,
@@ -2294,7 +2294,7 @@ def Snapdeal_Template(request, sku_list):
             border,
             "1.08",
             "0.400",
-            "Sarees",
+            "Saree",
             "",
             blouse_pattern,
             print_pattern_type,
