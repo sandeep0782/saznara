@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Restricted</title>
+
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            min-height: 100vh;
+        }
+
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .error-card {
+            background: white;
+            border-radius: 15px;
+            padding: 45px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .error-icon {
+            font-size: 70px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .error-code {
+            font-size: 60px;
+            font-weight: 700;
+            color: #4e73df;
+        }
+
+        .btn-home {
+            margin-top: 25px;
+            padding: 12px 30px;
+            border-radius: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="error-container">
+
+    <div class="error-card">
+
+        <div class="error-icon">
+            ⚠️
+        </div>
+
+        {% if ratelimited %}
+            <div class="error-code">429</div>
+
+            <h3>Too Many Attempts</h3>
+
+            <p class="text-muted">
+                You have made too many registration attempts.
+                Please wait a while and try again.
+            </p>
+
+        {% else %}
+            <div class="error-code">403</div>
+
+            <h3>Access Denied</h3>
+
+            <p class="text-muted">
+                You do not have permission to access this page.
+            </p>
+
+        {% endif %}
+
+
+        <a href="/" class="btn btn-primary btn-home">
+            Go Back Home
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

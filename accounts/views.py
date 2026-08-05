@@ -1,20 +1,42 @@
 import json
+from smtplib import SMTPException
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import BadHeaderError, EmailMultiAlternatives, send_mail
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.views.decorators.http import require_POST
+from django_ratelimit.decorators import ratelimit
 
 from accounts.forms import UserRegisterForm
 
 from .decorators import admin_only, unauthenticated_user
 from .models import Profile
+
+
+def verify_turnstile(token, remote_ip=None):
+    response = requests.post(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        data={
+            "secret": settings.TURNSTILE_SECRET_KEY,
+            "response": token,
+            "remoteip": remote_ip,
+        },
+        timeout=10,
+    )
+
+    result = response.json()
+
+    return result.get("success", False)
 
 
 def get_client_ip(request):
@@ -33,34 +55,42 @@ def account_access_denied(request):
     return render(request, "accounts/account_access_denied.html", {"reason": reason})
 
 
-# Create your views here.
-# @unauthenticated_user
-# def register(request):
-#     if request.method == 'POST':
-#         form = UserRegisterForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             messages.success(request, 'Account created successfully! You can now log in.')
-#             return redirect('login')
-#     else:
-#         form = UserRegisterForm()
-#     return render(request, 'accounts/register.html', {'form': form})
-
-
-from django.urls import reverse
-from django.utils import timezone
-from django.utils.crypto import get_random_string
-
 User = get_user_model()
 
 
 @unauthenticated_user
+@ratelimit(key="ip", rate="5/h", block=True)
 def register(request):
+
     if request.method == "POST":
+        # -------------------------
+        # Cloudflare Turnstile Check
+        # -------------------------
+        turnstile_token = request.POST.get("cf-turnstile-response")
+
+        if not verify_turnstile(turnstile_token, request.META.get("REMOTE_ADDR")):
+            messages.error(request, "Please complete the security verification.")
+
+            form = UserRegisterForm(request.POST)
+
+            return render(
+                request,
+                "accounts/register.html",
+                {
+                    "form": form,
+                    "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
+        # -------------------------
+        # Form Validation
+        # -------------------------
         form = UserRegisterForm(request.POST)
 
         if form.is_valid():
-            # Create user with temporary password
+            # -------------------------
+            # Create User
+            # -------------------------
             user = form.save(commit=False)
 
             temp_password = get_random_string(length=10)
@@ -133,7 +163,7 @@ def register(request):
                     "Account created. Login details have been sent to your email.",
                 )
 
-            except Exception as e:
+            except (BadHeaderError, SMTPException) as e:
                 messages.warning(
                     request, f"Account created, but email delivery failed: {e}"
                 )
@@ -143,7 +173,14 @@ def register(request):
     else:
         form = UserRegisterForm()
 
-    return render(request, "accounts/register.html", {"form": form})
+    return render(
+        request,
+        "accounts/register.html",
+        {
+            "form": form,
+            "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+        },
+    )
 
 
 def login_view(request):
@@ -271,8 +308,11 @@ def send_email(request):
                 fail_silently=False,
             )
             messages.success(request, "Email sent successfully!")
-        except Exception as e:
-            messages.error(request, str(e))
+        except BadHeaderError:
+            messages.error(request, "Invalid email header detected.")
+
+        except SMTPException as e:
+            messages.error(request, f"Email sending failed: {e}")
     return render(request, "profile_not_approved.html")
 
 
