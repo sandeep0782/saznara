@@ -17,6 +17,22 @@ class UserRegisterForm(UserCreationForm):
             "password2",
         ]
 
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip()
+
+        if email.startswith("[") and "](" in email:
+            email = email.split("](")[0].replace("[", "")
+
+        return email
+
+    def clean_username(self):
+        username = self.cleaned_data["username"].strip()
+
+        if username.startswith("[") and "](" in username:
+            username = username.split("](")[0].replace("[", "")
+
+        return username
+
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:

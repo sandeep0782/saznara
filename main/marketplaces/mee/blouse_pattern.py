@@ -1,0 +1,15 @@
+MEESHO_ALLOWED_BLOUSE_PATTERN = {
+    "Embellished",
+    "Embroidered",
+    "Foil Printed",
+    "Jacquard", 
+    "Printed",
+    "Same as Border",
+    "Same as Pallu",
+    "Same as Saree",
+    "Sequence",
+    "Sequinned",
+    "Solid",
+    "Woven Design",
+    "Zari Woven",
+}

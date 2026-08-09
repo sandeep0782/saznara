@@ -59,11 +59,16 @@ User = get_user_model()
 
 
 @unauthenticated_user
-@ratelimit(key="ip", rate="5/h", block=True)
+# @ratelimit(key="ip", rate="5/h", block=True)
+@ratelimit(key="user_or_ip", rate="5/h", block=True)
 def register(request):
 
     if request.method == "POST":
-        # -------------------------
+
+        print("RAW POST DATA:")
+        for key, value in request.POST.items():
+            print(key, "=>", repr(value))
+                # -------------------------
         # Cloudflare Turnstile Check
         # -------------------------
         turnstile_token = request.POST.get("cf-turnstile-response")
@@ -93,6 +98,8 @@ def register(request):
             # -------------------------
             user = form.save(commit=False)
 
+            print("USERNAME BEFORE SAVE:", repr(user.username))
+            print("EMAIL BEFORE SAVE:", repr(user.email))
             temp_password = get_random_string(length=10)
 
             user.set_password(temp_password)
@@ -187,6 +194,15 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+        import logging
+        logger = logging.getLogger(__name__)
+
+        logger.warning("LOGIN USERNAME RECEIVED: %r", username)
+        logger.warning("LOGIN PASSWORD RECEIVED LENGTH: %s", len(password) if password else None)
+
+        user = authenticate(request, username=username, password=password)
+
+        logger.warning("AUTH RESULT: %r", user)
 
         user = authenticate(request, username=username, password=password)
 

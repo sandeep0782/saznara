@@ -1378,7 +1378,7 @@ def download_database(request):
 
 
 @login_required
-def Meesho_Template(request, sku_list):
+def Meesho_Template1(request, sku_list):
 
     sku_list, _ = get_filtered_skus(request)
 
@@ -2551,6 +2551,220 @@ def Myntra_Template(request, sku_list):
             "",
             "",
             "",
+        ]
+
+        # Write row
+        for offset, value in enumerate(values):
+            ws.cell(row=row + 1, column=col + offset + 1, value=value)
+
+        row += 1
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    filename = "myntra_template.xlsx"
+
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    new_filename = f"Myntra-Sku-Template-{date_str}{os.path.splitext(filename)[1]}"
+
+    response["Content-Disposition"] = f'attachment; filename="{new_filename}"'
+
+    wb.save(response)
+
+    return response
+
+
+@login_required
+def Meesho_Template(request, sku_list):
+
+    sku_list, _ = get_filtered_skus(request)
+
+    validation_errors = validate_meesho_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/meesho_error.html",
+            {"validation_errors": validation_errors},
+        )
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        "main",
+        "marketplaces",
+        "mee",
+        "Sarees-10003-EXTERNAL-MeeshoTemplate2PricesGSTIN.xlsx",
+    )
+
+    wb = load_workbook(template_path)
+
+    ws = wb["Sarees-Fill this"]
+
+    for merged in list(ws.merged_cells.ranges):
+        if merged.min_row >= 5:
+            ws.unmerge_cells(str(merged))
+
+    row = 4
+    col = 3
+
+    for sku in sku_list:
+        # -------------------------------
+        # Myntra mappings per SKU
+        # -------------------------------
+
+        color = get_marketplace_value(
+            "MEESHO",
+            "COLOR",
+            sku.color.color if sku.color else None,
+        )
+
+        blouse = get_marketplace_value(
+            "MEESHO",
+            "BLOUSE",
+            sku.get_blouse_display() if sku.blouse else None,
+        )
+
+        border = get_marketplace_value(
+            "MEESHO",
+            "BORDER",
+            sku.get_border_display() if sku.border else None,
+        )
+
+        saree_fabric = get_marketplace_value(
+            "MEESHO",
+            "SAREE_FABRIC",
+            sku.get_saree_fabric_display() if sku.saree_fabric else None,
+        )
+
+        blouse_fabric = get_marketplace_value(
+            "MEESHO",
+            "BLOUSE_FABRIC",
+            sku.get_blouse_fabric_display() if sku.blouse else None,
+        )
+
+        occasion = get_marketplace_value(
+            "MEESHO",
+            "OCCASION",
+            sku.get_occasion_display() if sku.occasion else None,
+        )
+
+        ornamentation = get_marketplace_value(
+            "MEESHO",
+            "ORNAMENTATION",
+            sku.get_ornamentation_display() if sku.ornamentation else None,
+        )
+
+        pattern = get_marketplace_value(
+            "MEESHO",
+            "PATTERN",
+            sku.get_pattern_display() if sku.pattern else None,
+        )
+
+        blouse_pattern = get_marketplace_value(
+            "MEESHO",
+            "BLOUSE_PATTERN",
+            sku.get_blouse_pattern_display() if sku.blouse_pattern else None,
+        )
+
+        print_pattern_type = get_marketplace_value(
+            "MEESHO",
+            "PRINT_OR_PATTERN_TYPE",
+            sku.get_print_or_pattern_type_display()
+            if sku.print_or_pattern_type
+            else None,
+        )
+
+        technique = get_marketplace_value(
+            "MEESHO",
+            "TECHNIQUE",
+            sku.get_type_display() if sku.type else None,
+        )
+
+        border_width = get_marketplace_value(
+            "MEESHO",
+            "BORDER_LENGTH",
+            sku.get_border_width_display() if sku.border_width else None,
+        )
+
+        # -------------------------------
+        # Excel row data
+        # -------------------------------
+
+        size = (
+            "Onesize"
+            if sku.size and sku.size.size == "Free Size"
+            else (sku.size.size if sku.size else "Onesize")
+        )
+
+        values = [
+            str(sku.article_type) if sku.article_type else "",
+            str(sku.size) if sku.size else "",
+            sku.sale_price or "",
+            (sku.sale_price - 10) if sku.sale_price is not None else "",
+            sku.mrp or "",
+            "5",
+            "5407",
+            "0.400",
+            "500",
+            "India",
+            sku.vendor.company if sku.vendor else "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.company if sku.vendor else "",
+                        sku.vendor.address if sku.vendor else "",
+                        str(sku.vendor.pin) if sku.vendor else "",
+                    ],
+                )
+            ),
+            str(sku.vendor.pin) if sku.vendor else "",
+            sku.vendor.company if sku.vendor else "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.company if sku.vendor else "",
+                        sku.vendor.address if sku.vendor else "",
+                        str(sku.vendor.pin) if sku.vendor else "",
+                    ],
+                )
+            ),
+            str(sku.vendor.pin) if sku.vendor else "",
+            "",
+            "",
+            "",
+            blouse,
+            border,
+            color,
+            str(sku.article_type) if sku.article_type else "",
+            "Single",
+            print_pattern_type,
+            saree_fabric,
+            "No" if str(sku.transparency).lower() == "no" else "Yes",
+            technique,
+            float(sku.blouse_length or 0.8),
+            float(sku.saree_length or 5.5),
+            sku.product_image_link_1 or "",
+            sku.product_image_link_2 or "",
+            sku.product_image_link_3 or "",
+            sku.product_image_link_4 or "",
+            sku.sku or "",
+            sku.sku or "",
+            sku.brand.name if sku.brand else "",
+            sku.id or "",
+            sku.style_description or "",
+            color,
+            blouse_fabric,
+            blouse_pattern,
+            border_width,
+            sku.brand.name if sku.brand else "",
+            sku.loom_type or "",
+            occasion,
+            ornamentation,
+            sku.pallu_details,
+            pattern,
         ]
 
         # Write row

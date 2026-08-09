@@ -28,7 +28,7 @@
                                     <form method="post">
                                         {% csrf_token %}
                                         <div class="form-floating mb-3">
-                                            <input class="form-control" name="username" id="inputEmail" type="email"
+                                            <input class="form-control" name="username" value="{{ user.email }}" id="inputEmail" type="email"
                                                 placeholder="name@example.com" />
                                             <label for="inputEmail">Email address</label>
                                         </div>

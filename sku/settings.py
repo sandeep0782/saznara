@@ -19,8 +19,8 @@ SECRET_KEY = "dsfsdjkfhdsjfhjsdfhjsdfhjfhdsjfdsjf"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
-# DEBUG = True
+# DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = True
 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 TURNSTILE_SITE_KEY = "0x4AAAAAAEHLf8g9sBE4JDme"
 TURNSTILE_SECRET_KEY = "0x4AAAAAAEHLfxFdJtnMmW4p-lVmaoCeNrI"
 
-RATELIMIT_IP_META_KEY = "HTTP_X_REAL_IP"
+RATELIMIT_IP_META_KEY = "HTTP_X_REAL_IP" if not DEBUG else "REMOTE_ADDR"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
