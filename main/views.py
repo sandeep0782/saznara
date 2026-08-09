@@ -2705,7 +2705,7 @@ def Meesho_Template(request, sku_list):
             sku.mrp or "",
             "5",
             "5407",
-            "0.400",
+            "400",
             "500",
             "India",
             sku.vendor.company if sku.vendor else "",
