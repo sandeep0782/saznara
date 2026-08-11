@@ -1,18 +1,353 @@
+
 {% extends 'base/main.html' %}
 {% block content %}
 
+<style>
+    /* =========================================================
+       SKU PAGE
+       ========================================================= */
+
+    .sku-image {
+        width: 42px;
+        height: 42px;
+        object-fit: cover;
+        border-radius: 7px;
+        cursor: pointer;
+        border: 1px solid #dee2e6;
+        background: #f8f9fa;
+        transition: all 0.2s ease;
+    }
+
+    .sku-image:hover {
+        transform: scale(1.08);
+        border-color: #0d6efd;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .copy-text {
+        cursor: pointer;
+        color: #0d6efd;
+        font-weight: 500;
+    }
+
+    .copy-text:hover {
+        text-decoration: underline;
+    }
+
+    .sku-table th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .sku-table td {
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+/* =========================================================
+   COMPACT IMAGE PREVIEW MODAL
+   ========================================================= */
+
+/* Make Bootstrap dialog fit the image */
+#imageModal .modal-dialog {
+    width: fit-content;
+    max-width: 95vw;
+    margin: 10px auto;
+    padding: 0;
+}
+
+/* Modal itself should only be as wide as necessary */
+#imageModal .modal-content {
+    width: fit-content;
+    max-width: 95vw;
+    min-width: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    overflow: hidden;
+
+    background: #111216;
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.6),
+        0 10px 30px rgba(0, 0, 0, 0.35);
+
+    position: relative;
+}
+
+/* Dark backdrop */
+#imageModal.show {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Image container */
+#imageModal .image-modal-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    min-width: 0;
+
+    padding: 10px;
+
+    background: #111216;
+}
+
+/* Don't stretch the wrapper */
+#imageModal .image-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    min-width: 0;
+}
+
+/* Actual image */
+#imageModal #modalImage {
+    display: block;
+
+    width: auto;
+    height: auto;
+
+    max-width: calc(95vw - 20px);
+    max-height: 82vh;
+
+    object-fit: contain;
+
+    border-radius: 9px;
+
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.45);
+
+    animation: imageZoom 0.22s ease-out;
+}
+
+/* Floating close button */
+#imageModal .image-modal-close {
+    position: absolute;
+    z-index: 20;
+
+    top: 10px;
+    right: 10px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+
+    font-size: 24px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    transition: all 0.2s ease;
+}
+
+#imageModal .image-modal-close:hover {
+    background: #fff;
+    color: #111;
+
+    transform: rotate(90deg);
+}
+
+/* Compact footer */
+#imageModal .image-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    padding: 9px 12px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    background: rgba(255, 255, 255, 0.025);
+}
+
+#imageModal .image-modal-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    color: rgba(255, 255, 255, 0.6);
+
+    font-size: 12px;
+}
+
+#imageModal .image-modal-label i {
+    color: #8b5cf6;
+}
+
+#imageModal .image-modal-close-btn {
+    padding: 5px 12px;
+
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 7px;
+
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+
+    font-size: 12px;
+
+    transition: all 0.2s ease;
+}
+
+#imageModal .image-modal-close-btn:hover {
+    background: #fff;
+    color: #111;
+}
+
+/* Animation */
+#imageModal .modal-dialog {
+    transform: scale(0.97);
+    transition: transform 0.2s ease;
+}
+
+#imageModal.show .modal-dialog {
+    transform: scale(1);
+}
+
+@keyframes imageZoom {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    #imageModal .modal-dialog {
+        width: auto;
+        max-width: calc(100vw - 10px);
+        margin: 5px auto;
+    }
+
+    #imageModal .modal-content {
+        max-width: calc(100vw - 10px);
+        border-radius: 13px;
+    }
+
+    #imageModal .image-modal-body {
+        padding: 6px;
+    }
+
+    #imageModal #modalImage {
+        max-width: calc(100vw - 22px);
+        max-height: 82vh;
+        border-radius: 7px;
+    }
+
+    #imageModal .image-modal-close {
+        top: 7px;
+        right: 7px;
+
+        width: 34px;
+        height: 34px;
+    }
+
+    #imageModal .image-modal-footer {
+        padding: 8px 10px;
+    }
+}
+
+
+/* =========================================================
+   SKU IN IMAGE MODAL
+   ========================================================= */
+
+#imageModal .image-modal-footer {
+    gap: 15px;
+}
+
+/* SKU */
+#imageModal .image-modal-sku {
+    flex: 1;
+
+    text-align: center;
+
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Small SKU label */
+#imageModal .image-modal-sku::before {
+    content: "SKU:";
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 400;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+
+    #imageModal .image-modal-footer {
+        gap: 8px;
+    }
+
+    #imageModal .image-modal-sku {
+        font-size: 12px;
+    }
+}
+</style>
+
+
 <div class="container-fluid px-4">
+
     <h4 class="mt-4">Sku View</h4>
 
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="">Home</a></li>
-        <li class="breadcrumb-item active">Sku</li>
+        <li class="breadcrumb-item">
+            <a href="">Home</a>
+        </li>
+        <li class="breadcrumb-item active">
+            Sku
+        </li>
     </ol>
 
+
+    <!-- =========================================================
+         SKU CARD
+         ========================================================= -->
+
     <div class="card mb-4">
+
         <div class="card-header">
+
             <div class="row align-items-center g-2">
 
+                <!-- Title -->
                 <div class="col-12 col-md-3">
                     <div class="fw-bold">
                         <i class="fas fa-table me-1"></i>
@@ -20,294 +355,652 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-5">
-                    <form method="GET">
-                        <input class="form-control"
-                               type="search"
-                               name="search"
-                               value="{{ search_query }}"
-                               placeholder="Search by SKU">
 
-                        <!-- reset to page 1 on search -->
-                        <input type="hidden" name="page" value="1">
+                <!-- Search -->
+                <div class="col-12 col-md-5">
+
+                    <form method="GET">
+
+                        <input
+                            class="form-control"
+                            type="search"
+                            name="search"
+                            value="{{ search_query }}"
+                            placeholder="Search by SKU">
+
+                        <input
+                            type="hidden"
+                            name="page"
+                            value="1">
+
                     </form>
+
                 </div>
 
+
+                <!-- Actions -->
                 <div class="col-12 col-md-4">
+
                     <div class="d-flex flex-wrap justify-content-md-end gap-2">
-                        <a href="{% url 'add_sku' %}" class="btn btn-primary">Add SKU</a>
-                        <!-- <a href="{% url 'meesho' %}" class="btn btn-warning">Meesho</a> -->
-                        <a href="?search={{ search_query }}&export=meesho" class="btn btn-warning">Meesho</a>
-                        <!-- <a href="{% url 'flipkart' %}" class="btn btn-success">Flipkart</a> -->
-                        <a href="?search={{ search_query }}&export=flipkart" class="btn btn-success">Flipkart</a>
-                        <a href="?search={{ search_query }}&export=snapdeal" class="btn btn-secondary">Snapdeal</a>
-                        <a href="?search={{ search_query }}&export=myntra" class="btn btn-danger">Myntra</a>
+
+                        <a
+                            href="{% url 'add_sku' %}"
+                            class="btn btn-primary">
+                            Add SKU
+                        </a>
+
+                        <a
+                            href="?search={{ search_query }}&export=meesho"
+                            class="btn btn-warning">
+                            Meesho
+                        </a>
+
+                        <a
+                            href="?search={{ search_query }}&export=flipkart"
+                            class="btn btn-success">
+                            Flipkart
+                        </a>
+
+                        <a
+                            href="?search={{ search_query }}&export=snapdeal"
+                            class="btn btn-secondary">
+                            Snapdeal
+                        </a>
+
+                        <a
+                            href="?search={{ search_query }}&export=myntra"
+                            class="btn btn-danger">
+                            Myntra
+                        </a>
+
                     </div>
+
                 </div>
 
             </div>
+
         </div>
+
+
+        <!-- =====================================================
+             TABLE
+             ===================================================== -->
 
         <div class="card-body table-responsive">
 
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered sku-table">
+
                 <thead>
+
                     <tr>
+
                         <th>S.No</th>
-                        <th>Imag-1</th>
+
+                        <th>Image-1</th>
                         <th>Image-2</th>
+
                         <th>SKU</th>
                         <th>Brand</th>
                         <th>Vendor</th>
                         <th>Article</th>
-                        <!-- <th>Gender</th> -->
+
                         <th>Ref No</th>
                         <th>Style Code</th>
                         <th>Color</th>
-                        <!-- <th>Size</th> -->
+
                         <th>Pur Price</th>
                         <th>Sale Price</th>
-                        <th>Mrp</th>
-
-                        <!-- <th>Blouse</th>
-                        <th>Border</th>
-                        <th>Print or Pattern Type</th>
-                        <th>Saree Fabric</th>
-                        <th>Transparency</th>
-                        <th>Type</th>
-
-                        <th>Blouse Length</th>
-                        <th>Saree Length</th>
-
-                        <th>Blouse Color</th>
-                        <th>Blouse Fabric</th>
-                        <th>Blouse Pattern</th>
-                        <th>Border Width</th>
-
-                        <th>Loom Type</th>
-                        <th>Occasion</th>
-                        <th>Ornamentation</th>
-                        <th>Pallu Details</th>
-                        <th>Pattern</th> -->
+                        <th>MRP</th>
 
                         <th>Copy</th>
+
                         {% if request.user.is_staff or request.user.is_superuser or user.profile.user_role == 2 %}
-                        <th>Delete</th>
+                            <th>Delete</th>
                         {% endif %}
+
                         <th>Edit</th>
                         <th>Barcode</th>
                         <th>Barcode</th>
+
                     </tr>
+
                 </thead>
 
+
                 <tbody>
+
                     {% for i in sku %}
+
                     <tr>
 
-                        <td>{{ sku.start_index|add:forloop.counter0 }}</td>
+                        <!-- Serial Number -->
                         <td>
-                            {% if i.product_image_link_1 %}
-                                <img src="{{ i.product_image_link_1 }}"
-                                     style="max-width:30px; cursor:pointer"
-                                     onclick="openModal(this.src)">
-                                     <img src="{{ i.product_image_link_2 }}"
-                                     style="max-width:30px; cursor:pointer"
-                                     onclick="openModal(this.src)">
-                            {% else %}
-                                No Image
-                            {% endif %}
-                        </td>
-                                                <td>
-                            {% if i.product_image_link_3 %}
-                                     <img src="{{ i.product_image_link_3 }}"
-                                     style="max-width:30px; cursor:pointer"
-                                     onclick="openModal(this.src)">
-                                     <img src="{{ i.product_image_link_4 }}"
-                                     style="max-width:30px; cursor:pointer"
-                                     onclick="openModal(this.src)">
-                            {% else %}
-                                No Image
-                            {% endif %}
+                            {{ sku.start_index|add:forloop.counter0 }}
                         </td>
 
+
+                        <!-- IMAGE 1 + IMAGE 2 -->
                         <td>
-                            <span class="copy-text" data-copy="{{ i.sku }}">
+
+                            <div class="d-flex gap-1">
+
+                                {% if i.product_image_link_1 %}
+
+                                    <img
+                                        src="{{ i.product_image_link_1 }}"
+                                        alt="Image 1"
+                                        class="sku-image"
+                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
+
+                                {% endif %}
+
+
+                                {% if i.product_image_link_2 %}
+
+                                    <img
+                                        src="{{ i.product_image_link_2 }}"
+                                        alt="Image 2"
+                                        class="sku-image"
+                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
+
+                                {% endif %}
+
+
+                                {% if not i.product_image_link_1 and not i.product_image_link_2 %}
+
+                                    <span class="text-muted">
+                                        No Image
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- IMAGE 3 + IMAGE 4 -->
+                        <td>
+
+                            <div class="d-flex gap-1">
+
+                                {% if i.product_image_link_3 %}
+
+                                    <img
+                                        src="{{ i.product_image_link_3 }}"
+                                        alt="Image 3"
+                                        class="sku-image"
+                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
+
+                                {% endif %}
+
+
+                                {% if i.product_image_link_4 %}
+
+                                    <img
+                                        src="{{ i.product_image_link_4 }}"
+                                        alt="Image 4"
+                                        class="sku-image"
+                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
+
+                                {% endif %}
+
+
+                                {% if not i.product_image_link_3 and not i.product_image_link_4 %}
+
+                                    <span class="text-muted">
+                                        No Image
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- SKU -->
+                        <td>
+
+                            <span
+                                class="copy-text"
+                                data-copy="{{ i.sku }}"
+                                title="Click to copy">
+
                                 {{ i.sku|default:"-" }}
+
                             </span>
+
                         </td>
 
-                        <td>{{ i.brand.name|default:"" }}</td>
-                        <td>{{ i.vendor.company|default:"" }}</td>
-                        <td>{{ i.article_type.name|default:"" }}</td>
-                        <!-- <td>{{ i.gender.name|default:"" }}</td> -->
 
-                        <td>{{ i.ref_no }}</td>
-                        <td>{{ i.style_no }}</td>
-
-                        <td>{{ i.color.color|default:"" }}</td>
-                        <!-- <td>{{ i.size|default:"" }}</td> -->
-
-                        <td>{{ i.purchase_price }}</td>
-                        <td>{{ i.sale_price }}</td>
-                        <td>{{ i.mrp }}</td>
-
-                        <!-- <td>{{ i.get_blouse_display }}</td>
-                        <td>{{ i.get_border_display }}</td>
-                        <td>{{ i.get_print_or_pattern_type_display }}</td>
-                        <td>{{ i.get_saree_fabric_display }}</td>
-                        <td>{{ i.get_transparency_display }}</td>
-                        <td>{{ i.get_type_display }}</td>
-
-                        <td>{{ i.blouse_length }}</td>
-                        <td>{{ i.saree_length }}</td>
-                        <td>{{ i.get_blouse_color_display }}</td>
-                        <td>{{ i.get_blouse_fabric_display }}</td>
-                        <td>{{ i.get_blouse_pattern_display }}</td>
-                        <td>{{ i.get_border_width_display }}</td>
-
-                        <td>{{ i.get_loom_type_display }}</td>
-                        <td>{{ i.get_occasion_display }}</td>
-                        <td>{{ i.get_ornamentation_display }}</td>
-                        <td>{{ i.get_pallu_details_display }}</td>
-                        <td>{{ i.get_pattern_display }}</td> -->
-
+                        <!-- Brand -->
                         <td>
-                            <a class="btn btn-success" href="{% url 'copy_sku' i.id %}">
-                                <i class="fas fa-copy"></i>
-                            </a>
+                            {{ i.brand.name|default:"" }}
                         </td>
+
+
+                        <!-- Vendor -->
+                        <td>
+                            {{ i.vendor.company|default:"" }}
+                        </td>
+
+
+                        <!-- Article -->
+                        <td>
+                            {{ i.article_type.name|default:"" }}
+                        </td>
+
+
+                        <!-- Ref No -->
+                        <td>
+                            {{ i.ref_no }}
+                        </td>
+
+
+                        <!-- Style -->
+                        <td>
+                            {{ i.style_no }}
+                        </td>
+
+
+                        <!-- Color -->
+                        <td>
+                            {{ i.color.color|default:"" }}
+                        </td>
+
+
+                        <!-- Purchase Price -->
+                        <td>
+                            {{ i.purchase_price }}
+                        </td>
+
+
+                        <!-- Sale Price -->
+                        <td>
+                            {{ i.sale_price }}
+                        </td>
+
+
+                        <!-- MRP -->
+                        <td>
+                            {{ i.mrp }}
+                        </td>
+
+
+                        <!-- Copy -->
+                        <td>
+
+                            <a
+                                class="btn btn-success"
+                                href="{% url 'copy_sku' i.id %}"
+                                title="Copy SKU">
+
+                                <i class="fas fa-copy"></i>
+
+                            </a>
+
+                        </td>
+
+
+                        <!-- Delete -->
                         {% if request.user.is_staff or request.user.is_superuser or user.profile.user_role == 2 %}
 
                         <td>
-                            <a class="btn btn-danger"
-                               href="{% url 'delete_sku' i.id %}"
-                               onclick="return confirm('Are you sure?');">
+
+                            <a
+                                class="btn btn-danger"
+                                href="{% url 'delete_sku' i.id %}"
+                                onclick="return confirm('Are you sure you want to delete this SKU?');"
+                                title="Delete SKU">
+
                                 <i class="fas fa-trash"></i>
+
                             </a>
+
                         </td>
+
                         {% endif %}
+
+
+                        <!-- Edit -->
                         <td>
-                            <a class="btn btn-primary" href="{% url 'change_sku' i.id %}"><i
-                                    class="fas fa-edit"></i></a>
+
+                            <a
+                                class="btn btn-primary"
+                                href="{% url 'change_sku' i.id %}"
+                                title="Edit SKU">
+
+                                <i class="fas fa-edit"></i>
+
+                            </a>
+
                         </td>
-            
+
+
+                        <!-- Print SKU -->
                         <td>
-                            <a class="btn btn-warning" href="{% url 'print_sku' i.id %}"><i
-                                        class="fas fa-print"></i></a>
+
+                            <a
+                                class="btn btn-warning"
+                                href="{% url 'print_sku' i.id %}"
+                                title="Print SKU">
+
+                                <i class="fas fa-print"></i>
+
+                            </a>
+
                         </td>
-                            <td>
-                                <a class="btn btn-secondary" href="{% url 'print_barcode' i.id %}"><i
-                                        class="fas fa-print"></i></a>
-                            </td>
+
+
+                        <!-- Print Barcode -->
+                        <td>
+
+                            <a
+                                class="btn btn-secondary"
+                                href="{% url 'print_barcode' i.id %}"
+                                title="Print Barcode">
+
+                                <i class="fas fa-print"></i>
+
+                            </a>
+
+                        </td>
 
                     </tr>
+
                     {% endfor %}
+
                 </tbody>
+
             </table>
 
-            <!-- ✅ PAGINATION START -->
+
+            <!-- =================================================
+                 PAGINATION
+                 ================================================= -->
+
             {% if sku.has_other_pages %}
+
             <nav class="mt-3">
+
                 <ul class="pagination justify-content-center">
 
+                    <!-- Previous -->
+
                     {% if sku.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ sku.previous_page_number }}&search={{ search_query }}">
-                                Previous
-                            </a>
-                        </li>
+
+                    <li class="page-item">
+
+                        <a
+                            class="page-link"
+                            href="?page={{ sku.previous_page_number }}&search={{ search_query }}">
+
+                            Previous
+
+                        </a>
+
+                    </li>
+
                     {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">Previous</span>
-                        </li>
+
+                    <li class="page-item disabled">
+
+                        <span class="page-link">
+                            Previous
+                        </span>
+
+                    </li>
+
                     {% endif %}
 
+
+                    <!-- Pages -->
+
                     {% for i in sku.paginator.page_range %}
+
                         {% if sku.number == i %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ i }}</span>
-                            </li>
+
+                        <li class="page-item active">
+
+                            <span class="page-link">
+                                {{ i }}
+                            </span>
+
+                        </li>
+
                         {% else %}
-                            <li class="page-item">
-                                <a class="page-link"
-                                   href="?page={{ i }}&search={{ search_query }}">
-                                    {{ i }}
-                                </a>
-                            </li>
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?page={{ i }}&search={{ search_query }}">
+
+                                {{ i }}
+
+                            </a>
+
+                        </li>
+
                         {% endif %}
+
                     {% endfor %}
 
+
+                    <!-- Next -->
+
                     {% if sku.has_next %}
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ sku.next_page_number }}&search={{ search_query }}">
-                                Next
-                            </a>
-                        </li>
+
+                    <li class="page-item">
+
+                        <a
+                            class="page-link"
+                            href="?page={{ sku.next_page_number }}&search={{ search_query }}">
+
+                            Next
+
+                        </a>
+
+                    </li>
+
                     {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">Next</span>
-                        </li>
+
+                    <li class="page-item disabled">
+
+                        <span class="page-link">
+                            Next
+                        </span>
+
+                    </li>
+
                     {% endif %}
 
                 </ul>
+
             </nav>
+
             {% endif %}
-            <!-- ✅ PAGINATION END -->
 
         </div>
-    </div>
-</div>
-
-<!-- IMAGE MODAL -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark text-white">
-
-      <div class="modal-header border-0">
-        <h6 class="modal-title">Image Preview</h6>
-        <button type="button" class="btn-close btn-close-white"
-                data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body text-center">
-        <img id="modalImage" src="" class="img-fluid" style="max-height:80vh;">
-      </div>
-
-      <div class="modal-footer border-0 justify-content-center">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-            Close
-        </button>
-      </div>
 
     </div>
-  </div>
+
 </div>
 
-<!-- SCRIPTS -->
+<!-- =============================================================
+     MODERN IMAGE PREVIEW MODAL
+     ============================================================= -->
+
+<div
+    class="modal fade"
+    id="imageModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <!-- Floating Close -->
+            <button
+                type="button"
+                class="image-modal-close"
+                data-bs-dismiss="modal"
+                aria-label="Close">
+
+                <span>&times;</span>
+
+            </button>
+
+
+            <!-- Image -->
+            <div class="image-modal-body">
+
+                <div class="image-wrapper">
+
+                    <img
+                        id="modalImage"
+                        src=""
+                        alt="Image Preview">
+
+                </div>
+
+            </div>
+
+
+            <!-- Footer -->
+            <div class="image-modal-footer">
+
+                <!-- Left -->
+                <span class="image-modal-label">
+
+                    <i class="fas fa-image"></i>
+
+                    Image Preview
+
+                </span>
+
+
+                <!-- SKU -->
+                <span
+                    id="modalSku"
+                    class="image-modal-sku"
+                    title="SKU">
+
+                    -
+
+                </span>
+
+
+                <!-- Close -->
+                <button
+                    type="button"
+                    class="image-modal-close-btn"
+                    data-bs-dismiss="modal">
+
+                    Close
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =============================================================
+     SCRIPTS
+     ============================================================= -->
+
 <script>
-function openModal(src) {
-    document.getElementById("modalImage").src = src;
-    new bootstrap.Modal(document.getElementById('imageModal')).show();
+
+    /* =========================================================
+       IMAGE MODAL
+       ========================================================= */
+
+function openModal(src, sku) {
+
+    const modalElement =
+        document.getElementById('imageModal');
+
+    const modalImage =
+        document.getElementById('modalImage');
+
+    const modalSku =
+        document.getElementById('modalSku');
+
+
+    // Set image
+    modalImage.src = src;
+
+
+    // Set SKU
+    modalSku.textContent = sku || '-';
+
+
+    // Show modal
+    const modal =
+        bootstrap.Modal.getOrCreateInstance(modalElement);
+
+    modal.show();
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".copy-text").forEach(el => {
-        el.addEventListener("click", function () {
-            const text = this.getAttribute("data-copy");
-            if (!text) return;
 
-            navigator.clipboard.writeText(text).then(() => {
-                const original = this.innerText;
-                this.innerText = "Copied!";
-                setTimeout(() => {
-                    this.innerText = original;
-                }, 1000);
+    /* =========================================================
+       COPY SKU
+       ========================================================= */
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document
+            .querySelectorAll(".copy-text")
+            .forEach(function (el) {
+
+                el.addEventListener("click", function () {
+
+                    const text =
+                        this.getAttribute("data-copy");
+
+                    if (!text) {
+                        return;
+                    }
+
+
+                    navigator.clipboard
+                        .writeText(text)
+                        .then(() => {
+
+                            const original =
+                                this.innerText;
+
+                            this.innerText = "Copied!";
+
+                            setTimeout(() => {
+
+                                this.innerText =
+                                    original;
+
+                            }, 1000);
+
+                        })
+                        .catch(() => {
+
+                            console.error(
+                                "Unable to copy SKU."
+                            );
+
+                        });
+
+                });
+
             });
-        });
+
     });
-});
+
 </script>
+
 
 {% endblock content %}
