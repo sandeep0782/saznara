@@ -689,6 +689,7 @@ class SKU(models.Model):
     pattern = models.CharField(
         max_length=50, choices=DESIGN_PATTERN_CHOICES, null=True, blank=True
     )
+    key_words = models.CharField(max_length=355,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     changed_at = models.DateTimeField(auto_now=True)
 
