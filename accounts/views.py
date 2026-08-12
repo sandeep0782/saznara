@@ -1,4 +1,5 @@
 import json
+import logging
 from smtplib import SMTPException
 
 import requests
@@ -8,15 +9,16 @@ from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView
 from django.core.mail import BadHeaderError, EmailMultiAlternatives, send_mail
-from django.http import JsonResponse
+from django.db import DatabaseError, IntegrityError
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
-from django.utils.crypto import get_random_string
 from django.views.decorators.http import require_POST
-from django_ratelimit.decorators import ratelimit
 
+# If you are using django-ratelimit:
 from accounts.forms import UserRegisterForm
 
 from .decorators import admin_only, unauthenticated_user
@@ -58,25 +60,29 @@ def account_access_denied(request):
 User = get_user_model()
 
 
+logger = logging.getLogger(__name__)
+
+
 @unauthenticated_user
-# @ratelimit(key="ip", rate="5/h", block=True)
-@ratelimit(key="user_or_ip", rate="5/h", block=True)
-def register(request):
+# @ratelimit(key="user_or_ip", rate="5/h", block=True)
+def register(request: HttpRequest) -> HttpResponse:
 
     if request.method == "POST":
+        # --------------------------------------------------
+        # 1. Create form
+        # --------------------------------------------------
+        form = UserRegisterForm(request.POST)
 
-        print("RAW POST DATA:")
-        for key, value in request.POST.items():
-            print(key, "=>", repr(value))
-                # -------------------------
-        # Cloudflare Turnstile Check
-        # -------------------------
+        # --------------------------------------------------
+        # 2. Cloudflare Turnstile
+        # --------------------------------------------------
         turnstile_token = request.POST.get("cf-turnstile-response")
 
-        if not verify_turnstile(turnstile_token, request.META.get("REMOTE_ADDR")):
-            messages.error(request, "Please complete the security verification.")
-
-            form = UserRegisterForm(request.POST)
+        if not turnstile_token:
+            messages.error(
+                request,
+                "Please complete the security verification.",
+            )
 
             return render(
                 request,
@@ -87,98 +93,244 @@ def register(request):
                 },
             )
 
-        # -------------------------
-        # Form Validation
-        # -------------------------
-        form = UserRegisterForm(request.POST)
+        try:
+            turnstile_valid = verify_turnstile(
+                turnstile_token,
+                request.META.get("REMOTE_ADDR"),
+            )
 
-        if form.is_valid():
-            # -------------------------
-            # Create User
-            # -------------------------
+        except Exception:
+            logger.exception("Turnstile verification failed.")
+
+            messages.error(
+                request,
+                "Security verification failed. Please try again.",
+            )
+
+            return render(
+                request,
+                "accounts/register.html",
+                {
+                    "form": form,
+                    "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
+        if not turnstile_valid:
+            messages.error(
+                request,
+                "Please complete the security verification.",
+            )
+
+            return render(
+                request,
+                "accounts/register.html",
+                {
+                    "form": form,
+                    "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
+        # --------------------------------------------------
+        # 3. Form validation
+        # --------------------------------------------------
+        if not form.is_valid():
+            return render(
+                request,
+                "accounts/register.html",
+                {
+                    "form": form,
+                    "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
+        # --------------------------------------------------
+        # 4. Create user
+        # --------------------------------------------------
+        try:
             user = form.save(commit=False)
-
-            print("USERNAME BEFORE SAVE:", repr(user.username))
-            print("EMAIL BEFORE SAVE:", repr(user.email))
-            temp_password = get_random_string(length=10)
-
-            user.set_password(temp_password)
             user.save()
 
+        except IntegrityError:
+            logger.exception("Database integrity error during registration.")
+
+            messages.error(
+                request,
+                "An account with these details may already exist.",
+            )
+
+            return render(
+                request,
+                "accounts/register.html",
+                {
+                    "form": form,
+                    "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
+        except DatabaseError:
+            logger.exception("Database error during registration.")
+
+            messages.error(
+                request,
+                "We could not create your account. Please try again later.",
+            )
+
+            return render(
+                request,
+                "accounts/register.html",
+                {
+                    "form": form,
+                    "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
+        except Exception:
+            logger.exception("Unexpected error while creating user.")
+
+            messages.error(
+                request,
+                "We could not create your account. Please try again later.",
+            )
+
+            return render(
+                request,
+                "accounts/register.html",
+                {
+                    "form": form,
+                    "TURNSTILE_SITE_KEY": settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
+        # --------------------------------------------------
+        # 5. Build login URL
+        # --------------------------------------------------
+        try:
             login_url = request.build_absolute_uri(reverse("login"))
 
-            try:
-                # -------------------------
-                # Email to User
-                # -------------------------
-                user_html = render_to_string(
-                    "emails/user_registration.html",
-                    {
-                        "user": user,
-                        "password": temp_password,
-                        "login_url": login_url,
-                    },
-                )
+        except NoReverseMatch:
+            logger.exception("Could not reverse the login URL.")
 
-                user_email = EmailMultiAlternatives(
-                    subject="Welcome to Octo - Account Created",
-                    body=(
-                        f"Welcome to Octo.\n\n"
-                        f"Login ID: {user.username}\n"
-                        f"Temporary Password: {temp_password}\n\n"
-                        f"Login URL: {login_url}\n\n"
-                        "Please change your password after first login."
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to=[user.email],
-                )
-
-                user_email.attach_alternative(user_html, "text/html")
-
-                user_email.send()
-
-                # -------------------------
-                # Email to Admin
-                # -------------------------
-                admin_html = render_to_string(
-                    "emails/admin_new_registration.html",
-                    {
-                        "user": user,
-                        "registered_on": timezone.now(),
-                        "admin_url": request.build_absolute_uri("/admin/"),
-                    },
-                )
-
-                admin_email = EmailMultiAlternatives(
-                    subject="New User Registration - Approval Required",
-                    body=(
-                        f"New user registered on Saznara.\n\n"
-                        f"Username: {user.username}\n"
-                        f"Email: {user.email}\n"
-                        f"Name: {user.get_full_name()}"
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to=[settings.ADMIN_EMAIL],
-                )
-
-                admin_email.attach_alternative(admin_html, "text/html")
-
-                admin_email.send()
-
-                messages.success(
-                    request,
-                    "Account created. Login details have been sent to your email.",
-                )
-
-            except (BadHeaderError, SMTPException) as e:
-                messages.warning(
-                    request, f"Account created, but email delivery failed: {e}"
-                )
+            # Account has already been created, so don't
+            # show a server error to the user.
+            messages.warning(
+                request,
+                "Account created, but we could not generate the login link. "
+                "Please contact support.",
+            )
 
             return redirect("login")
 
-    else:
-        form = UserRegisterForm()
+        # --------------------------------------------------
+        # 6. Send emails
+        # --------------------------------------------------
+        try:
+            # ----------------------------------------------
+            # User registration email
+            # ----------------------------------------------
+            user_html = render_to_string(
+                "emails/user_registration.html",
+                {
+                    "user": user,
+                    "login_url": login_url,
+                },
+            )
+
+            user_email = EmailMultiAlternatives(
+                subject="Welcome to Octo - Account Created",
+                body=(
+                    "Welcome to Octo.\n\n"
+                    f"Login ID: {user.username}\n"
+                    f"Login URL: {login_url}\n\n"
+                    "Your account has been created successfully. "
+                    "You can now log in using the password you chose during registration."
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email],
+            )
+
+            user_email.attach_alternative(
+                user_html,
+                "text/html",
+            )
+
+            user_email.send(fail_silently=False)
+
+            # ----------------------------------------------
+            # Admin registration email
+            # ----------------------------------------------
+            admin_html = render_to_string(
+                "emails/admin_new_registration.html",
+                {
+                    "user": user,
+                    "registered_on": timezone.now(),
+                    "admin_url": request.build_absolute_uri("/admin/"),
+                },
+            )
+
+            admin_email = EmailMultiAlternatives(
+                subject="New User Registration - Approval Required",
+                body=(
+                    "New user registered on Saznara.\n\n"
+                    f"Username: {user.username}\n"
+                    f"Email: {user.email}\n"
+                    f"Name: {user.get_full_name()}"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[settings.ADMIN_EMAIL],
+            )
+
+            admin_email.attach_alternative(
+                admin_html,
+                "text/html",
+            )
+
+            admin_email.send(fail_silently=False)
+
+            # ----------------------------------------------
+            # Success
+            # ----------------------------------------------
+            messages.success(
+                request,
+                "Account created successfully. You can now log in.",
+            )
+
+        except (
+            BadHeaderError,
+            TemplateDoesNotExist,
+            OSError,
+        ) as e:
+            logger.exception(
+                "Registration email/template error: %s",
+                e,
+            )
+
+            messages.warning(
+                request,
+                "Account created, but we could not send the email. "
+                "Please contact support.",
+            )
+
+        except Exception as e:
+            logger.exception(
+                "Unexpected registration email error: %s",
+                e,
+            )
+
+            messages.warning(
+                request,
+                "Account created, but email delivery failed. Please contact support.",
+            )
+
+        # --------------------------------------------------
+        # 7. Redirect after successful registration
+        # --------------------------------------------------
+        return redirect("login")
+
+    # ------------------------------------------------------
+    # GET request
+    # ------------------------------------------------------
+    form = UserRegisterForm()
 
     return render(
         request,
@@ -195,16 +347,17 @@ def login_view(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
         import logging
+
         logger = logging.getLogger(__name__)
 
         logger.warning("LOGIN USERNAME RECEIVED: %r", username)
-        logger.warning("LOGIN PASSWORD RECEIVED LENGTH: %s", len(password) if password else None)
+        logger.warning(
+            "LOGIN PASSWORD RECEIVED LENGTH: %s", len(password) if password else None
+        )
 
         user = authenticate(request, username=username, password=password)
 
         logger.warning("AUTH RESULT: %r", user)
-
-        user = authenticate(request, username=username, password=password)
 
         if user is not None:
             # 🔴 Admin bypass (no profile needed)
