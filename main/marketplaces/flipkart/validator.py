@@ -104,7 +104,6 @@ def validate_flipkart_template(sku_list):
             lambda sku: sku.get_border_width_display() if sku.border_width else None,
             FLIPKART_ALLOWED_BORDER_LENGTH,
         ),
-        
     ]
 
     for field_name, attribute, getter, allowed_values in validations:

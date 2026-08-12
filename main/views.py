@@ -2097,7 +2097,11 @@ def Flipkart_Template(request, sku_list):
             "0.400",
             "",
             sku.style_description or "",
-            "",
+            "::".join(
+                word.strip()
+                for word in re.split(r"[,\s]+", sku.key_words or "")
+                if word.strip()
+            ),
         ]
 
         # Write values from column G onwards
