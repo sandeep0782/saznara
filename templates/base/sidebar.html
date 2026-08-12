@@ -69,6 +69,7 @@
                             href="{% url 'record_video' %}">Add</a>
                     </nav>
                 </div> -->
+                {% if request.user.is_superuser %}
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
                     data-bs-target="#collapsePages" aria-expanded="false"
                     aria-controls="collapsePages">
@@ -124,9 +125,10 @@
                         </div>
                     </nav>
                 </div>
+                {% endif %}
 
-                <div class="sb-sidenav-menu-heading">Addons</div>
                 {% if request.user.is_superuser %}
+                <div class="sb-sidenav-menu-heading">Addons</div>
 
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
                     data-bs-target="#admin" aria-expanded="false"
@@ -146,7 +148,7 @@
                             href="{% url 'download_database' %}">Backup </a>
                     </nav>
                 </div>
-                {% endif %}
+                
                 <a class="nav-link" href="charts.html">
                     <div class="sb-nav-link-icon"><i
                             class="fas fa-chart-area"></i></div>
@@ -157,6 +159,7 @@
                             class="fas fa-table"></i></div>
                     Tables
                 </a>
+                {% endif %}
             </div>
         </div>
         <div class="sb-sidenav-footer">

@@ -99,7 +99,7 @@ select option[value=""]{
                                 </select>
                                 <label for="inputSku">Gender</label>
                             </div>
-                        </div>
+                        </div> 
                         <div class="col-xl-3 col-md-3">
                             <div class="form-floating mb-3">
                                 <select class="form-control" name="article_type" id="inputSeason" >
@@ -110,7 +110,26 @@ select option[value=""]{
                                 </select>
                                 <label for="inputabb">Article Type</label>
                             </div>
-                        </div> -->
+                        </div>-->
+
+                        {% comment %} <div class="col-xl-3 col-md-3">
+                            <div class="form-floating mb-3">
+                                <select class="form-control" name="article_type" id="inputArticleType">
+                                    <option value="" disabled {% if not sku or not sku.article_type %}selected{% endif %}>
+                                        Select Article Type
+                                    </option>
+
+                                    {% for i in article_type %}
+                                        <option value="{{ i.id }}"
+                                            {% if sku and sku.article_type_id == i.id %}selected{% endif %}>
+                                            {{ i.name }} - {{ i.abb }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+
+                                <label for="inputArticleType">Article Type</label>
+                            </div>
+                        </div> {% endcomment %}
                         
                         <div class="col-xl-3 col-md-3">
                             <div class="form-floating mb-3">

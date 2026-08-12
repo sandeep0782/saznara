@@ -568,10 +568,9 @@ def Change__SKU(request, pid=None):
     color = Color.objects.all()
     vendor = Profile.objects.all()
 
-    selected_gender = Gender.objects.filter(name="WOMENS").first()
-    selected_article_type = Article_Type.objects.filter(name="SAREE").first()
-    selected_size = Size.objects.filter(size="Free Size").first()
-
+    selected_gender = Gender.objects.filter(name__iexact="Women").first()
+    selected_article_type = Article_Type.objects.filter(name__iexact="Sarees").first()
+    selected_size = Size.objects.filter(size__iexact="Free Size").first()
     if pid:
         sku = SKU.objects.filter(id=pid).first()
         if not sku:
