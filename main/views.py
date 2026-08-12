@@ -1,8 +1,5 @@
 import os
-import random
 import re
-import string
-import uuid
 from copy import copy
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -1901,8 +1898,6 @@ def Meesho_Template1(request, sku_list):
 @login_required
 def Flipkart_Template(request, sku_list):
 
-    sku_list, _ = get_filtered_skus(request)
-
     validation_errors = validate_flipkart_template(sku_list)
 
     if validation_errors:
@@ -1936,9 +1931,16 @@ def Flipkart_Template(request, sku_list):
     row = 4
     col = 6
 
+    # Process and write each SKU in the SAME loop
     for sku in sku_list:
+        # ---------------------------------------------------------
+        # Marketplace values for THIS SKU
+        # ---------------------------------------------------------
+
         color = get_marketplace_value(
-            "FLIPKART", "COLOR", sku.color.color if sku.color else None
+            "FLIPKART",
+            "COLOR",
+            sku.color.color if sku.color else None,
         )
 
         blouse = get_marketplace_value(
@@ -1948,7 +1950,9 @@ def Flipkart_Template(request, sku_list):
         )
 
         border = get_marketplace_value(
-            "FLIPKART", "BORDER", sku.get_border_display() if sku.border else None
+            "FLIPKART",
+            "BORDER",
+            sku.get_border_display() if sku.border else None,
         )
 
         saree_fabric = get_marketplace_value(
@@ -1964,7 +1968,9 @@ def Flipkart_Template(request, sku_list):
         )
 
         occasion = get_marketplace_value(
-            "FLIPKART", "OCCASION", sku.get_occasion_display() if sku.occasion else None
+            "FLIPKART",
+            "OCCASION",
+            sku.get_occasion_display() if sku.occasion else None,
         )
 
         ornamentation = get_marketplace_value(
@@ -1974,7 +1980,9 @@ def Flipkart_Template(request, sku_list):
         )
 
         pattern = get_marketplace_value(
-            "FLIPKART", "PATTERN", sku.get_pattern_display() if sku.pattern else None
+            "FLIPKART",
+            "PATTERN",
+            sku.get_pattern_display() if sku.pattern else None,
         )
 
         blouse_pattern = get_marketplace_value(
@@ -2003,7 +2011,10 @@ def Flipkart_Template(request, sku_list):
             sku.get_border_width_display() if sku.border_width else None,
         )
 
-    for sku in sku_list:
+        # ---------------------------------------------------------
+        # Build values for THIS SKU
+        # ---------------------------------------------------------
+
         values = [
             sku.sku or "",
             sku.id or "",
@@ -2011,7 +2022,7 @@ def Flipkart_Template(request, sku_list):
             "",
             "Active",
             sku.mrp or "",
-            sku.sale_price + 200 or "",
+            sku.sale_price + 200 if sku.sale_price else "",
             "Seller",
             "instock",
             "2",
@@ -2064,7 +2075,8 @@ def Flipkart_Template(request, sku_list):
             "Regular Sari",
             sku.size.size.split()[0].title() if sku.size else "Free",
             "Regular",
-            sku.ref_no or "",
+            sku.sku or "",
+            # COLOR
             color,
             color,
             blouse,
@@ -2088,7 +2100,6 @@ def Flipkart_Template(request, sku_list):
             "No",
             sku.get_transparency_display() if sku.transparency else "",
             sku.get_loom_type_display() if sku.loom_type else "",
-            # sku.get_border_width_display() if sku.border_width else "",
             border_width,
             blouse_pattern,
             "Machine",
@@ -2099,31 +2110,34 @@ def Flipkart_Template(request, sku_list):
             sku.style_description or "",
             "::".join(
                 word.strip()
-                for word in re.split(r"[,\s]+", sku.key_words or "")
+                for word in re.split(
+                    r"[,\s]+",
+                    sku.key_words or "",
+                )
                 if word.strip()
             ),
         ]
 
-        # Write values from column G onwards
+        # ---------------------------------------------------------
+        # Write THIS SKU to Excel
+        # ---------------------------------------------------------
+
         for offset, value in enumerate(values):
-            ws.write(row, col + offset, value)
+            ws.write(
+                row,
+                col + offset,
+                value,
+            )
 
         # Move to next Excel row
         row += 1
 
+    # -------------------------------------------------------------
+    # Response
+    # -------------------------------------------------------------
+
     response = HttpResponse(content_type="application/vnd.ms-excel")
 
-    filename = (
-        f"C_sari_{uuid.uuid4().hex[:16]}_"
-        f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}_"
-        f"{''.join(random.choices(string.ascii_uppercase + string.digits, k=14))}.xls"
-    )
-
-    # response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-    # response["Content-Disposition"] = (
-    #     'attachment; filename="C_sari_f4d245f65fbb4767_0208-0936FK_REQQQKFLOKT6Q.xls"'
-    # )
     filename = "C_sari_f4d245f65fbb4767_0208-0936FK_REQQQKFLOKT6Q.xls"
 
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
@@ -2135,8 +2149,6 @@ def Flipkart_Template(request, sku_list):
 
 @login_required
 def Snapdeal_Template(request, sku_list):
-
-    sku_list, _ = get_filtered_skus(request)
 
     validation_errors = validate_snapdeal_template(sku_list)
 
@@ -2336,9 +2348,6 @@ def Snapdeal_Template(request, sku_list):
 
 @login_required
 def Myntra_Template(request, sku_list):
-
-    sku_list, _ = get_filtered_skus(request)
-
     validation_errors = validate_myntra_template(sku_list)
 
     if validation_errors:
@@ -2580,8 +2589,6 @@ def Myntra_Template(request, sku_list):
 
 @login_required
 def Meesho_Template(request, sku_list):
-
-    sku_list, _ = get_filtered_skus(request)
 
     validation_errors = validate_meesho_template(sku_list)
 
