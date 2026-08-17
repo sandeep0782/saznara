@@ -24,7 +24,6 @@ from openpyxl.styles import Alignment, PatternFill
 from xlutils.copy import copy as xl_copy
 
 from accounts.decorators import admin_only
-from accounts.models import Profile
 from main.forms import *
 from main.marketplaces.flipkart.validator import validate_flipkart_template
 from main.marketplaces.meesho.validator import *
@@ -558,7 +557,11 @@ def View__SKU(request):
 def Change__SKU(request, pid=None):
     sku = None
 
-    brand = Brand.objects.all()
+    brand = (
+        Brand.objects.all()
+        if request.user.is_superuser
+        else Brand.objects.filter(vendor=request.user.profile)
+    )
     gender = Gender.objects.all()
     article_type = Article_Type.objects.all()
     size = Size.objects.all()
@@ -2742,9 +2745,18 @@ def Meesho_Template(request, sku_list):
                 )
             ),
             str(sku.vendor.pin) if sku.vendor else "",
-            "",
-            "",
-            "",
+            sku.vendor.company if sku.vendor else "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.company if sku.vendor else "",
+                        sku.vendor.address if sku.vendor else "",
+                        str(sku.vendor.pin) if sku.vendor else "",
+                    ],
+                )
+            ),
+            str(sku.vendor.pin) if sku.vendor else "",
             blouse,
             border,
             color,

@@ -2,7 +2,7 @@ import os
 
 from PIL import Image, ImageOps
 
-root_path = r"/Users/krishna/Desktop/untitled folder"
+root_path = r"/Users/krishna/Desktop/Ferrari/"
 
 image_exts = {".jpg", ".jpeg", ".png", ".webp", ".heic"}
 
@@ -51,7 +51,7 @@ for folder_path, _, files in os.walk(root_path):
                     format="JPEG",
                     quality=95,
                     optimize=True,
-                    progressive=True,
+                    progressive=False,
                     subsampling=0,
                 )
 

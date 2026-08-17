@@ -14,11 +14,12 @@ from accounts.models import Profile
 
 
 class Brand(models.Model):
-    vendor = models.OneToOneField(
+    vendor = models.ForeignKey(
         Profile,
         on_delete=models.PROTECT,
         null=True,
         blank=True,
+        related_name="brands",
     )
     name = models.CharField(max_length=100, unique=True, null=True, blank=True)
     abb = models.CharField(
@@ -689,7 +690,7 @@ class SKU(models.Model):
     pattern = models.CharField(
         max_length=50, choices=DESIGN_PATTERN_CHOICES, null=True, blank=True
     )
-    key_words = models.CharField(max_length=355,null=True,blank=True)
+    key_words = models.CharField(max_length=355, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     changed_at = models.DateTimeField(auto_now=True)
 
