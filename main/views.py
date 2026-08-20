@@ -2317,7 +2317,7 @@ def Snapdeal_Template(request, sku_list):
             "Saree",
             "",
             blouse_pattern,
-            print_pattern_type,
+            occasion,
             # keep remaining values exactly same as your existing list
         ]
 
