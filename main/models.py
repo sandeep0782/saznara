@@ -26,6 +26,11 @@ class Brand(models.Model):
         max_length=2,
         unique=True,
     )
+    snapdeal_brand_id = models.PositiveBigIntegerField(
+        null=True,
+        blank=True,
+        unique=True,
+    )
 
     def __str__(self):
         return self.name
