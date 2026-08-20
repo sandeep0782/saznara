@@ -2167,7 +2167,7 @@ def Snapdeal_Template(request, sku_list):
         "main",
         "marketplaces",
         "snapdeal",
-        "Sdb673_Women's Saree_1727_1785657826347.xlsx",
+        "Sdb673_Women's Saree_1727_1787240709759.xlsx",
     )
 
     wb = load_workbook(template_path)
@@ -2181,7 +2181,7 @@ def Snapdeal_Template(request, sku_list):
             ws.unmerge_cells(str(merged))
 
     # Start writing from A5
-    row = 4
+    row = 3
     col = 1
 
     for sku in sku_list:
@@ -2283,6 +2283,7 @@ def Snapdeal_Template(request, sku_list):
             "1",
             pattern,
             "Pack of 1",
+            print_pattern_type,
             "Regular Saree",
             sku.ref_no or "",
             sku.mrp or "",
@@ -2317,7 +2318,6 @@ def Snapdeal_Template(request, sku_list):
             "",
             blouse_pattern,
             print_pattern_type,
-            occasion,
             # keep remaining values exactly same as your existing list
         ]
 
