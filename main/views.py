@@ -2172,36 +2172,7 @@ def Snapdeal_Template(request, sku_list):
 
     wb = load_workbook(template_path)
 
-    # ---------------------------------------------------------
-    # Validate brand for Snapdeal template
-    # ---------------------------------------------------------
-    brands = {sku.brand for sku in sku_list if sku.brand}
-
-    if not brands:
-        raise ValueError("Brand is required to generate the Snapdeal template.")
-
-    if len(brands) > 1:
-        raise ValueError(
-            "All SKUs in a Snapdeal template must belong to the same brand."
-        )
-
-    brand = brands.pop()
-
-    if not brand.snapdeal_brand_id:
-        raise ValueError(
-            f"Snapdeal Brand ID is not configured for brand '{brand.name}'."
-        )
-
-    # ---------------------------------------------------------
-    # MandatorySheet - Snapdeal brand information
-    # ---------------------------------------------------------
-    mandatory_sheet = wb["MandatorySheet"]
-
-    mandatory_sheet["A3"] = "BrandId"
-    mandatory_sheet["B3"] = brand.snapdeal_brand_id
-
-    mandatory_sheet["A4"] = "BrandName"
-    mandatory_sheet["B4"] = brand.name
+    
 
     # IMPORTANT: select correct sheet
     ws = wb["Women's Saree_1727"]
