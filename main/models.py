@@ -643,6 +643,7 @@ class SKU(models.Model):
     product_image_link_3 = models.URLField(null=True, blank=True)
     product_image_link_4 = models.URLField(null=True, blank=True)
     product_image_link_5 = models.URLField(null=True, blank=True)
+    product_image_link_6 = models.URLField(null=True, blank=True)
     barcode_image = models.ImageField(upload_to="barcode_image/", null=True, blank=True)
     live_status = models.BooleanField(default=False)
     image_urls = models.JSONField(default=list, null=True, blank=True)
