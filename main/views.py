@@ -2087,8 +2087,8 @@ def Flipkart_Template(request, sku_list):
             sku.product_image_link_2 or "",
             sku.product_image_link_3 or "",
             sku.product_image_link_4 or "",
-            "",
-            "",
+            sku.product_image_link_5 or "",
+            sku.product_image_link_6 or "",
             "",
             "",
             "",
@@ -2171,8 +2171,6 @@ def Snapdeal_Template(request, sku_list):
     )
 
     wb = load_workbook(template_path)
-
-    
 
     # IMPORTANT: select correct sheet
     ws = wb["Women's Saree_1727"]
@@ -2300,8 +2298,8 @@ def Snapdeal_Template(request, sku_list):
             sku.product_image_link_2 or "",
             sku.product_image_link_3 or "",
             sku.product_image_link_4 or "",
-            "",
-            "",
+            sku.product_image_link_5 or "",
+            sku.product_image_link_6 or "",
             "",
             "",
             "",
@@ -2565,8 +2563,8 @@ def Myntra_Template(request, sku_list):
             sku.product_image_link_2 or "",
             sku.product_image_link_3 or "",
             sku.product_image_link_4 or "",
-            "",
-            "",
+            sku.product_image_link_5 or "",
+            sku.product_image_link_6 or "",
             "",
         ]
 
@@ -2774,8 +2772,8 @@ def Meesho_Template(request, sku_list):
             sku.product_image_link_2 or "",
             sku.product_image_link_3 or "",
             sku.product_image_link_4 or "",
-            sku.sku or "",
-            sku.sku or "",
+            sku.product_image_link_5 or "",
+            sku.product_image_link_6 or "",
             sku.brand.name if sku.brand else "",
             sku.id or "",
             sku.style_description or "",
