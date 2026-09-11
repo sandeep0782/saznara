@@ -346,18 +346,8 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-        import logging
-
-        logger = logging.getLogger(__name__)
-
-        logger.warning("LOGIN USERNAME RECEIVED: %r", username)
-        logger.warning(
-            "LOGIN PASSWORD RECEIVED LENGTH: %s", len(password) if password else None
-        )
 
         user = authenticate(request, username=username, password=password)
-
-        logger.warning("AUTH RESULT: %r", user)
 
         if user is not None:
             # 🔴 Admin bypass (no profile needed)
