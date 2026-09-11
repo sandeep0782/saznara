@@ -1,19 +1,16 @@
+from main.marketplaces.meesho.blouse import MEESHO_ALLOWED_BLOUSE
+from main.marketplaces.meesho.blouse_fabric import MEESHO_ALLOWED_BLOUSE_FABRIC
 from main.marketplaces.meesho.blouse_pattern import MEESHO_ALLOWED_BLOUSE_PATTERN
-from main.marketplaces.meesho.pallu_details import MEESHO_ALLOWED_PALLU_DETAILS
+from main.marketplaces.meesho.border import MEESHO_ALLOWED_BORDER
+from main.marketplaces.meesho.border_length import MEESHO_ALLOWED_BORDER_LENGTH
+from main.marketplaces.meesho.color import MEESHO_ALLOWED_COLORS
+from main.marketplaces.meesho.occasion import MEESHO_ALLOWED_OCCASION
+from main.marketplaces.meesho.ornamentation import MEESHO_ALLOWED_ORNAMENTATION
+from main.marketplaces.meesho.pattern import MEESHO_ALLOWED_PATTERN
+from main.marketplaces.meesho.print_pattern import MEESHO_ALLOWED_PRINT_OR_PATTERN_TYPE
+from main.marketplaces.meesho.saree_fabric import MEESHO_ALLOWED_SAREE_FABRIC
+from main.marketplaces.meesho.technique import MEESHO_ALLOWED_TECHNIQUE
 from main.marketplaces.validator import validate_marketplace_mapping
-
-from .blouse import MEESHO_ALLOWED_BLOUSE
-from .blouse_fabric import (
-    MEESHO_ALLOWED_BLOUSE_FABRIC,
-)
-from .border import MEESHO_ALLOWED_BORDER
-from .color import MEESHO_ALLOWED_COLORS
-from .occasion import MEESHO_ALLOWED_OCCASION
-from .ornamentation import MEESHO_ALLOWED_ORNAMENTATION
-from .pattern import MEESHO_ALLOWED_PATTERN
-from .print_pattern import MEESHO_ALLOWED_PRINT_OR_PATTERN_TYPE
-from .saree_fabric import MEESHO_ALLOWED_SAREE_FABRIC
-from .technique import MEESHO_ALLOWED_TECHNIQUE
 
 
 def validate_meesho_template(sku_list):
@@ -100,10 +97,10 @@ def validate_meesho_template(sku_list):
             MEESHO_ALLOWED_TECHNIQUE,
         ),
         (
-            "Pallu_details",
-            "PALLU_DETAILS",
-            lambda sku: sku.get_pallu_details_display() if sku.pallu_details else None,
-            MEESHO_ALLOWED_PALLU_DETAILS,
+            "Border Width",
+            "BORDER_WIDTH",
+            lambda sku: sku.get_border_width_display() if sku.border_width else None,
+            MEESHO_ALLOWED_BORDER_LENGTH,
         ),
     ]
 

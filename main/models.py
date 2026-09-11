@@ -866,3 +866,72 @@ class MarketplaceMapping(models.Model):
             f"{self.source_value} → "
             f"{self.mapped_value}"
         )
+
+
+class SKUVideo(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("generating", "Generating"),
+        ("merging", "Merging"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+    ]
+
+    sku = models.OneToOneField(
+        SKU,
+        on_delete=models.CASCADE,
+        related_name="video",
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
+
+    video_url = models.URLField(
+        null=True,
+        blank=True,
+    )
+
+    error_message = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+
+class SKUVideoClip(models.Model):
+    video = models.ForeignKey(
+        SKUVideo,
+        on_delete=models.CASCADE,
+        related_name="clips",
+    )
+
+    image_url = models.URLField()
+
+    clip_url = models.URLField(
+        null=True,
+        blank=True,
+    )
+
+    sequence = models.PositiveIntegerField()
+
+    status = models.CharField(
+        max_length=20,
+        default="pending",
+    )
+
+    error_message = models.TextField(
+        null=True,
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["sequence"]
+        unique_together = ["video", "sequence"]

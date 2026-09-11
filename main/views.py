@@ -2606,7 +2606,7 @@ def Meesho_Template(request, sku_list):
         settings.BASE_DIR,
         "main",
         "marketplaces",
-        "mee",
+        "meesho",
         "Sarees-10003-EXTERNAL-MeeshoTemplate2PricesGSTIN.xlsx",
     )
 
@@ -2696,8 +2696,14 @@ def Meesho_Template(request, sku_list):
 
         border_width = get_marketplace_value(
             "MEESHO",
-            "BORDER_LENGTH",
+            "BORDER_WIDTH",
             sku.get_border_width_display() if sku.border_width else None,
+        )
+
+        pallu_details = get_marketplace_value(
+            "MEESHO",
+            "PALLU_DETAILS",
+            sku.get_pallu_details_display() if sku.pallu_details else None,
         )
 
         # -------------------------------
@@ -2772,8 +2778,8 @@ def Meesho_Template(request, sku_list):
             sku.product_image_link_2 or "",
             sku.product_image_link_3 or "",
             sku.product_image_link_4 or "",
-            sku.product_image_link_5 or "",
-            sku.product_image_link_6 or "",
+            sku.sku,
+            sku.sku or "",
             sku.brand.name if sku.brand else "",
             sku.id or "",
             sku.style_description or "",
@@ -2782,10 +2788,10 @@ def Meesho_Template(request, sku_list):
             blouse_pattern,
             border_width,
             sku.brand.name if sku.brand else "",
-            sku.loom_type or "",
+            sku.get_loom_type_display() if sku.loom_type else None,
             occasion,
             ornamentation,
-            sku.pallu_details,
+            pallu_details,
             pattern,
         ]
 
@@ -2799,12 +2805,9 @@ def Meesho_Template(request, sku_list):
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-    filename = "myntra_template.xlsx"
-
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    new_filename = f"Myntra-Sku-Template-{date_str}{os.path.splitext(filename)[1]}"
-
-    response["Content-Disposition"] = f'attachment; filename="{new_filename}"'
+    response["Content-Disposition"] = (
+        'attachment; filename="Sarees-10003-EXTERNAL-MeeshoTemplate2PricesGSTIN.xlsx"'
+    )
 
     wb.save(response)
 
