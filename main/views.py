@@ -2098,6 +2098,8 @@ def Meesho_Template(request, sku_list):
     row = 4
     col = 3
 
+    first_sku_id = sku_list[0].id if sku_list else ""
+
     for sku in sku_list:
         # -------------------------------
         # Myntra mappings per SKU
@@ -2258,7 +2260,8 @@ def Meesho_Template(request, sku_list):
             sku.sku,
             sku.sku or "",
             sku.brand.name if sku.brand else "",
-            sku.id or "",
+            # sku.id or "",
+            first_sku_id,
             sku.style_description or "",
             color,
             blouse_fabric,
