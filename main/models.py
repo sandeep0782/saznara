@@ -820,6 +820,7 @@ class MarketplaceMapping(models.Model):
         ("AMAZON", "Amazon"),
         ("MYNTRA", "Myntra"),
         ("SNAPDEAL", "Snapdeal"),
+        ("MYSMME", "Mysmme"),
     )
 
     ATTRIBUTE_CHOICES = (

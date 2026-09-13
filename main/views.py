@@ -30,6 +30,7 @@ from main.marketplaces.myntra.mappings import *
 from main.marketplaces.myntra.validator import (
     validate_myntra_template,
 )
+from main.marketplaces.mysmme.validator import validate_mysmme_template
 from main.marketplaces.snapdeal.validator import validate_snapdeal_template
 from main.models import SKU, Article_Type, Brand, Color, Gender, Size, Unit
 from main.services.marketplace_mapping import get_marketplace_value
@@ -535,6 +536,9 @@ def View__SKU(request):
 
     if export == "myntra":
         return Myntra_Template(request, sku_list)
+
+    if export == "mysmme":
+        return Mysmme_Template(request, sku_list)
 
     # PAGINATION
     paginator = Paginator(sku_list, 10)
@@ -2288,6 +2292,235 @@ def Meesho_Template(request, sku_list):
     response["Content-Disposition"] = (
         'attachment; filename="Sarees-10003-EXTERNAL-MeeshoTemplate2PricesGSTIN.xlsx"'
     )
+
+    wb.save(response)
+
+    return response
+
+
+@login_required
+def Mysmme_Template(request, sku_list):
+    validation_errors = validate_mysmme_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/mysmme_error.html",
+            {"validation_errors": validation_errors},
+        )
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        "main",
+        "marketplaces",
+        "mysmme",
+        "saree-product-import-template.xlsx",
+    )
+
+    wb = load_workbook(template_path)
+
+    ws = wb["Saree-Fill-This"]
+
+    for merged in list(ws.merged_cells.ranges):
+        if merged.min_row >= 5:
+            ws.unmerge_cells(str(merged))
+
+    row = 1
+    col = 0
+
+    for sku in sku_list:
+        # -------------------------------
+        # Myntra mappings per SKU
+        # -------------------------------
+
+        color = get_marketplace_value(
+            "MYSMME",
+            "COLOR",
+            sku.color.color if sku.color else None,
+        )
+
+        blouse = get_marketplace_value(
+            "MYSMME",
+            "BLOUSE",
+            sku.get_blouse_display() if sku.blouse else None,
+        )
+
+        border = get_marketplace_value(
+            "MYSMME",
+            "BORDER",
+            sku.get_border_display() if sku.border else None,
+        )
+
+        saree_fabric = get_marketplace_value(
+            "MYSMME",
+            "SAREE_FABRIC",
+            sku.get_saree_fabric_display() if sku.saree_fabric else None,
+        )
+
+        blouse_fabric = get_marketplace_value(
+            "MYSMME",
+            "BLOUSE_FABRIC",
+            sku.get_blouse_fabric_display() if sku.blouse else None,
+        )
+
+        occasion = get_marketplace_value(
+            "MYSMME",
+            "OCCASION",
+            sku.get_occasion_display() if sku.occasion else None,
+        )
+
+        ornamentation = get_marketplace_value(
+            "MYSMME",
+            "ORNAMENTATION",
+            sku.get_ornamentation_display() if sku.ornamentation else None,
+        )
+
+        pattern = get_marketplace_value(
+            "MYSMME",
+            "PATTERN",
+            sku.get_pattern_display() if sku.pattern else None,
+        )
+
+        blouse_pattern = get_marketplace_value(
+            "MYSMME",
+            "BLOUSE_PATTERN",
+            sku.get_blouse_pattern_display() if sku.blouse_pattern else None,
+        )
+
+        print_pattern_type = get_marketplace_value(
+            "MYSMME",
+            "PRINT_OR_PATTERN_TYPE",
+            sku.get_print_or_pattern_type_display()
+            if sku.print_or_pattern_type
+            else None,
+        )
+
+        technique = get_marketplace_value(
+            "MYSMME",
+            "TECHNIQUE",
+            sku.get_type_display() if sku.type else None,
+        )
+
+        border_width = get_marketplace_value(
+            "MYSMME",
+            "BORDER_WIDTH",
+            sku.get_border_width_display() if sku.border_width else None,
+        )
+
+        # -------------------------------
+        # Excel row data
+        # -------------------------------
+
+        size = (
+            (
+                "Onesize"
+                if sku.size and sku.size.size == "Free Size"
+                else (sku.size.size if sku.size else "Onesize")
+            ),
+        )
+        pallu_details = get_marketplace_value(
+            "MEESHO",
+            "PALLU_DETAILS",
+            sku.get_pallu_details_display() if sku.pallu_details else None,
+        )
+
+        values = [
+            sku.sku or "",
+            sku.sku or "",
+            sku.id or "",
+            sku.style_description or "",
+            sku.style_description or "",
+            sku.brand.name if sku.brand else "",
+            "",
+            color,
+            "",
+            "Womens",
+            "",
+            sku.mrp or "",
+            sku.mrp or "",
+            sku.mrp or "",
+            "5",
+            "5407",
+            "0.500",
+            "1",
+            "India",
+            "Sarees",
+            "100",
+            sku.vendor.company if sku.vendor else "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.address if sku.vendor else "",
+                    ],
+                )
+            ),
+            str(sku.vendor.pin) if sku.vendor else "",
+            sku.vendor.company if sku.vendor else "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.address if sku.vendor else "",
+                    ],
+                )
+            ),
+            str(sku.vendor.pin) if sku.vendor else "",
+            sku.vendor.company if sku.vendor else "",
+            ", ".join(
+                filter(
+                    None,
+                    [
+                        sku.vendor.address if sku.vendor else "",
+                    ],
+                )
+            ),
+            str(sku.vendor.pin) if sku.vendor else "",
+            blouse,
+            color,
+            blouse_fabric,
+            pattern,
+            "0.8",
+            border,
+            border_width,
+            "",
+            print_pattern_type,
+            pattern,
+            saree_fabric,
+            "5.5",
+            "No",
+            technique,
+            "Powerloom",
+            occasion,
+            ornamentation,
+            pallu_details,
+            "",
+            "",
+            # "Dry Clean Only",
+            # blouse,
+            sku.product_image_link_1 or "",
+            sku.product_image_link_2 or "",
+            sku.product_image_link_3 or "",
+            sku.product_image_link_4 or "",
+            sku.product_image_link_5 or "",
+        ]
+
+        # Write row
+        for offset, value in enumerate(values):
+            ws.cell(row=row + 1, column=col + offset + 1, value=value)
+
+        row += 1
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    filename = "mysmme_template.xlsx"
+
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    new_filename = f"MYSMME-Sku-Template-{date_str}{os.path.splitext(filename)[1]}"
+
+    response["Content-Disposition"] = f'attachment; filename="{new_filename}"'
 
     wb.save(response)
 
