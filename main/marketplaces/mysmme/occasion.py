@@ -1,8 +1,13 @@
 MYSMME_ALLOWED_OCCASION = {
-    "Daily",
+    "Bridal",
+    "Casual",
+    "Celebrity Inspired",
+    "Daily Wear",
+    "Farewell",
+    "Festival",
+    "Office Wear",
     "Party",
+    "Religious",
     "Traditional",
-    "Festive",
-    "Work",
-    "Fusion",
+    "Wedding",
 }

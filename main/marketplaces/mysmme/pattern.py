@@ -1,11 +1,8 @@
 MYSMME_ALLOWED_PATTERN = {
     "Checked",
-    "Colourblocked",
-    "Embellished",
-    "Embroidered",
+    "Colorblocked",
     "Printed",
-    "Woven Design",
+    "Self-Design",
     "Solid",
     "Striped",
-    "Dyed",
 }

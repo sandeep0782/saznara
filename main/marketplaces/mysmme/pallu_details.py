@@ -1,12 +1,11 @@
-MYSMME_ALLOWED_BLOUSE_PATTERN = {
+MYSMME_ALLOWED_PALLU_DETAILS = {
     "Embellished",
     "Embroidered",
+    "Half & Half",
     "Jacquard",
     "Printed",
     "Same as Border",
-    "Same as Pallu",
     "Same as Saree",
-    "Solid",
     "Woven Design",
     "Zari Woven",
 }
