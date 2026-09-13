@@ -1,4 +1,3 @@
-from main.marketplaces.mysmme.blouse import MYSMME_ALLOWED_BLOUSE
 from main.marketplaces.mysmme.blouse_fabric import MYSMME_ALLOWED_BLOUSE_FABRIC
 from main.marketplaces.mysmme.border import MYSMME_ALLOWED_BORDER
 from main.marketplaces.mysmme.border_length import MYSMME_ALLOWED_BORDER_LENGTH
@@ -47,12 +46,7 @@ def validate_mysmme_template(sku_list):
             lambda sku: sku.get_blouse_fabric_display() if sku.blouse_fabric else None,
             MYSMME_ALLOWED_BLOUSE_FABRIC,
         ),
-        (
-            "Blouse",
-            "BLOUSE",
-            lambda sku: sku.get_blouse_display() if sku.blouse else None,
-            MYSMME_ALLOWED_BLOUSE,
-        ),
+
         # (
         #     "Blouse Pattern",
         #     "BLOUSE_PATTERN",
