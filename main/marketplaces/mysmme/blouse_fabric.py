@@ -35,4 +35,5 @@ MYSMME_ALLOWED_BLOUSE_FABRIC = {
     "Modal Silk",
     "Viscose Georgette",
     "Bemberg Crepe",
+    "Tussar",
 }
