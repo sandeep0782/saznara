@@ -2215,9 +2215,7 @@ def Meesho_Template(request, sku_list):
                 filter(
                     None,
                     [
-                        sku.vendor.company if sku.vendor else "",
                         sku.vendor.address if sku.vendor else "",
-                        str(sku.vendor.pin) if sku.vendor else "",
                     ],
                 )
             ),
@@ -2227,9 +2225,7 @@ def Meesho_Template(request, sku_list):
                 filter(
                     None,
                     [
-                        sku.vendor.company if sku.vendor else "",
                         sku.vendor.address if sku.vendor else "",
-                        str(sku.vendor.pin) if sku.vendor else "",
                     ],
                 )
             ),
@@ -2239,9 +2235,7 @@ def Meesho_Template(request, sku_list):
                 filter(
                     None,
                     [
-                        sku.vendor.company if sku.vendor else "",
                         sku.vendor.address if sku.vendor else "",
-                        str(sku.vendor.pin) if sku.vendor else "",
                     ],
                 )
             ),
