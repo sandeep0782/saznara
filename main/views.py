@@ -524,55 +524,6 @@ def View__SKU(request):
                     | Q(article_type__name__icontains=term)
                 )
 
-    for item in sku_list:
-
-        image_urls = []
-
-        # Image 1
-        if item.product_image_link_1:
-            image_urls.append(
-                item.product_image_link_1.strip()
-            )
-
-        # Image 2
-        if item.product_image_link_2:
-            image_urls.append(
-                item.product_image_link_2.strip()
-            )
-
-        # Image 3
-        if item.product_image_link_3:
-            image_urls.append(
-                item.product_image_link_3.strip()
-            )
-
-        # Image 4
-        if item.product_image_link_4:
-            image_urls.append(
-                item.product_image_link_4.strip()
-            )
-
-        # Image 5
-        if item.product_image_link_5:
-            image_urls.append(
-                item.product_image_link_5.strip()
-            )
-
-        # Image 6
-        if item.product_image_link_6:
-            image_urls.append(
-                item.product_image_link_6.strip()
-            )
-
-        # Save list into JSONField
-        if item.image_urls != image_urls:
-
-            item.image_urls = image_urls
-
-            item.save(
-                update_fields=["image_urls"]
-            )            
-
     # EXPORT
     if export == "meesho":
         return Meesho_Template(request, sku_list)
