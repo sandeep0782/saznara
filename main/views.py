@@ -524,6 +524,55 @@ def View__SKU(request):
                     | Q(article_type__name__icontains=term)
                 )
 
+    for item in sku_list:
+
+        image_urls = []
+
+        # Image 1
+        if item.product_image_link_1:
+            image_urls.append(
+                item.product_image_link_1.strip()
+            )
+
+        # Image 2
+        if item.product_image_link_2:
+            image_urls.append(
+                item.product_image_link_2.strip()
+            )
+
+        # Image 3
+        if item.product_image_link_3:
+            image_urls.append(
+                item.product_image_link_3.strip()
+            )
+
+        # Image 4
+        if item.product_image_link_4:
+            image_urls.append(
+                item.product_image_link_4.strip()
+            )
+
+        # Image 5
+        if item.product_image_link_5:
+            image_urls.append(
+                item.product_image_link_5.strip()
+            )
+
+        # Image 6
+        if item.product_image_link_6:
+            image_urls.append(
+                item.product_image_link_6.strip()
+            )
+
+        # Save list into JSONField
+        if item.image_urls != image_urls:
+
+            item.image_urls = image_urls
+
+            item.save(
+                update_fields=["image_urls"]
+            )            
+
     # EXPORT
     if export == "meesho":
         return Meesho_Template(request, sku_list)
@@ -556,15 +605,102 @@ def View__SKU(request):
     )
 
 
+# @login_required
+# def Change__SKU(request, pid=None):
+#     sku = None
+
+#     brand = (
+#         Brand.objects.all()
+#         if request.user.is_superuser
+#         else Brand.objects.filter(vendor=request.user.profile)
+#     )
+#     gender = Gender.objects.all()
+#     article_type = Article_Type.objects.all()
+#     size = Size.objects.all()
+#     color = Color.objects.all()
+#     vendor = Profile.objects.all()
+
+#     selected_gender = Gender.objects.filter(name__iexact="Women").first()
+#     selected_article_type = Article_Type.objects.filter(name__iexact="Sarees").first()
+#     selected_size = Size.objects.filter(size__iexact="Free Size").first()
+#     if pid:
+#         sku = SKU.objects.filter(id=pid).first()
+#         if not sku:
+#             messages.error(request, "SKU does not exist")
+#             return redirect("view_sku")
+
+#     if request.method == "POST":
+#         form = SKUForm(request.POST, request.FILES, instance=sku)
+
+#         if form.is_valid():
+#             obj = form.save(commit=False)
+
+#             if pid:
+#                 obj.modified_by = request.user
+#                 messages.success(request, "SKU updated successfully")
+#             else:
+#                 obj.created_by = request.user
+#                 obj.vendor = request.user.profile
+#                 obj.gender = selected_gender
+#                 obj.article_type = selected_article_type
+#                 obj.size = selected_size
+#                 messages.success(request, "SKU created successfully")
+
+#             obj.save()
+#             return redirect("view_sku")
+
+#         else:
+#             # IMPORTANT: return form WITH ERRORS
+#             messages.error(request, "Please correct the errors below")
+#     else:
+#         form = SKUForm(instance=sku)
+
+#     context = {
+#         "form": form,
+#         "sku": sku,
+#         "brand": brand,
+#         "gender": gender,
+#         "article_type": article_type,
+#         "size": size,
+#         "color": color,
+#         "vendor": vendor,
+#         "BLOUSE_CHOICES": BLOUSE_CHOICES,
+#         "BORDER_CHOICES": BORDER_CHOICES,
+#         "PRINT_PATTERN_TYPE_CHOICES": PRINT_PATTERN_TYPE_CHOICES,
+#         "SAREE_FABRIC_CHOICES": SAREE_FABRIC_CHOICES,
+#         "TRANSPARENCY_CHOICES": TRANSPARENCY_CHOICES,
+#         "TYPE_CHOICES": TYPE_CHOICES,
+#         "BLOUSE_LENGTH_SIZE_CHOICES": BLOUSE_LENGTH_SIZE_CHOICES,
+#         "SAREE_LENGTH_SIZE_CHOICES": SAREE_LENGTH_SIZE_CHOICES,
+#         "BLOUSE_COLOR_CHOICES": BLOUSE_COLOR_CHOICES,
+#         "BLOUSE_FABRIC_CHOICES": BLOUSE_FABRIC_CHOICES,
+#         "BLOUSE_PATTERN_CHOICES": BLOUSE_PATTERN_CHOICES,
+#         "BORDER_WIDTH_CHOICES": BORDER_WIDTH_CHOICES,
+#         "LOOM_TYPE_CHOICES": LOOM_TYPE_CHOICES,
+#         "OCCASION_CHOICES": OCCASION_CHOICES,
+#         "ORNAMENTATION_CHOICES": ORNAMENTATION_CHOICES,
+#         "PALLU_DETAILS_CHOICES": PALLU_DETAILS_CHOICES,
+#         "DESIGN_PATTERN_CHOICES": DESIGN_PATTERN_CHOICES,
+#     }
+
+#     return render(request, "sku/change_sku.html", context)
+
+
 @login_required
 def Change__SKU(request, pid=None):
+
     sku = None
+
+    # ---------------------------------------------------------
+    # MASTER DATA
+    # ---------------------------------------------------------
 
     brand = (
         Brand.objects.all()
         if request.user.is_superuser
         else Brand.objects.filter(vendor=request.user.profile)
     )
+
     gender = Gender.objects.all()
     article_type = Article_Type.objects.all()
     size = Size.objects.all()
@@ -572,13 +708,25 @@ def Change__SKU(request, pid=None):
     vendor = Profile.objects.all()
 
     selected_gender = Gender.objects.filter(name__iexact="Women").first()
+
     selected_article_type = Article_Type.objects.filter(name__iexact="Sarees").first()
+
     selected_size = Size.objects.filter(size__iexact="Free Size").first()
+
+    # ---------------------------------------------------------
+    # GET SKU
+    # ---------------------------------------------------------
+
     if pid:
         sku = SKU.objects.filter(id=pid).first()
+
         if not sku:
             messages.error(request, "SKU does not exist")
             return redirect("view_sku")
+
+    # ---------------------------------------------------------
+    # POST
+    # ---------------------------------------------------------
 
     if request.method == "POST":
         form = SKUForm(request.POST, request.FILES, instance=sku)
@@ -586,29 +734,85 @@ def Change__SKU(request, pid=None):
         if form.is_valid():
             obj = form.save(commit=False)
 
+            # -------------------------------------------------
+            # CREATED / UPDATED
+            # -------------------------------------------------
+
             if pid:
                 obj.modified_by = request.user
-                messages.success(request, "SKU updated successfully")
+
             else:
                 obj.created_by = request.user
                 obj.vendor = request.user.profile
                 obj.gender = selected_gender
                 obj.article_type = selected_article_type
                 obj.size = selected_size
-                messages.success(request, "SKU created successfully")
+
+            # -------------------------------------------------
+            # IMAGE URL LIST
+            # -------------------------------------------------
+
+            image_urls = []
+
+            # Always check Image URL 1 to Image URL 6
+            for number in range(1, 7):
+                value = request.POST.get(f"image_url_{number}", "").strip()
+
+                if value:
+                    image_urls.append(value)
+
+            # Save JSON list
+            obj.image_urls = image_urls
+
+            # -------------------------------------------------
+            # SAVE
+            # -------------------------------------------------
 
             obj.save()
+
+            if pid:
+                messages.success(request, "SKU updated successfully")
+            else:
+                messages.success(request, "SKU created successfully")
+
             return redirect("view_sku")
 
         else:
-            # IMPORTANT: return form WITH ERRORS
             messages.error(request, "Please correct the errors below")
+
     else:
         form = SKUForm(instance=sku)
+
+    # ---------------------------------------------------------
+    # IMAGE URLS FOR TEMPLATE
+    # ---------------------------------------------------------
+
+    if request.method == "POST":
+        # Keep submitted values if form validation fails
+        existing_image_urls = []
+
+        for number in range(1, 7):
+            value = request.POST.get(f"image_url_{number}", "").strip()
+
+            existing_image_urls.append(value)
+
+    else:
+        # Existing database values
+        existing_image_urls = list(sku.image_urls or []) if sku else []
+
+        # Always show 6 fields
+        while len(existing_image_urls) < 6:
+            existing_image_urls.append("")
+
+    # ---------------------------------------------------------
+    # CONTEXT
+    # ---------------------------------------------------------
 
     context = {
         "form": form,
         "sku": sku,
+        # Image URL fields
+        "existing_image_urls": existing_image_urls,
         "brand": brand,
         "gender": gender,
         "article_type": article_type,

@@ -7,22 +7,24 @@
        SKU PAGE
        ========================================================= */
 
-    .sku-image {
-        width: 42px;
-        height: 42px;
-        object-fit: cover;
-        border-radius: 7px;
-        cursor: pointer;
-        border: 1px solid #dee2e6;
-        background: #f8f9fa;
-        transition: all 0.2s ease;
-    }
+       
+.sku-image {
+    width: 42px;
+    height: 56px;
+    object-fit: contain;
+    border-radius: 7px;
+    cursor: pointer;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    transition: all 0.2s ease;
+}
 
-    .sku-image:hover {
-        transform: scale(1.08);
-        border-color: #0d6efd;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-    }
+.sku-image:hover {
+    transform: scale(1.08);
+    border-color: #0d6efd;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
 
     .copy-text {
         cursor: pointer;
@@ -442,9 +444,8 @@
 
                         <th>S.No</th>
 
-                        <th>Image-1</th>
-                        <th>Image-2</th>
-                        <th>Image-3</th>
+                        <th>Image</th>
+
 
                         <th>SKU</th>
                         <th>Brand</th>
@@ -484,124 +485,34 @@
                         <td>
                             {{ sku.start_index|add:forloop.counter0 }}
                         </td>
-
-
-                        <!-- IMAGE 1 + IMAGE 2 -->
+                        </td>
                         <td>
+                            <div class="sku-image-gallery">
 
-                            <div class="d-flex gap-1">
+                                {% for image_url in i.image_urls %}
 
-                                {% if i.product_image_link_1 %}
+                                    {% if image_url %}
+                                        <img
+                                            src="{{ image_url }}"
+                                            alt="Image {{ forloop.counter }}"
+                                            class="sku-image"
+                                            loading="lazy"
+                                            onclick="openModal(this.src, '{{ i.sku|escapejs }}')"
+                                        >
+                                    {% endif %}
 
-                                    <img
-                                        src="{{ i.product_image_link_1 }}"
-                                        alt="Image 1"
-                                        class="sku-image"
-                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
+                                {% empty %}
 
-                                {% endif %}
+                                    <span class="text-muted">No Image</span>
 
-
-                                {% if i.product_image_link_2 %}
-
-                                    <img
-                                        src="{{ i.product_image_link_2 }}"
-                                        alt="Image 2"
-                                        class="sku-image"
-                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
-
-                                {% endif %}
-
-
-                                {% if not i.product_image_link_1 and not i.product_image_link_2 %}
-
-                                    <span class="text-muted">
-                                        No Image
-                                    </span>
-
-                                {% endif %}
+                                {% endfor %}
 
                             </div>
 
                         </td>
 
 
-                        <!-- IMAGE 3 + IMAGE 4 -->
-                        <td>
-
-                            <div class="d-flex gap-1">
-
-                                {% if i.product_image_link_3 %}
-
-                                    <img
-                                        src="{{ i.product_image_link_3 }}"
-                                        alt="Image 3"
-                                        class="sku-image"
-                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
-
-                                {% endif %}
-
-
-                                {% if i.product_image_link_4 %}
-
-                                    <img
-                                        src="{{ i.product_image_link_4 }}"
-                                        alt="Image 4"
-                                        class="sku-image"
-                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
-
-                                {% endif %}
-
-
-                                {% if not i.product_image_link_3 and not i.product_image_link_4 %}
-
-                                    <span class="text-muted">
-                                        No Image
-                                    </span>
-
-                                {% endif %}
-
-                            </div>
-
-                        </td>
-                        <!-- IMAGE 5 + IMAGE 6 -->
-                        <td>
-
-                            <div class="d-flex gap-1">
-
-                                {% if i.product_image_link_5 %}
-
-                                    <img
-                                        src="{{ i.product_image_link_5 }}"
-                                        alt="Image 5"
-                                        class="sku-image"
-                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
-
-                                {% endif %}
-
-
-                                {% if i.product_image_link_6 %}
-
-                                    <img
-                                        src="{{ i.product_image_link_6 }}"
-                                        alt="Image 6"
-                                        class="sku-image"
-                                        onclick="openModal(this.src, '{{ i.sku|escapejs }}')">
-
-                                {% endif %}
-
-
-                                {% if not i.product_image_link_5 and not i.product_image_link_6 %}
-
-                                    <span class="text-muted">
-                                        No Image
-                                    </span>
-
-                                {% endif %}
-
-                            </div>
-
-                        </td>
+                        
 
 
                         <!-- SKU -->

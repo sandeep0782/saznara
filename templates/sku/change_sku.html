@@ -407,43 +407,36 @@ select option[value=""]{
                         </div>
                         
                         
-                        <div class="col-xl-3 col-md-3">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" name="product_image_link_1" id="inputabb" type="text" placeholder="Image Url" value="{{sku.product_image_link_1}}"  />
-                                <label for="inputabb">Image Url-1</label>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-3">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" name="product_image_link_2" id="inputabb" type="text" placeholder="Image Url" value="{{sku.product_image_link_2}}"  />
-                                <label for="inputabb">Image Url-2</label>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-3">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" name="product_image_link_3" id="inputabb" type="text" placeholder="Image Url" value="{{sku.product_image_link_3}}"  />
-                                <label for="inputabb">Image Url-3</label>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-3">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" name="product_image_link_4" id="inputabb" type="text" placeholder="Image Url" value="{{sku.product_image_link_4}}"  />
-                                <label for="inputabb">Image Url-4</label>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-3">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" name="product_image_link_5" id="inputabb" type="text" placeholder="Image Url" value="{{sku.product_image_link_5}}"  />
-                                <label for="inputabb">Image Url-5</label>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-3">
-                            <div class="form-floating mb-3">
-                                <input class="form-control" name="product_image_link_6" id="inputabb" type="text" placeholder="Image Url" value="{{sku.product_image_link_6}}"  />
-                                <label for="inputabb">Image Url-6</label>
-                            </div>
-                        </div>
-                       
+                <!-- =========================================================
+     PRODUCT IMAGE URLS
+     ========================================================= -->
+
+{% for image_url in existing_image_urls %}
+
+    <div class="col-xl-3 col-md-4 col-sm-6">
+
+        <div class="form-floating mb-3">
+
+            <input
+                class="form-control image-url-field"
+                name="image_url_{{ forloop.counter }}"
+                id="image_url_{{ forloop.counter }}"
+                type="url"
+                value="{{ image_url }}"
+                placeholder="Image URL"
+            >
+
+            <label for="image_url_{{ forloop.counter }}">
+                Image URL-{{ forloop.counter }}
+            </label>
+
+        </div>
+
+    </div>
+
+{% endfor %}
+
+                        
                         <div class="col-xl-9 col-md-9">
                             <div class="form-floating mb-3">
                                 <input class="form-control" name="key_words" id="inputSku" type="text" placeholder="Add Key Words" value="{{sku.key_words}}" />
