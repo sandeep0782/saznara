@@ -2573,6 +2573,15 @@ def Mysmme_Template(request, sku_list):
             sku.get_pallu_details_display() if sku.pallu_details else None,
         )
 
+        # Product images from image_urls JSON list
+        image_urls = sku.image_urls or []
+
+        image_1 = image_urls[0] if len(image_urls) > 0 else ""
+        image_2 = image_urls[1] if len(image_urls) > 1 else ""
+        image_3 = image_urls[2] if len(image_urls) > 2 else ""
+        image_4 = image_urls[3] if len(image_urls) > 3 else ""
+        image_5 = image_urls[4] if len(image_urls) > 4 else ""
+
         values = [
             sku.sku or "",
             sku.sku or "",
@@ -2645,13 +2654,11 @@ def Mysmme_Template(request, sku_list):
             pallu_details,
             "",
             "",
-            # "Dry Clean Only",
-            # blouse,
-            sku.product_image_link_1 or "",
-            sku.product_image_link_2 or "",
-            sku.product_image_link_3 or "",
-            sku.product_image_link_4 or "",
-            sku.product_image_link_5 or "",
+            image_1,
+            image_2,
+            image_3,
+            image_4,
+            image_5,
         ]
 
         # Write row
