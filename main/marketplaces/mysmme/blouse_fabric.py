@@ -2,6 +2,7 @@ MYSMME_ALLOWED_BLOUSE_FABRIC = {
     "Art Silk",
     "Pure Silk",
     "Pure Cotton",
+    "Georgette",
     "Poly Georgette",
     "Poly Crepe",
     "Poly Chiffon",
