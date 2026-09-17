@@ -2354,6 +2354,14 @@ def Meesho_Template(request, sku_list):
             else (sku.size.size if sku.size else "Onesize")
         )
 
+        image_urls = sku.image_urls or []
+
+        image_1 = image_urls[0] if len(image_urls) > 0 else ""
+        image_2 = image_urls[1] if len(image_urls) > 1 else ""
+        image_3 = image_urls[2] if len(image_urls) > 2 else ""
+        image_4 = image_urls[3] if len(image_urls) > 3 else ""
+        image_5 = image_urls[4] if len(image_urls) > 4 else ""
+
         values = [
             str(sku.article_type) if sku.article_type else "",
             str(sku.size) if sku.size else "",
@@ -2406,10 +2414,10 @@ def Meesho_Template(request, sku_list):
             technique,
             float(sku.blouse_length or 0.8),
             float(sku.saree_length or 5.5),
-            sku.product_image_link_1 or "",
-            sku.product_image_link_2 or "",
-            sku.product_image_link_3 or "",
-            sku.product_image_link_4 or "",
+            image_1,
+            image_2,
+            image_3,
+            image_4,
             sku.sku,
             sku.sku or "",
             sku.brand.name if sku.brand else "",
