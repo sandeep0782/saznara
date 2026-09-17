@@ -678,107 +678,116 @@
                  PAGINATION
                  ================================================= -->
 
-            {% if sku.has_other_pages %}
+        {% if sku.has_other_pages %}
 
-            <nav class="mt-3">
+        <nav class="mt-3" aria-label="SKU pagination">
+            <ul class="pagination justify-content-center flex-wrap">
 
-                <ul class="pagination justify-content-center">
-
-                    <!-- Previous -->
-
-                    {% if sku.has_previous %}
-
+                <!-- Previous -->
+                {% if sku.has_previous %}
                     <li class="page-item">
-
                         <a
                             class="page-link"
-                            href="?page={{ sku.previous_page_number }}&search={{ search_query }}">
-
+                            href="?page={{ sku.previous_page_number }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">
                             Previous
-
                         </a>
-
                     </li>
-
-                    {% else %}
-
+                {% else %}
                     <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
 
-                        <span class="page-link">
-                            Previous
-                        </span>
 
+                <!-- First page + left dots -->
+                {% if sku.number > 3 %}
+
+                    <li class="page-item">
+                        <a
+                            class="page-link"
+                            href="?page=1{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">
+                            1
+                        </a>
                     </li>
 
+                    {% if sku.number > 4 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
                     {% endif %}
 
+                {% endif %}
 
-                    <!-- Pages -->
 
-                    {% for i in sku.paginator.page_range %}
+                <!-- Current page range -->
+                {% for page_num in sku.paginator.page_range %}
 
-                        {% if sku.number == i %}
+                    {% if page_num >= sku.number|add:"-2" and page_num <= sku.number|add:"2" %}
 
-                        <li class="page-item active">
+                        {% if page_num == sku.number %}
 
-                            <span class="page-link">
-                                {{ i }}
-                            </span>
-
-                        </li>
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">
+                                    {{ page_num }}
+                                </span>
+                            </li>
 
                         {% else %}
 
-                        <li class="page-item">
-
-                            <a
-                                class="page-link"
-                                href="?page={{ i }}&search={{ search_query }}">
-
-                                {{ i }}
-
-                            </a>
-
-                        </li>
+                            <li class="page-item">
+                                <a
+                                    class="page-link"
+                                    href="?page={{ page_num }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
 
                         {% endif %}
 
-                    {% endfor %}
-
-
-                    <!-- Next -->
-
-                    {% if sku.has_next %}
-
-                    <li class="page-item">
-
-                        <a
-                            class="page-link"
-                            href="?page={{ sku.next_page_number }}&search={{ search_query }}">
-
-                            Next
-
-                        </a>
-
-                    </li>
-
-                    {% else %}
-
-                    <li class="page-item disabled">
-
-                        <span class="page-link">
-                            Next
-                        </span>
-
-                    </li>
-
                     {% endif %}
 
-                </ul>
+                {% endfor %}
 
-            </nav>
 
-            {% endif %}
+                <!-- Right dots + last page -->
+                {% if sku.number < sku.paginator.num_pages|add:"-2" %}
+
+                    {% if sku.number < sku.paginator.num_pages|add:"-3" %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item">
+                        <a
+                            class="page-link"
+                            href="?page={{ sku.paginator.num_pages }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">
+                            {{ sku.paginator.num_pages }}
+                        </a>
+                    </li>
+
+                {% endif %}
+
+
+                <!-- Next -->
+                {% if sku.has_next %}
+                    <li class="page-item">
+                        <a
+                            class="page-link"
+                            href="?page={{ sku.next_page_number }}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">
+                            Next
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+
+        {% endif %}
 
         </div>
 
