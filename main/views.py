@@ -1654,6 +1654,15 @@ def Flipkart_Template(request, sku_list):
         # Build values for THIS SKU
         # ---------------------------------------------------------
 
+        image_urls = sku.image_urls or []
+
+        image_1 = image_urls[0] if len(image_urls) > 0 else ""
+        image_2 = image_urls[1] if len(image_urls) > 1 else ""
+        image_3 = image_urls[2] if len(image_urls) > 2 else ""
+        image_4 = image_urls[3] if len(image_urls) > 3 else ""
+        image_5 = image_urls[4] if len(image_urls) > 4 else ""
+        image_6 = image_urls[5] if len(image_urls) > 5 else ""
+
         values = [
             sku.sku or "",
             sku.id or "",
@@ -1719,12 +1728,12 @@ def Flipkart_Template(request, sku_list):
             color,
             color,
             blouse,
-            sku.product_image_link_1 or "",
-            sku.product_image_link_2 or "",
-            sku.product_image_link_3 or "",
-            sku.product_image_link_4 or "",
-            sku.product_image_link_5 or "",
-            sku.product_image_link_6 or "",
+            image_1,
+            image_2,
+            image_3,
+            image_4,
+            image_5,
+            image_6,
             "",
             "",
             "",
@@ -1883,6 +1892,15 @@ def Snapdeal_Template(request, sku_list):
             sku.get_border_width_display() if sku.border_width else None,
         )
 
+        image_urls = sku.image_urls or []
+
+        image_1 = image_urls[0] if len(image_urls) > 0 else ""
+        image_2 = image_urls[1] if len(image_urls) > 1 else ""
+        image_3 = image_urls[2] if len(image_urls) > 2 else ""
+        image_4 = image_urls[3] if len(image_urls) > 3 else ""
+        image_5 = image_urls[4] if len(image_urls) > 4 else ""
+        image_6 = image_urls[5] if len(image_urls) > 5 else ""
+
         values = [
             sku.id or "",
             sku.sku or "",
@@ -1930,12 +1948,12 @@ def Snapdeal_Template(request, sku_list):
             "20",
             "25",
             "0.400",
-            sku.product_image_link_1 or "",
-            sku.product_image_link_2 or "",
-            sku.product_image_link_3 or "",
-            sku.product_image_link_4 or "",
-            sku.product_image_link_5 or "",
-            sku.product_image_link_6 or "",
+            image_1,
+            image_2,
+            image_3,
+            image_4,
+            image_5,
+            image_6,
             "",
             "",
             "",
@@ -2104,6 +2122,15 @@ def Myntra_Template(request, sku_list):
             else (sku.size.size if sku.size else "Onesize")
         )
 
+        image_urls = sku.image_urls or []
+
+        image_1 = image_urls[0] if len(image_urls) > 0 else ""
+        image_2 = image_urls[1] if len(image_urls) > 1 else ""
+        image_3 = image_urls[2] if len(image_urls) > 2 else ""
+        image_4 = image_urls[3] if len(image_urls) > 3 else ""
+        image_5 = image_urls[4] if len(image_urls) > 4 else ""
+        image_6 = image_urls[5] if len(image_urls) > 5 else ""
+
         values = [
             sku.id or "",
             sku.sku or "",
@@ -2195,12 +2222,12 @@ def Myntra_Template(request, sku_list):
             "",
             "",
             "",
-            sku.product_image_link_1 or "",
-            sku.product_image_link_2 or "",
-            sku.product_image_link_3 or "",
-            sku.product_image_link_4 or "",
-            sku.product_image_link_5 or "",
-            sku.product_image_link_6 or "",
+            image_1,
+            image_2,
+            image_3,
+            image_4,
+            image_5,
+            image_6,
             "",
         ]
 
