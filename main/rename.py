@@ -1,7 +1,7 @@
 from PIL import Image, ImageOps
 import os
 
-root_path = r"/Users/krishna/Desktop/Images/Rashmi"
+root_path = r"/Users/krishna/Downloads/JP02"
 
 image_exts = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"}
 
