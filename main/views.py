@@ -1963,6 +1963,7 @@ def Snapdeal_Template(request, sku_list):
             sku.style_description or "",
             "",
             "",
+            "",
             blouse_fabric,
             color,  # blouse color
             border,
