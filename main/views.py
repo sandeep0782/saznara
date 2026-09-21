@@ -1891,6 +1891,9 @@ def Snapdeal_Template(request, sku_list):
             "BORDER_WIDTH",
             sku.get_border_width_display() if sku.border_width else None,
         )
+        raw_border_width = sku.border_width
+        print("RAW:", repr(raw_border_width))
+        print("SNAPDEAL border_width:", repr(border_width))
 
         image_urls = sku.image_urls or []
 
@@ -1963,7 +1966,7 @@ def Snapdeal_Template(request, sku_list):
             sku.style_description or "",
             "",
             "",
-            "",
+            blouse_pattern,
             blouse_fabric,
             color,  # blouse color
             border,
@@ -1973,6 +1976,7 @@ def Snapdeal_Template(request, sku_list):
             "",
             blouse_pattern,
             occasion,
+            border_width,
             # keep remaining values exactly same as your existing list
         ]
 

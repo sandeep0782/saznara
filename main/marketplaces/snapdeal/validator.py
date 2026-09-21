@@ -5,7 +5,6 @@ from main.marketplaces.snapdeal.border import SNAPDEAL_ALLOWED_BORDER
 from main.marketplaces.snapdeal.border_length import SNAPDEAL_ALLOWED_BORDER_LENGTH
 from main.marketplaces.snapdeal.color import SNAPDEAL_ALLOWED_COLORS
 from main.marketplaces.snapdeal.occasion import SNAPDEAL_ALLOWED_OCCASION
-from main.marketplaces.snapdeal.ornamentation import SNAPDEAL_ALLOWED_ORNAMENTATION
 from main.marketplaces.snapdeal.pattern import SNAPDEAL_ALLOWED_PATTERN
 from main.marketplaces.snapdeal.print_pattern import (
     SNAPDEAL_ALLOWED_PRINT_OR_PATTERN_TYPE,
@@ -80,7 +79,6 @@ def validate_snapdeal_template(sku_list):
             ),
             SNAPDEAL_ALLOWED_PRINT_OR_PATTERN_TYPE,
         ),
-        
         (
             "Occasion",
             "OCCASION",
@@ -93,7 +91,12 @@ def validate_snapdeal_template(sku_list):
             lambda sku: sku.get_type_display() if sku.type else None,
             SNAPDEAL_ALLOWED_TECHNIQUE,
         ),
-        
+        (
+            "Border Width",
+            "BORDER_WIDTH",
+            lambda sku: sku.get_border_width_display() if sku.border_width else None,
+            SNAPDEAL_ALLOWED_BORDER_LENGTH,
+        ),
     ]
 
     for field_name, attribute, getter, allowed_values in validations:
