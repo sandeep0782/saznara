@@ -1812,7 +1812,7 @@ def Snapdeal_Template(request, sku_list):
         "main",
         "marketplaces",
         "snapdeal",
-        "Sdb673_Women's Saree_1727_1787240709759.xlsx",
+        "Sdb673_Women_s_Saree_1727_1789917032913.xlsx",
     )
 
     wb = load_workbook(template_path)
