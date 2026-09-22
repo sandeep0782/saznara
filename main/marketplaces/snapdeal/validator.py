@@ -63,6 +63,7 @@ def validate_snapdeal_template(sku_list):
             ),
             SNAPDEAL_ALLOWED_BLOUSE_PATTERN,
         ),
+        
         (
             "Pattern",
             "PATTERN",

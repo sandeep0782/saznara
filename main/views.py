@@ -1814,11 +1814,50 @@ def Snapdeal_Template(request, sku_list):
         "snapdeal",
         "Sdb673_Women_s_Saree_1727_1789917032913.xlsx",
     )
-
     wb = load_workbook(template_path)
 
-    # IMPORTANT: select correct sheet
+    # Main Snapdeal product sheet
     ws = wb["Women's Saree_1727"]
+
+    # Hidden Snapdeal mandatory/internal sheet
+    mandatory_ws = wb["MandatorySheet"]
+
+    # ---------------------------------------------------------
+    # SNAPDEAL BRAND DETAILS
+    # MandatorySheet!B3 = Snapdeal Brand ID
+    # MandatorySheet!B4 = Brand Name
+    # ---------------------------------------------------------
+
+    brands = {
+        sku.brand_id: sku.brand
+        for sku in sku_list
+        if sku.brand_id and sku.brand
+    }
+
+    if not brands:
+        raise ValueError(
+            "Snapdeal export failed: No brand found for the selected SKU(s)."
+        )
+
+    # One Snapdeal template should contain only one brand
+    if len(brands) > 1:
+        brand_names = ", ".join(
+            sorted(brand.name for brand in brands.values())
+        )
+        raise ValueError(
+            f"Snapdeal export failed: Multiple brands found: {brand_names}. "
+            "Please export one brand at a time."
+        )
+
+    brand = next(iter(brands.values()))
+
+    if not brand.snapdeal_brand_id:
+        raise ValueError(
+            f"Snapdeal Brand ID is missing for brand '{brand.name}'."
+        )
+
+    mandatory_ws["B3"] = str(brand.snapdeal_brand_id).strip()
+    mandatory_ws["B4"] = str(brand.name).strip()
 
     # Remove merged cells from data area
     for merged in list(ws.merged_cells.ranges):
