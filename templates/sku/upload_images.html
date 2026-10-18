@@ -1,0 +1,122 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container mt-4">
+  <h3>Product Images</h3>
+
+  <p>
+    SKU:
+    <strong>{{ sku.sku }}</strong>
+  </p>
+
+  <!-- =========================
+         EXISTING IMAGES
+    ========================== -->
+
+  <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px">
+    {% for image in images %}
+
+    <div>
+      <img
+        src="{{ image.url }}"
+        style="
+          width: 160px;
+          height: 210px;
+          object-fit: cover;
+          border-radius: 8px;
+        "
+      />
+    </div>
+
+    {% empty %}
+
+    <p>No images uploaded yet.</p>
+
+    {% endfor %}
+  </div>
+
+  <!-- =========================
+         IMAGE UPLOAD
+    ========================== -->
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label class="form-label"> Select Product Images </label>
+
+      <input
+        type="file"
+        name="images"
+        id="images"
+        accept=".jpg,.jpeg,.png,.webp"
+        multiple
+        class="form-control"
+      />
+
+      <small class="text-muted"> Maximum {{ max_images }} images. </small>
+    </div>
+
+    <!-- Image previews -->
+
+    <div
+      id="preview-container"
+      style="display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0"
+    ></div>
+
+    <button type="submit" class="btn btn-primary">Upload Images</button>
+  </form>
+
+  {% if images %}
+
+  <hr />
+
+  <button type="button" class="btn btn-success" id="aiExtractBtn">
+    ✨ Extract Details With AI
+  </button>
+
+  {% endif %}
+</div>
+
+<script>
+  const imageInput = document.getElementById("images");
+
+  const previewContainer = document.getElementById("preview-container");
+
+  imageInput.addEventListener("change", function () {
+    previewContainer.innerHTML = "";
+
+    const files = Array.from(this.files);
+
+    if (files.length > 5) {
+      alert("Maximum 5 images allowed.");
+
+      this.value = "";
+
+      return;
+    }
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        const img = document.createElement("img");
+
+        img.src = event.target.result;
+
+        img.style.width = "160px";
+
+        img.style.height = "210px";
+
+        img.style.objectFit = "cover";
+
+        img.style.borderRadius = "8px";
+
+        previewContainer.appendChild(img);
+      };
+
+      reader.readAsDataURL(file);
+    });
+  });
+</script>
+
+{% endblock %}

@@ -382,47 +382,96 @@
 
                 <!-- Actions -->
                 <div class="col-12 col-md-4">
+                    <div class="d-flex flex-wrap justify-content-md-end align-items-center gap-2">
 
-                    <div class="d-flex flex-wrap justify-content-md-end gap-2">
-
-                        <a
-                            href="{% url 'add_sku' %}"
-                            class="btn btn-primary">
+                        <!-- Add SKU -->
+                        <a href="{% url 'add_sku' %}"
+                        class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                            <i class="bi bi-plus-circle me-2"></i>
                             Add SKU
                         </a>
 
-                        <a
-                            href="?search={{ search_query }}&export=meesho"
-                            class="btn btn-warning">
-                            Meesho
-                        </a>
+                        <!-- Marketplace Export Dropdown -->
+                        <div class="dropdown">
 
-                        <a
-                            href="?search={{ search_query }}&export=flipkart"
-                            class="btn btn-success">
-                            FK
-                        </a>
+                            <button
+                                class="btn btn-success dropdown-toggle rounded-pill px-4 py-2 shadow-sm"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
 
-                        <a
-                            href="?search={{ search_query }}&export=snapdeal"
-                            class="btn btn-secondary">
-                            SD
-                        </a>
+                                <i class="bi bi-cloud-arrow-down me-2"></i>
+                                Export Marketplace
+                            </button>
 
-                        <a
-                            href="?search={{ search_query }}&export=myntra"
-                            class="btn btn-danger">
-                            Myntra
-                        </a>
-                        <a
-                            href="?search={{ search_query }}&export=mysmme"
-                            class="btn btn-mysmme">
-                            MYSMME
-                        </a>
-                        
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2">
+
+                                <li>
+                                    <h6 class="dropdown-header text-uppercase fw-bold">
+                                        Select Marketplace
+                                    </h6>
+                                </li>
+
+                                <!-- Meesho -->
+                                <li>
+                                    <a class="dropdown-item rounded-3 py-2 text-primary fw-semibold"
+                                    href="?search={{ search_query|urlencode }}&export=meesho">
+                                        <i class="bi bi-bag-heart-fill me-2"></i>
+                                        Meesho
+                                    </a>
+                                </li>
+
+                                <!-- Flipkart -->
+                                <li>
+                                    <a class="dropdown-item rounded-3 py-2 text-warning fw-semibold"
+                                    href="?search={{ search_query|urlencode }}&export=flipkart">
+                                        <i class="bi bi-cart-fill me-2"></i>
+                                        Flipkart
+                                    </a>
+                                </li>
+
+                                <!-- Snapdeal -->
+                                <li>
+                                    <a class="dropdown-item rounded-3 py-2 text-danger fw-semibold"
+                                    href="?search={{ search_query|urlencode }}&export=snapdeal">
+                                        <i class="bi bi-box-seam-fill me-2"></i>
+                                        Snapdeal
+                                    </a>
+                                </li>
+
+                                <!-- Myntra -->
+                                <li>
+                                    <a class="dropdown-item rounded-3 py-2 text-info fw-semibold"
+                                    href="?search={{ search_query|urlencode }}&export=myntra">
+                                        <i class="bi bi-stars me-2"></i>
+                                        Myntra
+                                    </a>
+                                </li>
+                                       <!-- Nykaa -->
+                                <li>
+                                    <a class="dropdown-item rounded-3 py-2 text-danger fw-semibold"
+                                    href="?search={{ search_query|urlencode }}&export=nykaa">
+                                        <i class="bi bi-bag-heart-fill me-2"></i>
+                                        Nykaa
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <!-- MYSMME -->
+                                <li>
+                                    <a class="dropdown-item rounded-3 py-2 bg-success text-white fw-semibold"
+                                    href="?search={{ search_query|urlencode }}&export=mysmme">
+                                        <i class="bi bi-shop me-2"></i>
+                                        MYSMME
+                                    </a>
+                                </li>
+                                 <!-- MYSMME -->
+                                
+                            </ul>
+                        </div>
 
                     </div>
-
                 </div>
 
             </div>
