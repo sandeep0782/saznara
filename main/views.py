@@ -1,5 +1,6 @@
 import os
 import re
+import uuid
 from copy import copy
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -12,6 +13,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db import transaction
 from django.db.models import Q
@@ -31,6 +33,7 @@ from main.marketplaces.myntra.validator import (
     validate_myntra_template,
 )
 from main.marketplaces.mysmme.validator import validate_mysmme_template
+from main.marketplaces.nykaa.validator import validate_nykaa_template
 from main.marketplaces.snapdeal.validator import validate_snapdeal_template
 from main.models import SKU, Article_Type, Brand, Color, Gender, Size, Unit
 from main.services.marketplace_mapping import get_marketplace_value
@@ -539,6 +542,9 @@ def View__SKU(request):
 
     if export == "mysmme":
         return Mysmme_Template(request, sku_list)
+
+    if export == "nykaa":
+        return Nykaa_Template(request, sku_list)
 
     # PAGINATION
     paginator = Paginator(sku_list, 10)
@@ -1828,11 +1834,7 @@ def Snapdeal_Template(request, sku_list):
     # MandatorySheet!B4 = Brand Name
     # ---------------------------------------------------------
 
-    brands = {
-        sku.brand_id: sku.brand
-        for sku in sku_list
-        if sku.brand_id and sku.brand
-    }
+    brands = {sku.brand_id: sku.brand for sku in sku_list if sku.brand_id and sku.brand}
 
     if not brands:
         raise ValueError(
@@ -1841,9 +1843,7 @@ def Snapdeal_Template(request, sku_list):
 
     # One Snapdeal template should contain only one brand
     if len(brands) > 1:
-        brand_names = ", ".join(
-            sorted(brand.name for brand in brands.values())
-        )
+        brand_names = ", ".join(sorted(brand.name for brand in brands.values()))
         raise ValueError(
             f"Snapdeal export failed: Multiple brands found: {brand_names}. "
             "Please export one brand at a time."
@@ -1852,9 +1852,7 @@ def Snapdeal_Template(request, sku_list):
     brand = next(iter(brands.values()))
 
     if not brand.snapdeal_brand_id:
-        raise ValueError(
-            f"Snapdeal Brand ID is missing for brand '{brand.name}'."
-        )
+        raise ValueError(f"Snapdeal Brand ID is missing for brand '{brand.name}'.")
 
     mandatory_ws["B3"] = str(brand.snapdeal_brand_id).strip()
     mandatory_ws["B4"] = str(brand.name).strip()
@@ -2760,3 +2758,390 @@ def Mysmme_Template(request, sku_list):
     wb.save(response)
 
     return response
+
+
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def Nykaa_Template(request, sku_list):
+
+    # -----------------------------------
+    # 1. Validate SKU data
+    # -----------------------------------
+
+    validation_errors = validate_nykaa_template(sku_list)
+
+    if validation_errors:
+        return render(
+            request,
+            "validation/nykaa_error.html",
+            {
+                "validation_errors": validation_errors,
+            },
+        )
+
+    # -----------------------------------
+    # 2. Nykaa XLSM template path
+    # -----------------------------------
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        "main",
+        "marketplaces",
+        "nykaa",
+        "sarees__generated.xlsm",
+    )
+
+    if not os.path.isfile(template_path):
+        return HttpResponse(
+            f"Nykaa template not found: {template_path}",
+            status=404,
+        )
+
+    # -----------------------------------
+    # 3. Open XLSM workbook
+    # -----------------------------------
+
+    try:
+        wb = load_workbook(
+            template_path,
+            keep_vba=True,
+        )
+
+    except Exception as exc:
+        return HttpResponse(
+            f"Unable to open Nykaa XLSM template: {exc}",
+            status=400,
+        )
+
+    # -----------------------------------
+    # 4. Select worksheet
+    # -----------------------------------
+
+    sheet_name = "Sarees"
+
+    if sheet_name not in wb.sheetnames:
+        return HttpResponse(
+            f"Worksheet not found: {sheet_name}. Available worksheets: {wb.sheetnames}",
+            status=400,
+        )
+
+    ws = wb[sheet_name]
+
+    start_row = 4
+
+    for row_number, sku in enumerate(
+        sku_list,
+        start=start_row,
+    ):
+        color = get_marketplace_value(
+            "NYKAA",
+            "COLOR",
+            sku.color.color if sku.color else None,
+        )
+
+        blouse = get_marketplace_value(
+            "NYKAA",
+            "BLOUSE",
+            sku.get_blouse_display() if sku.blouse else None,
+        )
+
+        border = get_marketplace_value(
+            "NYKAA",
+            "BORDER",
+            sku.get_border_display() if sku.border else None,
+        )
+
+        saree_fabric = get_marketplace_value(
+            "NYKAA",
+            "SAREE_FABRIC",
+            sku.get_saree_fabric_display() if sku.saree_fabric else None,
+        )
+
+        blouse_fabric = get_marketplace_value(
+            "NYKAA",
+            "BLOUSE_FABRIC",
+            sku.get_blouse_fabric_display() if sku.blouse_fabric else None,
+        )
+
+        occasion = get_marketplace_value(
+            "NYKAA",
+            "OCCASION",
+            sku.get_occasion_display() if sku.occasion else None,
+        )
+
+        ornamentation = get_marketplace_value(
+            "NYKAA",
+            "ORNAMENTATION",
+            sku.get_ornamentation_display() if sku.ornamentation else None,
+        )
+
+        pattern = get_marketplace_value(
+            "NYKAA",
+            "PATTERN",
+            sku.get_pattern_display() if sku.pattern else None,
+        )
+
+        blouse_pattern = get_marketplace_value(
+            "NYKAA",
+            "BLOUSE_PATTERN",
+            sku.get_blouse_pattern_display() if sku.blouse_pattern else None,
+        )
+
+        print_pattern_type = get_marketplace_value(
+            "NYKAA",
+            "PRINT_OR_PATTERN_TYPE",
+            sku.get_print_or_pattern_type_display()
+            if sku.print_or_pattern_type
+            else None,
+        )
+
+        technique = get_marketplace_value(
+            "NYKAA",
+            "TECHNIQUE",
+            sku.get_type_display() if sku.type else None,
+        )
+
+        border_width = get_marketplace_value(
+            "NYKAA",
+            "BORDER_WIDTH",
+            sku.get_border_width_display() if sku.border_width else None,
+        )
+
+        pallu_details = get_marketplace_value(
+            "NYKAA",
+            "PALLU_DETAILS",
+            sku.get_pallu_details_display() if sku.pallu_details else None,
+        )
+
+        # -----------------------------------
+        # 7. Product image URLs
+        # -----------------------------------
+
+        image_urls = sku.image_urls or []
+
+        image_1 = image_urls[0] if len(image_urls) > 0 else ""
+        image_2 = image_urls[1] if len(image_urls) > 1 else ""
+        image_3 = image_urls[2] if len(image_urls) > 2 else ""
+        image_4 = image_urls[3] if len(image_urls) > 3 else ""
+        image_5 = image_urls[4] if len(image_urls) > 4 else ""
+        image_6 = image_urls[4] if len(image_urls) > 5 else ""
+
+        # -----------------------------------
+        # 8. Vendor information
+        # -----------------------------------
+
+        vendor_company = sku.vendor.company if sku.vendor else ""
+
+        vendor_address = sku.vendor.address if sku.vendor else ""
+
+        vendor_pin = (
+            str(sku.vendor.pin) if sku.vendor and sku.vendor.pin is not None else ""
+        )
+
+        # -----------------------------------
+        # 9. SKU row data
+        # -----------------------------------
+        # Preserving your original 55-column
+        # values list and column order.
+
+        values = [
+            sku.sku or "",
+            "Women",
+            "Nyri",
+            sku.sku or "",
+            sku.style_description or "",
+            sku.style_description or "",
+            sku.mrp or "",
+            color,
+            "India",
+            vendor_company,
+            vendor_address,
+            "Free Size",
+            "",
+            "Single",
+            "",
+            sku.occasion or "",
+            "Spring/Summer 2027",
+            "Dry Clean Only",
+            "2",
+            "5407",
+            "1 Saree and 1 Blouse",
+            "1N",
+            sku.saree_fabric or "",
+            "",
+            sku.type or "",
+            "",
+            sku.pattern or "",
+            "",
+            "",
+            "",
+            sku.blouse or "",
+            sku.blouse or "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            image_1,
+            image_2,
+            image_3,
+            image_4,
+            image_5,
+            image_6,
+        ]
+
+        # -----------------------------------
+        # 10. Write values to XLSM worksheet
+        # -----------------------------------
+
+        for col_number, value in enumerate(
+            values,
+            start=1,
+        ):
+            ws.cell(
+                row=row_number,
+                column=col_number,
+                value=value if value is not None else "",
+            )
+
+    # -----------------------------------
+    # 11. Prepare XLSM download
+    # -----------------------------------
+
+    date_str = datetime.now().strftime("%Y-%m-%d")
+
+    filename = f"Nykaa-Sku-Template-{date_str}.xlsm"
+
+    response = HttpResponse(
+        content_type=("application/vnd.ms-excel.sheet.macroEnabled.12")
+    )
+
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    # -----------------------------------
+    # 12. Save workbook directly to response
+    # -----------------------------------
+
+    wb.save(response)
+
+    wb.close()
+
+    return response
+
+
+MAX_IMAGES = 5
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+ALLOWED_EXTENSIONS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".webp",
+}
+
+
+def upload_sku_images(request, id):
+
+    sku = get_object_or_404(SKU, id=id)
+
+    if request.method == "POST":
+        # Get all selected files
+        uploaded_images = request.FILES.getlist("images")
+
+        if not uploaded_images:
+            messages.error(request, "Please select at least one image.")
+            return redirect("upload_sku_images", id=sku.id)
+
+        # Existing images
+        existing_images = sku.image_urls or []
+
+        # Check total image count
+        if len(existing_images) + len(uploaded_images) > MAX_IMAGES:
+            messages.error(request, f"You can upload maximum {MAX_IMAGES} images.")
+
+            return redirect("upload_sku_images", id=sku.id)
+
+        saved_images = list(existing_images)
+
+        for image in uploaded_images:
+            # ==========================
+            # Validate file extension
+            # ==========================
+            extension = os.path.splitext(image.name)[1].lower()
+
+            if extension not in ALLOWED_EXTENSIONS:
+                messages.error(request, f"{image.name} is not a supported image.")
+
+                continue
+
+            # ==========================
+            # Validate file size
+            # ==========================
+            if image.size > MAX_FILE_SIZE:
+                messages.error(request, f"{image.name} is larger than 5 MB.")
+
+                continue
+
+            # ==========================
+            # Generate unique filename
+            # ==========================
+            filename = f"{uuid.uuid4().hex}{extension}"
+
+            # S3 object key
+            file_path = f"sku_images/{sku.id}/{filename}"
+
+            # ==========================
+            # Upload to S3
+            # ==========================
+            saved_path = default_storage.save(file_path, image)
+
+            # IMPORTANT:
+            # Store S3 key instead of temporary URL
+            saved_images.append(saved_path)
+
+        # ==========================
+        # Save keys in SKU
+        # ==========================
+        sku.image_urls = saved_images
+        sku.save(update_fields=["image_urls"])
+
+        messages.success(
+            request, f"{len(uploaded_images)} image(s) processed successfully."
+        )
+
+        return redirect("upload_sku_images", id=sku.id)
+
+    # Generate URLs for displaying existing images.
+    # For private S3 these will normally be temporary signed URLs.
+    images = []
+
+    for image_key in sku.image_urls or []:
+        try:
+            image_url = default_storage.url(image_key)
+
+            images.append(
+                {
+                    "key": image_key,
+                    "url": image_url,
+                }
+            )
+
+        except Exception:
+            pass
+
+    context = {
+        "sku": sku,
+        "images": images,
+        "max_images": MAX_IMAGES,
+    }
+
+    return render(request, "bag/sku/upload_images.html", context)
