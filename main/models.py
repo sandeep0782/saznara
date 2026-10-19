@@ -766,9 +766,10 @@ class SKU(models.Model):
             # Write barcode to buffer with options
             code128.write(buffer, options)
 
-            # If a barcode image exists, delete it before saving a new one
-            if self.barcode_image and os.path.isfile(self.barcode_image.path):
-                os.remove(self.barcode_image.path)
+
+            # Save the new barcode image
+            buffer.seek(0)
+            self.barcode_image.save(f"{self.ean}.png", File(buffer), save=False)
 
 
 class VMS(models.Model):
