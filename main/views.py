@@ -881,6 +881,9 @@ def Copy__SKU(request, pid=None):
         new_sku.pk = None
         new_sku.id = None
 
+        # Do not reuse the original SKU's barcode
+        new_sku.barcode_image = None
+
         # Set new style number
         new_sku.style_no = new_style_no
 

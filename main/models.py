@@ -770,10 +770,6 @@ class SKU(models.Model):
             if self.barcode_image and os.path.isfile(self.barcode_image.path):
                 os.remove(self.barcode_image.path)
 
-            # Save the new barcode image
-            buffer.seek(0)
-            self.barcode_image.save(f"{self.ean}.png", File(buffer), save=False)
-
 
 class VMS(models.Model):
     VIDEO_TYPE_CHOICES = (
@@ -821,6 +817,7 @@ class MarketplaceMapping(models.Model):
         ("MYNTRA", "Myntra"),
         ("SNAPDEAL", "Snapdeal"),
         ("MYSMME", "Mysmme"),
+        ("NYKAA", "Nykaa"),
     )
 
     ATTRIBUTE_CHOICES = (
