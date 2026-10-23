@@ -2974,7 +2974,7 @@ def Nykaa_Template(request, sku_list):
             "1N",
             saree_fabric,
             "",
-            sku.type or "",
+            print_pattern_type,
             "",
             sku.pattern or "",
             "",
