@@ -2674,8 +2674,8 @@ def Mysmme_Template(request, sku_list):
             "",
             "Womens",
             "",
-            sku.mrp or "",
-            sku.mrp or "",
+            sku.sale_price or "",
+            sku.sale_price or "",
             sku.mrp or "",
             "5",
             "5407",
@@ -2956,7 +2956,7 @@ def Nykaa_Template(request, sku_list):
             sku.sku or "",
             sku.style_description or "",
             sku.style_description or "",
-            sku.mrp or "",
+            float(sku.sale_price or 0),
             color,
             "India",
             vendor_company,
@@ -3000,6 +3000,16 @@ def Nykaa_Template(request, sku_list):
             image_4,
             image_5,
             image_6,
+            "",
+            "",
+            "",
+            "",
+            round(
+                float(sku.mrp or 0) * 0.72,
+            ),
+            round(
+                float(sku.mrp or 0),
+            ),
         ]
 
         # -----------------------------------
