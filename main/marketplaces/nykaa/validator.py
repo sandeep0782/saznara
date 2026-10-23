@@ -2,6 +2,7 @@ from main.marketplaces.nykaa.blouse import NYKAA_ALLOWED_BLOUSE
 from main.marketplaces.nykaa.color import NYKAA_ALLOWED_COLORS
 from main.marketplaces.nykaa.occasion import NYKAA_ALLOWED_OCCASION
 from main.marketplaces.nykaa.pattern import NYKAA_ALLOWED_PATTERN
+from main.marketplaces.nykaa.print_pattern import NYKAA_ALLOWED_PRINT_OR_PATTERN_TYPE
 from main.marketplaces.nykaa.saree_fabric import NYKAA_ALLOWED_SAREE_FABRIC
 from main.marketplaces.nykaa.technique import NYKAA_ALLOWED_TECHNIQUE
 from main.marketplaces.validator import validate_marketplace_mapping
@@ -17,6 +18,16 @@ def validate_nykaa_template(sku_list):
             "COLOR",
             lambda sku: sku.color.color if sku.color else None,
             NYKAA_ALLOWED_COLORS,
+        ),
+        (
+            "Print or Pattern Type",
+            "PRINT_OR_PATTERN_TYPE",
+            lambda sku: (
+                sku.get_print_or_pattern_type_display()
+                if sku.print_or_pattern_type
+                else None
+            ),
+            NYKAA_ALLOWED_PRINT_OR_PATTERN_TYPE,
         ),
         (
             "Blouse Color",
@@ -42,12 +53,17 @@ def validate_nykaa_template(sku_list):
             lambda sku: sku.get_pattern_display() if sku.pattern else None,
             NYKAA_ALLOWED_PATTERN,
         ),
-        
         (
             "Occasion",
             "OCCASION",
             lambda sku: sku.get_occasion_display() if sku.occasion else None,
             NYKAA_ALLOWED_OCCASION,
+        ),
+        (
+            "Type",
+            "TECHNIQUE",
+            lambda sku: sku.get_type_display() if sku.type else None,
+            NYKAA_ALLOWED_TECHNIQUE,
         ),
         (
             "Type",
