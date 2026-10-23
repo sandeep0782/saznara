@@ -2980,7 +2980,7 @@ def Nykaa_Template(request, sku_list):
             "",
             "",
             "",
-            sku.blouse or "",
+            blouse or "",
             sku.blouse or "",
             "",
             "",

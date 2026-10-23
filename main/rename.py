@@ -1,7 +1,7 @@
 from PIL import Image, ImageOps
 import os
 
-root_path = r"/Users/krishna/Downloads/Pending"
+root_path = r"/Users/krishna/Downloads/Azure Bloom"
 
 image_exts = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"}
 
